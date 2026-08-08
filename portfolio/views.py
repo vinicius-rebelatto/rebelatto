@@ -53,8 +53,8 @@ SITE = {
     "hero_titulo_destaque": "Software",
     "hero_titulo_resto": " que escala com o seu negócio.",
     "hero_texto": (
-        "Da ideia ao deploy: produtos digitais com performance, "
-        "usabilidade e arquitetura pensada para o próximo nível do seu negócio."
+        "Transformando requisitos complexos em produtos digitais "
+        "rápidos, seguros e focados na experiência do usuário."
     ),
     "sobre": (
         "Sou Vinícius Rebelatto, desenvolvedor focado em transformar ideias "
