@@ -57,10 +57,9 @@ SITE = {
         "rápidos, seguros e focados na experiência do usuário."
     ),
     "sobre": (
-        "Sou Vinícius Rebelatto, desenvolvedor focado em transformar ideias "
-        "em produtos digitais claros e eficientes. Pela Rebel Tech, entrego "
-        "experiências web com atenção a performance, usabilidade e código "
-        "que escala com o negócio."
+        "Construo produtos digitais sólidos e eficientes. Através da Rebel Tech, "
+        "entrego soluções completas com foco em performance, usabilidade e uma "
+        "arquitetura técnica pronta para acompanhar o crescimento do seu negócio."
     ),
     "whatsapp": "5547997867428",
     "whatsapp_display": "(47) 99786-7428",
