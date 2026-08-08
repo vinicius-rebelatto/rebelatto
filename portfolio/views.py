@@ -67,7 +67,7 @@ SITE = {
     "linkedin": "https://www.linkedin.com/in/vinicius-rebelatto-07001a232/",
     "github": "https://github.com/vinicius-rebelatto",
     "instagram": "https://www.instagram.com/rebelattovinicius/",
-    "email": "contato@rebeltech.dev",
+    "email": "vinicius-rebelatto@hotmail.com",
 }
 
 
