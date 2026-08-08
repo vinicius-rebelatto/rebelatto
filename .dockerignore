@@ -1,0 +1,13 @@
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.git/
+.gitignore
+.env
+setup/secrets.py
+db.sqlite3
+media/
+staticfiles/
+*.md
+.cursor/
