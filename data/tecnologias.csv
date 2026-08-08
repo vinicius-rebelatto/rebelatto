@@ -1,0 +1,12 @@
+name,slug,color,color_dark,icon
+JavaScript,javascript,F7DF1E,F7DF1E,
+React,react,61DAFB,61DAFB,
+Node.js,nodedotjs,5FA04E,5FA04E,
+Django,django,092E20,44B78B,
+PostgreSQL,postgresql,4169E1,4169E1,
+Docker,docker,2496ED,2496ED,
+Flutter,flutter,02569B,02569B,
+Firebase,firebase,FFCA28,FFCA28,
+Spring,spring,6DB33F,6DB33F,
+Next.js,nextdotjs,000000,FFFFFF,
+FlutterFlow,flutterflow,4B39EF,4B39EF,img/tech/flutterflow.png

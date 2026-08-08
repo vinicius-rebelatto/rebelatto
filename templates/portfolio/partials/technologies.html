@@ -1,0 +1,54 @@
+{% load static %}
+<section class="section skills" id="skills" aria-labelledby="skills-title">
+  <div class="container">
+    <div class="section-head section-head--center reveal">
+      <p class="section-kicker">Minhas Skills</p>
+      <h2 id="skills-title">Tecnologias que domino</h2>
+      <p class="section-support">Ferramentas e plataformas que uso para construir produtos digitais sólidos.</p>
+    </div>
+
+    <ul class="skills-grid">
+      {% for skill in skills %}
+        <li class="skill-item reveal">
+          <div class="skill-meta">
+            <span class="skill-identity">
+              {% if skill.icon_local %}
+                <img
+                  class="skill-icon"
+                  src="{% static skill.icon_local %}"
+                  alt=""
+                  width="22"
+                  height="22"
+                  loading="lazy"
+                >
+              {% else %}
+                <img
+                  class="skill-icon skill-icon--light"
+                  src="{{ skill.icon_light }}"
+                  alt=""
+                  width="22"
+                  height="22"
+                  loading="lazy"
+                >
+                <img
+                  class="skill-icon skill-icon--dark"
+                  src="{{ skill.icon_dark }}"
+                  alt=""
+                  width="22"
+                  height="22"
+                  loading="lazy"
+                  aria-hidden="true"
+                >
+              {% endif %}
+              <span class="skill-name">{{ skill.name }}</span>
+            </span>
+            <span class="skill-level">{{ skill.level }}%</span>
+          </div>
+          <div class="skill-track" aria-hidden="true">
+            <span class="skill-fill" style="--skill-level: {{ skill.level }}%"></span>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>

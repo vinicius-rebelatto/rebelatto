@@ -1,0 +1,109 @@
+<section class="section contact" id="contato" aria-labelledby="contato-title">
+  <div class="container">
+    <div class="section-head section-head--center reveal">
+      <p class="section-kicker">Contato</p>
+      <h2 id="contato-title">Solicite seu orçamento</h2>
+      <p class="section-support">
+        Preencha o formulário ou fale pelos canais abaixo. Retorno rápido e sem compromisso.
+      </p>
+    </div>
+
+    <div class="contact-layout reveal">
+      <aside class="contact-channels" aria-label="Canais de contato">
+        <a class="contact-card" href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer">
+          <span class="contact-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.05 4.91A9.82 9.82 0 0 0 12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01Zm-7.01 15.24c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.23 8.23 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c.02 4.54-3.68 8.23-8.22 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.42h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07s.89 2.4 1.01 2.56c.12.17 1.75 2.67 4.23 3.74 1.48.64 2.07.7 2.81.59.43-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.17-.48-.29Z"/></svg>
+          </span>
+          <span>
+            <strong>WhatsApp</strong>
+            <span class="contact-card-detail">{{ site.whatsapp_display }}</span>
+          </span>
+        </a>
+
+        <a class="contact-card" href="mailto:{{ site.email }}">
+          <span class="contact-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
+          </span>
+          <span>
+            <strong>E-mail</strong>
+            <span class="contact-card-detail">{{ site.email }}</span>
+          </span>
+        </a>
+
+        <a class="contact-card" href="{{ site.linkedin }}" target="_blank" rel="noopener noreferrer">
+          <span class="contact-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 8.5H3.56V20h3.38V8.5ZM5.25 7.1a1.96 1.96 0 1 0 0-3.92 1.96 1.96 0 0 0 0 3.92ZM20.44 20h-3.37v-5.6c0-1.34-.02-3.05-1.86-3.05-1.86 0-2.15 1.45-2.15 2.95V20H9.69V8.5h3.23v1.57h.05c.45-.85 1.55-1.75 3.19-1.75 3.41 0 4.04 2.24 4.04 5.16V20Z"/></svg>
+          </span>
+          <span>
+            <strong>LinkedIn</strong>
+            <span class="contact-card-detail">Vamos nos conectar</span>
+          </span>
+        </a>
+      </aside>
+
+      <form
+        class="contact-form"
+        id="contact-form"
+        method="post"
+        action="{% url 'portfolio:create_lead' %}"
+        novalidate
+      >
+        {% csrf_token %}
+        <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <div class="contact-form-head">
+          <h3 class="contact-form-title">Enviar mensagem</h3>
+          <p class="contact-form-lead">Conte o essencial — isso vira um lead automaticamente.</p>
+        </div>
+
+        <div class="contact-fields">
+          <label>
+            <span class="contact-label">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5a6.5 6.5 0 0 1 13 0"/></svg>
+              Nome*
+            </span>
+            <input type="text" name="nome" required autocomplete="name" placeholder="Seu nome completo">
+            <span class="field-error" data-error-for="nome"></span>
+          </label>
+
+          <label>
+            <span class="contact-label">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
+              E-mail*
+            </span>
+            <input type="email" name="email" required autocomplete="email" placeholder="seu@email.com">
+            <span class="field-error" data-error-for="email"></span>
+          </label>
+
+          <label>
+            <span class="contact-label">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v2a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h2a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L7.1 9.5a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6A2 2 0 0 1 22 16.9Z"/></svg>
+              Telefone
+            </span>
+            <input type="tel" name="telefone" autocomplete="tel" placeholder="(47) 99999-9999">
+            <span class="field-error" data-error-for="telefone"></span>
+          </label>
+
+          <label class="contact-field-message">
+            <span class="contact-label">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Mensagem*
+            </span>
+            <textarea name="mensagem" rows="3" required placeholder="O que você precisa?"></textarea>
+            <span class="field-error" data-error-for="mensagem"></span>
+          </label>
+        </div>
+
+        <p class="form-status" id="contact-status" role="status" aria-live="polite"></p>
+
+        <div class="contact-actions">
+          <button class="btn btn-primary" type="submit">Enviar solicitação</button>
+          <a class="btn btn-outline" href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer">
+            Iniciar conversa no WhatsApp
+          </a>
+        </div>
+        <p class="contact-form-note">Sem spam. Resposta direta sobre o seu projeto.</p>
+      </form>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,78 @@
+{% load static %}
+<section class="section projects" id="trabalhos" aria-labelledby="trabalhos-title">
+  <div class="container">
+    <div class="project-section-head reveal">
+      <div class="section-head">
+        <p class="section-kicker">Entregas</p>
+        <h2 id="trabalhos-title">Trabalhos recentes</h2>
+        <p class="section-support">Produtos digitais no ar — com foco no resultado para o negócio e para as pessoas que usam.</p>
+      </div>
+
+      {% if projects %}
+        <div class="project-carousel-controls" data-carousel-controls>
+          <button class="project-carousel-btn" type="button" data-carousel-prev aria-label="Projetos anteriores">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 6l-6 6 6 6"/>
+            </svg>
+          </button>
+          <button class="project-carousel-btn" type="button" data-carousel-next aria-label="Próximos projetos">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 6l6 6-6 6"/>
+            </svg>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if projects %}
+      <div class="project-carousel reveal" data-project-carousel>
+        <div class="project-carousel-viewport" data-carousel-viewport tabindex="0" aria-label="Lista de projetos">
+          <div class="project-carousel-track" data-carousel-track>
+            {% for project in projects %}
+              <article class="project-card">
+                <div class="project-media">
+                  {% if project.capa %}
+                    <img
+                      class="project-cover"
+                      src="{{ project.capa.url }}"
+                      alt="Capa do projeto {{ project.titulo }}"
+                      loading="lazy"
+                    >
+                  {% else %}
+                    <div class="project-cover project-cover--placeholder" aria-hidden="true"></div>
+                  {% endif %}
+                </div>
+                <div class="project-body">
+                  <h3>{{ project.titulo }}</h3>
+                  {% if project.resumo %}<p>{{ project.resumo }}</p>{% endif %}
+                  {% if project.stack_list %}
+                    <ul class="project-stack">
+                      {% for item in project.stack_list %}
+                        <li>{{ item }}</li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                  {% if project.url %}
+                    <a class="project-link" href="{{ project.url }}" target="_blank" rel="noopener noreferrer">
+                      Ver projeto
+                      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M13 6l6 6-6 6"/>
+                      </svg>
+                    </a>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="project-carousel-footer">
+          <div class="project-carousel-dots" data-carousel-dots role="tablist" aria-label="Páginas de projetos"></div>
+          <p class="project-carousel-status" data-carousel-status aria-live="polite"></p>
+        </div>
+      </div>
+    {% else %}
+      <p class="empty-state reveal">Em breve novos cases por aqui. Enquanto isso, vamos conversar sobre o seu projeto.</p>
+    {% endif %}
+  </div>
+</section>
