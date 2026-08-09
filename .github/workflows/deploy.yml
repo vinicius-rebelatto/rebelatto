@@ -12,78 +12,16 @@ concurrency:
 jobs:
   deploy:
     name: Deploy to rebelatto.tech
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, rebelatto]
     timeout-minutes: 25
 
     steps:
-      - name: Deploy over SSH (attempt 1)
-        id: deploy1
-        continue-on-error: true
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          timeout: 60s
-          command_timeout: 15m
-          script: |
-            set -euo pipefail
-            APP_DIR="/root/opt/rebelatto"
-            cd "$APP_DIR"
-            git fetch origin main
-            git reset --hard origin/main
-            docker compose up -d --build
-            docker compose ps
-
-      - name: Wait before retry
-        if: steps.deploy1.outcome == 'failure'
-        run: sleep 20
-
-      - name: Deploy over SSH (attempt 2)
-        id: deploy2
-        if: steps.deploy1.outcome == 'failure'
-        continue-on-error: true
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          timeout: 60s
-          command_timeout: 15m
-          script: |
-            set -euo pipefail
-            APP_DIR="/root/opt/rebelatto"
-            cd "$APP_DIR"
-            git fetch origin main
-            git reset --hard origin/main
-            docker compose up -d --build
-            docker compose ps
-
-      - name: Wait before final retry
-        if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure'
-        run: sleep 30
-
-      - name: Deploy over SSH (attempt 3)
-        id: deploy3
-        if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure'
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          timeout: 90s
-          command_timeout: 15m
-          script: |
-            set -euo pipefail
-            APP_DIR="/root/opt/rebelatto"
-            cd "$APP_DIR"
-            git fetch origin main
-            git reset --hard origin/main
-            docker compose up -d --build
-            docker compose ps
-
-      - name: Fail if all SSH attempts failed
-        if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure' && steps.deploy3.outcome == 'failure'
+      - name: Pull and rebuild
         run: |
-          echo "SSH deploy failed after 3 attempts (dial timeout / network)."
-          exit 1
+          set -euo pipefail
+          APP_DIR="/opt/rebelatto"
+          cd "$APP_DIR"
+          git fetch origin main
+          git reset --hard origin/main
+          docker compose up -d --build
+          docker compose ps
