@@ -949,8 +949,8 @@ html[data-theme="dark"] .skill-icon--dark {
 .project-carousel-viewport {
   overflow: hidden;
   width: 100%;
+  max-width: 100%;
   outline: none;
-  container-type: inline-size;
   padding-block: 0.85rem 0.35rem;
   margin-block: -0.85rem -0.15rem;
 }
@@ -960,13 +960,17 @@ html[data-theme="dark"] .skill-icon--dark {
   gap: var(--project-gap);
   transition: transform 0.55s var(--ease);
   will-change: transform;
+  width: max-content;
+  max-width: none;
 }
 
 .project-card {
   position: relative;
-  flex: 0 0 calc((100cqi - (var(--project-per-page) - 1) * var(--project-gap)) / var(--project-per-page));
-  width: calc((100cqi - (var(--project-per-page) - 1) * var(--project-gap)) / var(--project-per-page));
-  max-width: none;
+  flex: 0 0 auto;
+  width: min(100%, 320px);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   background: var(--project-card-bg);
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -1556,6 +1560,11 @@ body.nav-open {
 
   .project-carousel {
     --project-per-page: 1;
+    --project-gap: 0.75rem;
+  }
+
+  .project-card {
+    width: 100%;
   }
 
   .project-carousel-footer {

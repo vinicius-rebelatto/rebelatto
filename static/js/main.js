@@ -159,6 +159,25 @@
       return Number.isFinite(value) && value > 0 ? value : 1;
     }
 
+    function gapSize() {
+      const raw = getComputedStyle(track).columnGap || getComputedStyle(track).gap || "0";
+      const value = Number.parseFloat(raw);
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function layoutCards() {
+      const n = perPage();
+      const gap = gapSize();
+      const viewportWidth = viewport.clientWidth;
+      const cardWidth = Math.max(0, (viewportWidth - gap * Math.max(0, n - 1)) / n);
+
+      cards.forEach((card) => {
+        card.style.flex = `0 0 ${cardWidth}px`;
+        card.style.width = `${cardWidth}px`;
+        card.style.maxWidth = `${cardWidth}px`;
+      });
+    }
+
     function updatePageCount() {
       pageCount = Math.max(1, Math.ceil(cards.length / perPage()));
       page = Math.min(page, pageCount - 1);
@@ -194,16 +213,21 @@
     }
 
     function goTo(nextPage) {
+      layoutCards();
       updatePageCount();
       page = Math.max(0, Math.min(nextPage, pageCount - 1));
+
+      const startIndex = page * perPage();
+      const target = cards[startIndex];
+      const offset = target ? target.offsetLeft : 0;
       const maxOffset = Math.max(0, track.scrollWidth - viewport.clientWidth);
-      const offset = Math.min(page * viewport.clientWidth, maxOffset);
-      track.style.transform = `translateX(-${offset}px)`;
+      track.style.transform = `translateX(-${Math.min(offset, maxOffset)}px)`;
       updateControls();
     }
 
     function refresh() {
       const previousCount = pageCount;
+      layoutCards();
       updatePageCount();
       if (previousCount !== pageCount) renderDots();
       goTo(page);
@@ -243,6 +267,7 @@
     );
 
     window.addEventListener("resize", refresh);
+    layoutCards();
     updatePageCount();
     renderDots();
     goTo(0);
