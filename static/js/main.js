@@ -131,7 +131,7 @@
 
   const onScroll = () => {
     if (!header) return;
-    header.style.boxShadow = window.scrollY > 8 ? "var(--scroll-shadow)" : "none";
+    header.classList.toggle("is-scrolled", window.scrollY > 8);
   };
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
