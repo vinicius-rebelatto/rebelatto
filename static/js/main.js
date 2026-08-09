@@ -274,4 +274,148 @@
   }
 
   initProjectCarousel();
+  initCustomCursor();
+
+  function initCustomCursor() {
+    if (document.body.classList.contains("erp-body")) return;
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const cursor = document.querySelector("[data-cursor]");
+    if (!cursor) return;
+
+    const labelEl = cursor.querySelector("[data-cursor-label]");
+    const html = document.documentElement;
+    html.classList.add("has-custom-cursor");
+    cursor.hidden = false;
+
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+    let ringX = x;
+    let ringY = y;
+    let visible = false;
+    let raf = 0;
+
+    const setState = (state, label) => {
+      cursor.dataset.state = state || "";
+      if (labelEl) {
+        labelEl.textContent = label || "";
+        labelEl.hidden = !label;
+      }
+    };
+
+    const render = () => {
+      ringX += (x - ringX) * 0.22;
+      ringY += (y - ringY) * 0.22;
+      cursor.style.setProperty("--cursor-x", `${x}px`);
+      cursor.style.setProperty("--cursor-y", `${y}px`);
+      cursor.style.setProperty("--ring-x", `${ringX}px`);
+      cursor.style.setProperty("--ring-y", `${ringY}px`);
+      raf = requestAnimationFrame(render);
+    };
+
+    const show = () => {
+      if (visible) return;
+      visible = true;
+      cursor.classList.add("is-visible");
+    };
+
+    const hide = () => {
+      visible = false;
+      cursor.classList.remove("is-visible");
+      setState("", "");
+    };
+
+    document.addEventListener(
+      "pointermove",
+      (event) => {
+        if (event.pointerType && event.pointerType !== "mouse") return;
+        x = event.clientX;
+        y = event.clientY;
+        show();
+      },
+      { passive: true }
+    );
+
+    document.addEventListener("pointerdown", (event) => {
+      if (event.pointerType && event.pointerType !== "mouse") return;
+      cursor.classList.add("is-pressed");
+    });
+
+    document.addEventListener("pointerup", () => {
+      cursor.classList.remove("is-pressed");
+    });
+
+    document.addEventListener("mouseleave", hide);
+    window.addEventListener("blur", hide);
+
+    document.addEventListener(
+      "pointerover",
+      (event) => {
+        if (
+          event.target.closest(
+            "input, textarea, select, [contenteditable='true']"
+          )
+        ) {
+          setState("text", "");
+          return;
+        }
+
+        const interactive = event.target.closest(
+          "[data-cursor], a, button, .btn, .project-link, .project-carousel-btn, .theme-toggle, .nav-toggle"
+        );
+        if (!interactive || interactive.closest(".cursor")) {
+          setState("", "");
+          return;
+        }
+
+        const explicit = interactive.getAttribute("data-cursor");
+        const label =
+          interactive.getAttribute("data-cursor-label") ||
+          (explicit === "skill"
+            ? ""
+            : interactive.classList.contains("btn-primary")
+              ? "Contratar"
+              : interactive.tagName === "A" || interactive.tagName === "BUTTON"
+                ? "Abrir"
+                : "");
+
+        if (explicit === "skill") {
+          setState("skill", interactive.getAttribute("data-cursor-label") || "");
+          return;
+        }
+
+        if (
+          explicit === "cta" ||
+          interactive.matches("a, button, .btn, .project-link")
+        ) {
+          setState("cta", label);
+          return;
+        }
+
+        setState("", "");
+      },
+      true
+    );
+
+    document.addEventListener(
+      "pointerout",
+      (event) => {
+        const related = event.relatedTarget;
+        if (
+          related &&
+          related.closest &&
+          related.closest(
+            "[data-cursor], a, button, .btn, .project-link, .project-carousel-btn, .theme-toggle, .nav-toggle, input, textarea, select"
+          )
+        ) {
+          return;
+        }
+        setState("", "");
+      },
+      true
+    );
+
+    raf = requestAnimationFrame(render);
+  }
 })();

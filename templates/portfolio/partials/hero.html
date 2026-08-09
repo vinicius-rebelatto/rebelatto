@@ -14,8 +14,8 @@
       <p class="hero-lead">{{ site.hero_texto }}</p>
 
       <div class="hero-actions">
-        <a class="btn btn-primary" href="#contato">Contratar</a>
-        <a class="btn btn-outline" href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer">
+        <a class="btn btn-primary" href="#contato" data-cursor="cta" data-cursor-label="Contratar">Contratar</a>
+        <a class="btn btn-outline" href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer" data-cursor="cta" data-cursor-label="WhatsApp">
           WhatsApp
         </a>
       </div>
@@ -34,7 +34,7 @@
         <p class="hero-tech-label">Principais tecnologias</p>
         <ul class="hero-tech-list">
           {% for tech in hero_tecnologias %}
-            <li class="hero-tech-item" title="{{ tech.name }}">
+            <li class="hero-tech-item" title="{{ tech.name }}" data-cursor="skill" data-cursor-label="{{ tech.name }}">
               {% if tech.icon_local %}
                 <img
                   class="hero-tech-icon"

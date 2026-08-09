@@ -29,7 +29,7 @@
         <div class="project-carousel-viewport" data-carousel-viewport tabindex="0" aria-label="Lista de projetos">
           <div class="project-carousel-track" data-carousel-track>
             {% for project in projects %}
-              <article class="project-card">
+              <article class="project-card" data-cursor="cta" data-cursor-label="Ver">
                 <div class="project-media">
                   {% if project.capa %}
                     <img
@@ -53,7 +53,7 @@
                     </ul>
                   {% endif %}
                   {% if project.url %}
-                    <a class="project-link" href="{{ project.url }}" target="_blank" rel="noopener noreferrer">
+                    <a class="project-link" href="{{ project.url }}" target="_blank" rel="noopener noreferrer" data-cursor="cta" data-cursor-label="Abrir">
                       Ver projeto
                       <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M5 12h14M13 6l6 6-6 6"/>

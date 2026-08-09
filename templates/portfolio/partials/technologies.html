@@ -9,7 +9,7 @@
 
     <ul class="skills-grid">
       {% for skill in skills %}
-        <li class="skill-item reveal">
+        <li class="skill-item reveal" data-cursor="skill" data-cursor-label="{{ skill.name }}">
           <div class="skill-meta">
             <span class="skill-identity">
               {% if skill.icon_local %}
