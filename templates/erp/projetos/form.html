@@ -13,10 +13,19 @@
     </label>
     {% endfor %}
     <div class="erp-form__actions erp-field--full">
-      <button class="btn btn-primary" type="submit">Salvar</button>
-      <a class="btn btn-outline" href="{% url 'erp:project_list' %}">Voltar</a>
+      <button class="btn btn-primary" type="submit">
+        {% include "erp/partials/icon.html" with name="save" %}
+        <span>Salvar</span>
+      </button>
+      <a class="btn btn-outline" href="{% url 'erp:project_list' %}">
+        {% include "erp/partials/icon.html" with name="back" %}
+        <span>Voltar</span>
+      </a>
       {% if project %}
-      <button class="btn btn-outline" type="submit" form="delete-project" onclick="return confirm('Excluir projeto?')">Excluir</button>
+      <button class="btn btn-outline" type="submit" form="delete-project" onclick="return confirm('Excluir projeto?')">
+        {% include "erp/partials/icon.html" with name="trash" %}
+        <span>Excluir</span>
+      </button>
       {% endif %}
     </div>
   </form>

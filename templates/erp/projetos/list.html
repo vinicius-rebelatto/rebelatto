@@ -2,7 +2,10 @@
 {% load erp_extras %}
 
 {% block page_actions %}
-<a class="btn btn-primary btn-sm" href="{% url 'erp:project_create' %}">Novo</a>
+<a class="btn btn-primary btn-sm" href="{% url 'erp:project_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Novo</span>
+</a>
 {% endblock %}
 
 {% block content %}
@@ -27,7 +30,10 @@
       {% endfor %}
     </select>
     {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-    <button class="btn btn-primary btn-sm" type="submit">Filtrar</button>
+    <button class="btn btn-primary btn-sm" type="submit">
+      {% include "erp/partials/icon.html" with name="search" %}
+      <span>Filtrar</span>
+    </button>
   </form>
 
   <form method="post" action="{% url 'erp:project_reorder' %}" id="reorder-form" data-reorder-form>

@@ -2,7 +2,10 @@
 {% load erp_extras %}
 
 {% block page_actions %}
-<a class="btn btn-primary btn-sm" href="{% url 'erp:mockup_create' %}">Novo</a>
+<a class="btn btn-primary btn-sm" href="{% url 'erp:mockup_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Novo</span>
+</a>
 {% endblock %}
 
 {% block content %}
@@ -22,7 +25,10 @@
       {% endfor %}
     </select>
     {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-    <button class="btn btn-primary btn-sm" type="submit">Filtrar</button>
+    <button class="btn btn-primary btn-sm" type="submit">
+      {% include "erp/partials/icon.html" with name="search" %}
+      <span>Filtrar</span>
+    </button>
   </form>
 
   <div class="erp-table-wrap">

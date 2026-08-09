@@ -10,11 +10,17 @@
       <span>{{ form.arquivo.label }}</span>
       {{ form.arquivo }}
     </label>
-    <button class="btn btn-primary" type="submit">Pré-visualizar</button>
+    <button class="btn btn-primary" type="submit">
+      {% include "erp/partials/icon.html" with name="eye" %}
+      <span>Pré-visualizar</span>
+    </button>
   </form>
   {% else %}
   <div class="erp-card__header">
-    <h2>Pré-visualização</h2>
+    <h2 class="erp-heading">
+      {% include "erp/partials/icon.html" with name="eye" %}
+      <span>Pré-visualização</span>
+    </h2>
     <p class="erp-muted">{{ preview_rows|length }} linha(s) · {{ duplicates }} duplicata(s) serão ignoradas</p>
   </div>
   <div class="erp-table-wrap">
@@ -44,8 +50,14 @@
   <form method="post" class="erp-form__actions">
     {% csrf_token %}
     <input type="hidden" name="confirm" value="1">
-    <button class="btn btn-primary" type="submit">Confirmar importação</button>
-    <a class="btn btn-outline" href="{% url 'erp:cliente_import' %}">Cancelar</a>
+    <button class="btn btn-primary" type="submit">
+      {% include "erp/partials/icon.html" with name="upload" %}
+      <span>Confirmar importação</span>
+    </button>
+    <a class="btn btn-outline" href="{% url 'erp:cliente_import' %}">
+      {% include "erp/partials/icon.html" with name="x" %}
+      <span>Cancelar</span>
+    </a>
   </form>
   {% endif %}
 </section>

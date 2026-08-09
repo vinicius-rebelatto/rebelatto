@@ -1,10 +1,19 @@
 {% extends "erp/base.html" %}
 
 {% block page_actions %}
-<a class="btn btn-outline btn-sm" href="{% url 'erp:cliente_edit' cliente.pk %}">Editar</a>
-<a class="btn btn-primary btn-sm" href="{% url 'erp:mockup_create' %}?cliente={{ cliente.pk }}">Novo mockup</a>
+<a class="btn btn-outline btn-sm" href="{% url 'erp:cliente_edit' cliente.pk %}">
+  {% include "erp/partials/icon.html" with name="edit" %}
+  <span>Editar</span>
+</a>
+<a class="btn btn-primary btn-sm" href="{% url 'erp:mockup_create' %}?cliente={{ cliente.pk }}">
+  {% include "erp/partials/icon.html" with name="mockup" %}
+  <span>Novo mockup</span>
+</a>
 {% if cliente.status == 'convertido' %}
-<a class="btn btn-primary btn-sm" href="{% url 'erp:project_create' %}?cliente={{ cliente.pk }}">Criar projeto</a>
+<a class="btn btn-primary btn-sm" href="{% url 'erp:project_create' %}?cliente={{ cliente.pk }}">
+  {% include "erp/partials/icon.html" with name="projects" %}
+  <span>Criar projeto</span>
+</a>
 {% endif %}
 {% endblock %}
 
@@ -12,7 +21,10 @@
 <section class="erp-grid-2">
   <article class="erp-card">
     <div class="erp-card__header">
-      <h2>{{ cliente.display_name }}</h2>
+      <h2 class="erp-heading">
+        {% include "erp/partials/icon.html" with name="user" %}
+        <span>{{ cliente.display_name }}</span>
+      </h2>
       <span class="erp-badge erp-badge--{{ cliente.status }}">{{ cliente.get_status_display }}</span>
     </div>
     <dl class="erp-dl">
@@ -44,22 +56,36 @@
     <form method="post" action="{% url 'erp:cliente_reject' cliente.pk %}" class="erp-reject-box">
       {% csrf_token %}
       <input type="hidden" name="next" value="{% url 'erp:cliente_detail' cliente.pk %}">
-      <h3>Rejeitar cliente</h3>
+      <h3 class="erp-heading">
+        {% include "erp/partials/icon.html" with name="ban" %}
+        <span>Rejeitar cliente</span>
+      </h3>
       <p class="erp-muted">A etapa da rejeição é preenchida automaticamente.</p>
       {{ reject_form.motivo_rejeicao }}
-      <button class="btn btn-outline btn-sm" type="submit">Marcar como rejeitado</button>
+      <button class="btn btn-outline btn-sm" type="submit">
+        {% include "erp/partials/icon.html" with name="x" %}
+        <span>Marcar como rejeitado</span>
+      </button>
     </form>
     {% endif %}
 
     <form method="post" action="{% url 'erp:cliente_delete' cliente.pk %}" onsubmit="return confirm('Excluir este cliente?');" class="erp-danger-zone">
       {% csrf_token %}
-      <button class="btn btn-outline btn-sm" type="submit">Excluir cliente</button>
+      <button class="btn btn-outline btn-sm" type="submit">
+        {% include "erp/partials/icon.html" with name="trash" %}
+        <span>Excluir cliente</span>
+      </button>
     </form>
   </article>
 
   <div class="erp-stack">
     <article class="erp-card">
-      <div class="erp-card__header"><h2>Mockups</h2></div>
+      <div class="erp-card__header">
+        <h2 class="erp-heading">
+          {% include "erp/partials/icon.html" with name="mockup" %}
+          <span>Mockups</span>
+        </h2>
+      </div>
       <ul class="erp-simple-list">
         {% for m in mockups %}
         <li>
@@ -76,7 +102,12 @@
     </article>
 
     <article class="erp-card">
-      <div class="erp-card__header"><h2>Projetos</h2></div>
+      <div class="erp-card__header">
+        <h2 class="erp-heading">
+          {% include "erp/partials/icon.html" with name="projects" %}
+          <span>Projetos</span>
+        </h2>
+      </div>
       <ul class="erp-simple-list">
         {% for p in projetos %}
         <li>

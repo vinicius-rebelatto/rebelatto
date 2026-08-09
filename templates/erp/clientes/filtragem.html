@@ -2,7 +2,10 @@
 {% load erp_extras %}
 
 {% block page_actions %}
-<a class="btn btn-outline btn-sm" href="{% url 'erp:cliente_import' %}">Importar CSV</a>
+<a class="btn btn-outline btn-sm" href="{% url 'erp:cliente_import' %}">
+  {% include "erp/partials/icon.html" with name="upload" %}
+  <span>Importar CSV</span>
+</a>
 {% endblock %}
 
 {% block content %}
@@ -28,14 +31,23 @@
       {% endfor %}
     </select>
     {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-    <button class="btn btn-primary btn-sm" type="submit">Filtrar</button>
+    <button class="btn btn-primary btn-sm" type="submit">
+      {% include "erp/partials/icon.html" with name="search" %}
+      <span>Filtrar</span>
+    </button>
   </form>
 
   <form method="post" action="{% url 'erp:cliente_filtragem_bulk' %}" id="filtragem-form">
     {% csrf_token %}
     <div class="erp-toolbar erp-toolbar--actions">
-      <button class="btn btn-primary btn-sm" type="submit" name="action" value="accept">Aceitar selecionados</button>
-      <button class="btn btn-outline btn-sm" type="submit" name="action" value="reject">Rejeitar selecionados</button>
+      <button class="btn btn-primary btn-sm" type="submit" name="action" value="accept">
+        {% include "erp/partials/icon.html" with name="check" %}
+        <span>Aceitar selecionados</span>
+      </button>
+      <button class="btn btn-outline btn-sm" type="submit" name="action" value="reject">
+        {% include "erp/partials/icon.html" with name="x" %}
+        <span>Rejeitar selecionados</span>
+      </button>
       <input type="text" name="motivo_rejeicao" placeholder="Motivo da rejeição (opcional)" class="erp-search">
     </div>
 
@@ -65,8 +77,14 @@
               {% if c.maps_url %} · <a href="{{ c.maps_url }}" target="_blank" rel="noopener">Maps</a>{% endif %}
             </td>
             <td class="erp-row-actions">
-              <button class="btn btn-primary btn-sm" form="accept-{{ c.pk }}" type="submit">Aceitar</button>
-              <button class="btn btn-outline btn-sm" form="reject-{{ c.pk }}" type="submit">Rejeitar</button>
+              <button class="btn btn-primary btn-sm" form="accept-{{ c.pk }}" type="submit">
+                {% include "erp/partials/icon.html" with name="check" %}
+                <span>Aceitar</span>
+              </button>
+              <button class="btn btn-outline btn-sm" form="reject-{{ c.pk }}" type="submit">
+                {% include "erp/partials/icon.html" with name="x" %}
+                <span>Rejeitar</span>
+              </button>
             </td>
           </tr>
           {% empty %}

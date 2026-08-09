@@ -1,54 +1,96 @@
 {% extends "erp/base.html" %}
 
 {% block page_actions %}
-<a class="btn btn-outline btn-sm" href="{% url 'erp:cliente_import' %}">Importar CSV</a>
-<a class="btn btn-primary btn-sm" href="{% url 'erp:cliente_create' %}">Novo cliente</a>
+<a class="btn btn-outline btn-sm" href="{% url 'erp:cliente_import' %}">
+  {% include "erp/partials/icon.html" with name="upload" %}
+  <span>Importar CSV</span>
+</a>
+<a class="btn btn-primary btn-sm" href="{% url 'erp:cliente_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Novo cliente</span>
+</a>
 {% endblock %}
 
 {% block content %}
 <section class="erp-metrics">
   <article class="erp-metric">
-    <span class="erp-metric__label">Clientes</span>
+    <span class="erp-metric__label">
+      {% include "erp/partials/icon.html" with name="users" %}
+      <span>Clientes</span>
+    </span>
     <strong class="erp-metric__value">{{ cliente_total }}</strong>
   </article>
   <article class="erp-metric">
-    <span class="erp-metric__label">Importados</span>
+    <span class="erp-metric__label">
+      {% include "erp/partials/icon.html" with name="inbox" %}
+      <span>Importados</span>
+    </span>
     <strong class="erp-metric__value">{{ importados }}</strong>
   </article>
   <article class="erp-metric">
-    <span class="erp-metric__label">A prospectar</span>
+    <span class="erp-metric__label">
+      {% include "erp/partials/icon.html" with name="target" %}
+      <span>A prospectar</span>
+    </span>
     <strong class="erp-metric__value">{{ a_prospectar }}</strong>
   </article>
   <article class="erp-metric">
-    <span class="erp-metric__label">Em prospecção</span>
+    <span class="erp-metric__label">
+      {% include "erp/partials/icon.html" with name="trending" %}
+      <span>Em prospecção</span>
+    </span>
     <strong class="erp-metric__value">{{ em_prospeccao }}</strong>
   </article>
   <article class="erp-metric">
-    <span class="erp-metric__label">Convertidos</span>
+    <span class="erp-metric__label">
+      {% include "erp/partials/icon.html" with name="award" %}
+      <span>Convertidos</span>
+    </span>
     <strong class="erp-metric__value">{{ convertidos }}</strong>
   </article>
   <article class="erp-metric">
-    <span class="erp-metric__label">Rejeitados</span>
+    <span class="erp-metric__label">
+      {% include "erp/partials/icon.html" with name="ban" %}
+      <span>Rejeitados</span>
+    </span>
     <strong class="erp-metric__value">{{ rejeitados }}</strong>
   </article>
   <article class="erp-metric">
-    <span class="erp-metric__label">Mockups publicados</span>
+    <span class="erp-metric__label">
+      {% include "erp/partials/icon.html" with name="mockup" %}
+      <span>Mockups publicados</span>
+    </span>
     <strong class="erp-metric__value">{{ mockups_publicados }} <small>/ {{ mockups_total }}</small></strong>
   </article>
   <article class="erp-metric">
-    <span class="erp-metric__label">Projetos na vitrine</span>
+    <span class="erp-metric__label">
+      {% include "erp/partials/icon.html" with name="projects" %}
+      <span>Projetos na vitrine</span>
+    </span>
     <strong class="erp-metric__value">{{ projetos_publicados }} <small>/ {{ projetos_total }}</small></strong>
   </article>
 </section>
 
 <section class="erp-card">
   <div class="erp-card__header">
-    <h2>Atalhos</h2>
+    <h2 class="erp-heading">
+      {% include "erp/partials/icon.html" with name="zap" %}
+      <span>Atalhos</span>
+    </h2>
   </div>
   <div class="erp-actions-row">
-    <a class="btn btn-outline" href="{% url 'erp:cliente_filtragem' %}">Filtrar leads importados</a>
-    <a class="btn btn-outline" href="{% url 'erp:mockup_create' %}">Criar mockup</a>
-    <a class="btn btn-outline" href="{% url 'erp:project_create' %}">Criar projeto</a>
+    <a class="btn btn-outline" href="{% url 'erp:cliente_filtragem' %}">
+      {% include "erp/partials/icon.html" with name="filter" %}
+      <span>Filtrar leads importados</span>
+    </a>
+    <a class="btn btn-outline" href="{% url 'erp:mockup_create' %}">
+      {% include "erp/partials/icon.html" with name="mockup" %}
+      <span>Criar mockup</span>
+    </a>
+    <a class="btn btn-outline" href="{% url 'erp:project_create' %}">
+      {% include "erp/partials/icon.html" with name="projects" %}
+      <span>Criar projeto</span>
+    </a>
   </div>
 </section>
 {% endblock %}

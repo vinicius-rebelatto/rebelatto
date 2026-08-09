@@ -12,8 +12,14 @@
     </label>
     {% endfor %}
     <div class="erp-form__actions erp-field--full">
-      <button class="btn btn-primary" type="submit">Salvar</button>
-      <a class="btn btn-outline" href="{% if cliente %}{% url 'erp:cliente_detail' cliente.pk %}{% else %}{% url 'erp:cliente_list' %}{% endif %}">Cancelar</a>
+      <button class="btn btn-primary" type="submit">
+        {% include "erp/partials/icon.html" with name="save" %}
+        <span>Salvar</span>
+      </button>
+      <a class="btn btn-outline" href="{% if cliente %}{% url 'erp:cliente_detail' cliente.pk %}{% else %}{% url 'erp:cliente_list' %}{% endif %}">
+        {% include "erp/partials/icon.html" with name="x" %}
+        <span>Cancelar</span>
+      </a>
     </div>
   </form>
 </section>

@@ -47,7 +47,10 @@
         <span>Senha</span>
         <input type="password" name="password" autocomplete="current-password" required>
       </label>
-      <button class="btn btn-primary" type="submit">Entrar</button>
+      <button class="btn btn-primary" type="submit">
+        {% include "erp/partials/icon.html" with name="login" %}
+        <span>Entrar</span>
+      </button>
     </form>
   </div>
 </body>

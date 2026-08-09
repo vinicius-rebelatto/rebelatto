@@ -5,11 +5,20 @@
 <form method="post" action="{% url 'erp:mockup_publish' mockup.pk %}" style="display:inline">
   {% csrf_token %}
   <button class="btn btn-outline btn-sm" type="submit">
-    {% if mockup.status == 'publicado' %}Despublicar{% else %}Publicar{% endif %}
+    {% if mockup.status == 'publicado' %}
+      {% include "erp/partials/icon.html" with name="unpublish" %}
+      <span>Despublicar</span>
+    {% else %}
+      {% include "erp/partials/icon.html" with name="publish" %}
+      <span>Publicar</span>
+    {% endif %}
   </button>
 </form>
 {% if mockup.status == 'publicado' %}
-<a class="btn btn-outline btn-sm" href="{% url 'portfolio:mockup_public' mockup.slug %}" target="_blank" rel="noopener">Ver público</a>
+<a class="btn btn-outline btn-sm" href="{% url 'portfolio:mockup_public' mockup.slug %}" target="_blank" rel="noopener">
+  {% include "erp/partials/icon.html" with name="external" %}
+  <span>Ver público</span>
+</a>
 {% endif %}
 {% endif %}
 {% endblock %}
@@ -27,7 +36,10 @@
     {% endfor %}
 
     <div class="erp-field--full">
-      <h3>Galeria</h3>
+      <h3 class="erp-heading">
+        {% include "erp/partials/icon.html" with name="mockup" %}
+        <span>Galeria</span>
+      </h3>
       {{ formset.management_form }}
       <div class="erp-formset">
         {% for f in formset %}
@@ -46,10 +58,19 @@
     </div>
 
     <div class="erp-form__actions erp-field--full">
-      <button class="btn btn-primary" type="submit">Salvar</button>
-      <a class="btn btn-outline" href="{% url 'erp:mockup_list' %}">Voltar</a>
+      <button class="btn btn-primary" type="submit">
+        {% include "erp/partials/icon.html" with name="save" %}
+        <span>Salvar</span>
+      </button>
+      <a class="btn btn-outline" href="{% url 'erp:mockup_list' %}">
+        {% include "erp/partials/icon.html" with name="back" %}
+        <span>Voltar</span>
+      </a>
       {% if mockup %}
-      <button class="btn btn-outline" type="submit" form="delete-mockup" onclick="return confirm('Excluir mockup?')">Excluir</button>
+      <button class="btn btn-outline" type="submit" form="delete-mockup" onclick="return confirm('Excluir mockup?')">
+        {% include "erp/partials/icon.html" with name="trash" %}
+        <span>Excluir</span>
+      </button>
       {% endif %}
     </div>
   </form>
