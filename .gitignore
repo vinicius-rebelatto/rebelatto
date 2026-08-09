@@ -15,6 +15,7 @@ staticfiles/
 # Segredos locais (nunca versionar)
 setup/secrets.py
 .env
+.github/deploy-keys/
 
 # IDE / OS
 .idea/
