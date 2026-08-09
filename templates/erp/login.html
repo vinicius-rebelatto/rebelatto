@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login ERP — Rebel Tech</title>
+  <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem("rebel-theme");
+        var theme = stored === "dark" || stored === "light" ? stored : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/erp.css' %}">
+</head>
+<body class="erp-login-page">
+  <div class="erp-login-card">
+    <div class="erp-login-card__brand">
+      <span class="logo-rebel">Rebel</span><span class="logo-tech"> Tech</span>
+      <p>Painel ERP</p>
+    </div>
+    {% if error %}
+    <div class="erp-flash erp-flash--error">{{ error }}</div>
+    {% endif %}
+    <form method="post" class="erp-form">
+      {% csrf_token %}
+      <label class="erp-field">
+        <span>Usuário</span>
+        <input type="text" name="username" autocomplete="username" required autofocus>
+      </label>
+      <label class="erp-field">
+        <span>Senha</span>
+        <input type="password" name="password" autocomplete="current-password" required>
+      </label>
+      <button class="btn btn-primary" type="submit">Entrar</button>
+    </form>
+  </div>
+</body>
+</html>

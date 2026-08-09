@@ -1,0 +1,52 @@
+{% extends "erp/base.html" %}
+
+{% block content %}
+<section class="erp-card">
+  {% if not show_preview %}
+  <p class="erp-muted">Envie um CSV com colunas: <code>title;phone;website;url;categoryName;street;city;state</code></p>
+  <form method="post" enctype="multipart/form-data" class="erp-form">
+    {% csrf_token %}
+    <label class="erp-field">
+      <span>{{ form.arquivo.label }}</span>
+      {{ form.arquivo }}
+    </label>
+    <button class="btn btn-primary" type="submit">Pré-visualizar</button>
+  </form>
+  {% else %}
+  <div class="erp-card__header">
+    <h2>Pré-visualização</h2>
+    <p class="erp-muted">{{ preview_rows|length }} linha(s) · {{ duplicates }} duplicata(s) serão ignoradas</p>
+  </div>
+  <div class="erp-table-wrap">
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th>Empresa</th>
+          <th>Telefone</th>
+          <th>Cidade</th>
+          <th>Categoria</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in preview_rows %}
+        <tr class="{% if row.duplicate %}is-dup{% endif %}">
+          <td>{{ row.empresa }}</td>
+          <td>{{ row.telefone|default:"—" }}</td>
+          <td>{{ row.cidade|default:"—" }}</td>
+          <td>{{ row.categoria|default:"—" }}</td>
+          <td>{% if row.duplicate %}<span class="erp-badge erp-badge--rejeitado">Duplicata</span>{% else %}<span class="erp-badge erp-badge--importado">Novo</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <form method="post" class="erp-form__actions">
+    {% csrf_token %}
+    <input type="hidden" name="confirm" value="1">
+    <button class="btn btn-primary" type="submit">Confirmar importação</button>
+    <a class="btn btn-outline" href="{% url 'erp:cliente_import' %}">Cancelar</a>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

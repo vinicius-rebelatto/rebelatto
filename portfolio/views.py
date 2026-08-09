@@ -4,10 +4,11 @@ from urllib.parse import quote
 
 from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
+from django.utils.text import slugify
 from django.views.decorators.http import require_POST
 
-from crm.models import Lead
+from crm.models import Cliente, Mockup
 from portfolio.models import Project
 
 
@@ -43,7 +44,6 @@ def load_skills():
     return load_icon_list("skills.csv", with_level=True)
 
 
-# Contato / redes — ajuste em produção via secrets se preferir
 SITE = {
     "nome": "Vinícius Rebelatto",
     "nome_curto": "Vinícius",
@@ -72,7 +72,7 @@ SITE = {
 
 
 def home(request):
-    projects = Project.objects.filter(destaque=True)[:6]
+    projects = Project.landing_queryset()[:6]
     whatsapp_url = f"https://wa.me/{SITE['whatsapp']}?text={quote(SITE['whatsapp_msg'])}"
     return render(
         request,
@@ -109,11 +109,34 @@ def create_lead(request):
     if errors:
         return JsonResponse({"ok": False, "errors": errors}, status=400)
 
-    Lead.objects.create(
+    base = slugify(nome)[:180] or "contato"
+    slug = base
+    index = 2
+    while Cliente.objects.filter(slug=slug).exists():
+        slug = f"{base}-{index}"
+        index += 1
+
+    Cliente.objects.create(
         nome=nome,
+        empresa=nome,
+        slug=slug,
         email=email,
         telefone=telefone,
         mensagem=mensagem,
-        origem=Lead.Origem.CONTATO,
+        origem=Cliente.Origem.CONTATO,
+        status=Cliente.Status.A_PROSPECTAR,
     )
     return JsonResponse({"ok": True, "message": "Recebi seu contato. Em breve retorno!"})
+
+
+def mockup_public(request, slug):
+    mockup = get_object_or_404(
+        Mockup.objects.select_related("cliente").prefetch_related("imagens"),
+        slug=slug,
+        status=Mockup.Status.PUBLICADO,
+    )
+    return render(
+        request,
+        "portfolio/mockup_public.html",
+        {"mockup": mockup, "site": SITE},
+    )

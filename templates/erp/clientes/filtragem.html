@@ -1,0 +1,87 @@
+{% extends "erp/base.html" %}
+{% load erp_extras %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'erp:cliente_import' %}">Importar CSV</a>
+{% endblock %}
+
+{% block content %}
+<section class="erp-card">
+  <form method="get" class="erp-toolbar">
+    <input class="erp-search" type="search" name="q" value="{{ q }}" placeholder="Buscar empresa, telefone, cidade…">
+    <select name="cidade">
+      <option value="">Cidade</option>
+      {% for cidade in cidades %}
+      <option value="{{ cidade }}" {% if active_filters.cidade == cidade %}selected{% endif %}>{{ cidade }}</option>
+      {% endfor %}
+    </select>
+    <select name="estado">
+      <option value="">Estado</option>
+      {% for estado in estados %}
+      <option value="{{ estado }}" {% if active_filters.estado == estado %}selected{% endif %}>{{ estado }}</option>
+      {% endfor %}
+    </select>
+    <select name="categoria">
+      <option value="">Categoria</option>
+      {% for categoria in categorias %}
+      <option value="{{ categoria }}" {% if active_filters.categoria == categoria %}selected{% endif %}>{{ categoria }}</option>
+      {% endfor %}
+    </select>
+    {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+    <button class="btn btn-primary btn-sm" type="submit">Filtrar</button>
+  </form>
+
+  <form method="post" action="{% url 'erp:cliente_filtragem_bulk' %}" id="filtragem-form">
+    {% csrf_token %}
+    <div class="erp-toolbar erp-toolbar--actions">
+      <button class="btn btn-primary btn-sm" type="submit" name="action" value="accept">Aceitar selecionados</button>
+      <button class="btn btn-outline btn-sm" type="submit" name="action" value="reject">Rejeitar selecionados</button>
+      <input type="text" name="motivo_rejeicao" placeholder="Motivo da rejeição (opcional)" class="erp-search">
+    </div>
+
+    <div class="erp-table-wrap">
+      <table class="erp-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" data-check-all></th>
+            <th><a href="{% sort_link 'empresa' %}">Empresa</a></th>
+            <th>Telefone</th>
+            <th><a href="{% sort_link 'categoria' %}">Categoria</a></th>
+            <th><a href="{% sort_link 'cidade' %}">Cidade</a></th>
+            <th>Links</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in object_list %}
+          <tr>
+            <td><input type="checkbox" name="ids" value="{{ c.pk }}"></td>
+            <td><a href="{% url 'erp:cliente_detail' c.pk %}">{{ c.empresa }}</a></td>
+            <td>{{ c.telefone|default:"—" }}</td>
+            <td>{{ c.categoria|default:"—" }}</td>
+            <td>{{ c.cidade|default:"—" }}</td>
+            <td>
+              {% if c.website %}<a href="{{ c.website }}" target="_blank" rel="noopener">Site</a>{% endif %}
+              {% if c.maps_url %} · <a href="{{ c.maps_url }}" target="_blank" rel="noopener">Maps</a>{% endif %}
+            </td>
+            <td class="erp-row-actions">
+              <button class="btn btn-primary btn-sm" form="accept-{{ c.pk }}" type="submit">Aceitar</button>
+              <button class="btn btn-outline btn-sm" form="reject-{{ c.pk }}" type="submit">Rejeitar</button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="erp-empty">Nenhum lead importado aguardando filtragem.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+
+  {% for c in object_list %}
+  <form id="accept-{{ c.pk }}" method="post" action="{% url 'erp:cliente_accept' c.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'erp:cliente_filtragem' %}"></form>
+  <form id="reject-{{ c.pk }}" method="post" action="{% url 'erp:cliente_reject' c.pk %}">{% csrf_token %}<input type="hidden" name="etapa" value="filtragem"><input type="hidden" name="next" value="{% url 'erp:cliente_filtragem' %}"></form>
+  {% endfor %}
+
+  {% include "erp/partials/pagination.html" %}
+</section>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "erp/base.html" %}
+{% load erp_extras %}
+
+{% block page_actions %}
+<a class="btn btn-primary btn-sm" href="{% url 'erp:mockup_create' %}">Novo</a>
+{% endblock %}
+
+{% block content %}
+<section class="erp-card">
+  <form method="get" class="erp-toolbar">
+    <input class="erp-search" type="search" name="q" value="{{ q }}" placeholder="Buscar título, slug, cliente…">
+    <select name="status">
+      <option value="">Status</option>
+      {% for value, label in status_choices %}
+      <option value="{{ value }}" {% if active_filters.status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="cliente">
+      <option value="">Cliente</option>
+      {% for c in clientes %}
+      <option value="{{ c.pk }}" {% if active_filters.cliente == c.pk|stringformat:'s' %}selected{% endif %}>{{ c.display_name }}</option>
+      {% endfor %}
+    </select>
+    {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+    <button class="btn btn-primary btn-sm" type="submit">Filtrar</button>
+  </form>
+
+  <div class="erp-table-wrap">
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th><a href="{% sort_link 'titulo' %}">Título</a></th>
+          <th><a href="{% sort_link 'cliente' %}">Cliente</a></th>
+          <th><a href="{% sort_link 'status' %}">Status</a></th>
+          <th>Link público</th>
+          <th><a href="{% sort_link 'updated_at' %}">Atualizado</a></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in object_list %}
+        <tr>
+          <td><a href="{% url 'erp:mockup_edit' m.pk %}">{{ m.titulo }}</a></td>
+          <td><a href="{% url 'erp:cliente_detail' m.cliente_id %}">{{ m.cliente.display_name }}</a></td>
+          <td><span class="erp-badge erp-badge--{{ m.status }}">{{ m.get_status_display }}</span></td>
+          <td>
+            {% if m.status == 'publicado' %}
+            <a href="{% url 'portfolio:mockup_public' m.slug %}" target="_blank" rel="noopener">/mockup/{{ m.slug }}</a>
+            {% else %}—{% endif %}
+          </td>
+          <td>{{ m.updated_at|date:"d/m/Y H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="erp-empty">Nenhum mockup.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "erp/partials/pagination.html" %}
+</section>
+{% endblock %}

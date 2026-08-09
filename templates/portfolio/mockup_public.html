@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ mockup.titulo }} — {{ site.marca }}</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem("rebel-theme");
+        var theme = stored === "dark" || stored === "light" ? stored : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/erp.css' %}">
+</head>
+<body class="mockup-public">
+  <header class="mockup-public__header">
+    <div class="container">
+      <span class="logo-rebel">Rebel</span><span class="logo-tech"> Tech</span>
+      <p>Proposta visual para <strong>{{ mockup.cliente.display_name }}</strong></p>
+    </div>
+  </header>
+
+  <main class="container mockup-public__main">
+    <h1>{{ mockup.titulo }}</h1>
+    {% if mockup.descricao %}
+    <p class="mockup-public__desc">{{ mockup.descricao }}</p>
+    {% endif %}
+
+    {% if mockup.capa %}
+    <figure class="mockup-public__hero">
+      <img src="{{ mockup.capa.url }}" alt="{{ mockup.titulo }}">
+    </figure>
+    {% endif %}
+
+    {% if mockup.preview_url %}
+    <p><a class="btn btn-primary" href="{{ mockup.preview_url }}" target="_blank" rel="noopener">Abrir protótipo</a></p>
+    {% endif %}
+
+    {% if mockup.imagens.all %}
+    <section class="mockup-public__gallery">
+      {% for img in mockup.imagens.all %}
+      <figure>
+        <img src="{{ img.imagem.url }}" alt="{{ img.legenda|default:mockup.titulo }}">
+        {% if img.legenda %}<figcaption>{{ img.legenda }}</figcaption>{% endif %}
+      </figure>
+      {% endfor %}
+    </section>
+    {% endif %}
+  </main>
+</body>
+</html>

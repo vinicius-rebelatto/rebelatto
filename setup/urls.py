@@ -6,6 +6,7 @@ from django.views.static import serve
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("erp/", include("erp.urls")),
     path("", include("portfolio.urls")),
     re_path(
         r"^media/(?P<path>.*)$",

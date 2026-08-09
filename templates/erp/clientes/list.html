@@ -1,0 +1,89 @@
+{% extends "erp/base.html" %}
+{% load erp_extras %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'erp:cliente_import' %}">Importar CSV</a>
+<a class="btn btn-outline btn-sm" href="{% url 'erp:cliente_filtragem' %}">Filtragem</a>
+<a class="btn btn-primary btn-sm" href="{% url 'erp:cliente_create' %}">Novo</a>
+{% endblock %}
+
+{% block content %}
+<section class="erp-card">
+  <form method="get" class="erp-toolbar">
+    <input class="erp-search" type="search" name="q" value="{{ q }}" placeholder="Buscar nome, empresa, e-mail, telefone…">
+    <select name="status">
+      <option value="">Status</option>
+      {% for value, label in status_choices %}
+      <option value="{{ value }}" {% if active_filters.status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="origem">
+      <option value="">Origem</option>
+      {% for value, label in origem_choices %}
+      <option value="{{ value }}" {% if active_filters.origem == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="etapa_rejeicao">
+      <option value="">Etapa rejeição</option>
+      {% for value, label in etapa_choices %}
+      <option value="{{ value }}" {% if active_filters.etapa_rejeicao == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="cidade">
+      <option value="">Cidade</option>
+      {% for cidade in cidades %}
+      <option value="{{ cidade }}" {% if active_filters.cidade == cidade %}selected{% endif %}>{{ cidade }}</option>
+      {% endfor %}
+    </select>
+    <select name="estado">
+      <option value="">Estado</option>
+      {% for estado in estados %}
+      <option value="{{ estado }}" {% if active_filters.estado == estado %}selected{% endif %}>{{ estado }}</option>
+      {% endfor %}
+    </select>
+    {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+    <button class="btn btn-primary btn-sm" type="submit">Filtrar</button>
+  </form>
+
+  <div class="erp-table-wrap">
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th><a href="{% sort_link 'empresa' %}">Empresa</a></th>
+          <th><a href="{% sort_link 'nome' %}">Nome</a></th>
+          <th>Contato</th>
+          <th><a href="{% sort_link 'status' %}">Status</a></th>
+          <th><a href="{% sort_link 'origem' %}">Origem</a></th>
+          <th><a href="{% sort_link 'cidade' %}">Cidade</a></th>
+          <th><a href="{% sort_link 'updated_at' %}">Atualizado</a></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in object_list %}
+        <tr>
+          <td><a href="{% url 'erp:cliente_detail' c.pk %}">{{ c.empresa|default:"—" }}</a></td>
+          <td>{{ c.nome|default:"—" }}</td>
+          <td>
+            {% if c.email %}<div>{{ c.email }}</div>{% endif %}
+            {% if c.telefone %}<div>{{ c.telefone }}</div>{% endif %}
+          </td>
+          <td>
+            <span class="erp-badge erp-badge--{{ c.status }}">{{ c.get_status_display }}</span>
+            {% if c.etapa_rejeicao %}
+            <div class="erp-muted">{{ c.get_etapa_rejeicao_display }}</div>
+            {% endif %}
+          </td>
+          <td>{{ c.get_origem_display }}</td>
+          <td>{{ c.cidade|default:"—" }}</td>
+          <td>{{ c.updated_at|date:"d/m/Y H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="erp-empty">Nenhum cliente encontrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% include "erp/partials/pagination.html" %}
+</section>
+{% endblock %}

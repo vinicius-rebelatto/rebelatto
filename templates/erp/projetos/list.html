@@ -1,0 +1,76 @@
+{% extends "erp/base.html" %}
+{% load erp_extras %}
+
+{% block page_actions %}
+<a class="btn btn-primary btn-sm" href="{% url 'erp:project_create' %}">Novo</a>
+{% endblock %}
+
+{% block content %}
+<section class="erp-card">
+  <form method="get" class="erp-toolbar">
+    <input class="erp-search" type="search" name="q" value="{{ q }}" placeholder="Buscar título, stack, cliente…">
+    <select name="status">
+      <option value="">Status</option>
+      {% for value, label in status_choices %}
+      <option value="{{ value }}" {% if active_filters.status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="publicado">
+      <option value="">Publicado</option>
+      <option value="1" {% if active_filters.publicado == '1' %}selected{% endif %}>Sim</option>
+      <option value="0" {% if active_filters.publicado == '0' %}selected{% endif %}>Não</option>
+    </select>
+    <select name="cliente">
+      <option value="">Cliente</option>
+      {% for c in clientes %}
+      <option value="{{ c.pk }}" {% if active_filters.cliente == c.pk|stringformat:'s' %}selected{% endif %}>{{ c.display_name }}</option>
+      {% endfor %}
+    </select>
+    {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+    <button class="btn btn-primary btn-sm" type="submit">Filtrar</button>
+  </form>
+
+  <form method="post" action="{% url 'erp:project_reorder' %}" id="reorder-form" data-reorder-form>
+    {% csrf_token %}
+    <div class="erp-toolbar erp-toolbar--actions">
+      <p class="erp-muted">Arraste pela alça <strong>⋮⋮</strong> para reordenar a vitrine. A ordem é salva automaticamente.</p>
+      <span class="erp-reorder-status" data-reorder-status hidden></span>
+    </div>
+
+    <div class="erp-table-wrap">
+      <table class="erp-table erp-table--sortable">
+        <thead>
+          <tr>
+            <th class="erp-drag-col" aria-label="Arrastar"></th>
+            <th><a href="{% sort_link 'ordem' %}">Ordem</a></th>
+            <th><a href="{% sort_link 'titulo' %}">Título</a></th>
+            <th>Cliente</th>
+            <th><a href="{% sort_link 'status' %}">Status</a></th>
+            <th><a href="{% sort_link 'publicado' %}">Publicado</a></th>
+            <th><a href="{% sort_link 'updated_at' %}">Atualizado</a></th>
+          </tr>
+        </thead>
+        <tbody data-sortable-body>
+          {% for p in object_list %}
+          <tr draggable="true" data-project-id="{{ p.pk }}">
+            <td class="erp-drag-col">
+              <span class="erp-drag-handle" title="Arrastar para reordenar" aria-hidden="true">⋮⋮</span>
+              <input type="hidden" name="order" value="{{ p.pk }}">
+            </td>
+            <td class="erp-order-index" data-order-index>{{ forloop.counter0 }}</td>
+            <td><a href="{% url 'erp:project_edit' p.pk %}">{{ p.titulo }}</a></td>
+            <td>{% if p.cliente %}<a href="{% url 'erp:cliente_detail' p.cliente_id %}">{{ p.cliente.display_name }}</a>{% else %}—{% endif %}</td>
+            <td><span class="erp-badge erp-badge--{{ p.status }}">{{ p.get_status_display }}</span></td>
+            <td>{% if p.publicado %}Sim{% else %}Não{% endif %}</td>
+            <td>{{ p.updated_at|date:"d/m/Y H:i" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="erp-empty">Nenhum projeto.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+  {% include "erp/partials/pagination.html" %}
+</section>
+{% endblock %}

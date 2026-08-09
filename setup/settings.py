@@ -72,7 +72,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "portfolio",
     "crm",
+    "erp",
 ]
+
+LOGIN_URL = "erp:login"
+LOGIN_REDIRECT_URL = "erp:dashboard"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

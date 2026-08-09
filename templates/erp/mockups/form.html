@@ -1,0 +1,60 @@
+{% extends "erp/base.html" %}
+
+{% block page_actions %}
+{% if mockup %}
+<form method="post" action="{% url 'erp:mockup_publish' mockup.pk %}" style="display:inline">
+  {% csrf_token %}
+  <button class="btn btn-outline btn-sm" type="submit">
+    {% if mockup.status == 'publicado' %}Despublicar{% else %}Publicar{% endif %}
+  </button>
+</form>
+{% if mockup.status == 'publicado' %}
+<a class="btn btn-outline btn-sm" href="{% url 'portfolio:mockup_public' mockup.slug %}" target="_blank" rel="noopener">Ver público</a>
+{% endif %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="erp-card">
+  <form method="post" enctype="multipart/form-data" class="erp-form erp-form--grid">
+    {% csrf_token %}
+    {% for field in form %}
+    <label class="erp-field {% if field.name in 'descricao,notas_internas' %}erp-field--full{% endif %}">
+      <span>{{ field.label }}</span>
+      {{ field }}
+      {% if field.errors %}<span class="erp-error">{{ field.errors|striptags }}</span>{% endif %}
+    </label>
+    {% endfor %}
+
+    <div class="erp-field--full">
+      <h3>Galeria</h3>
+      {{ formset.management_form }}
+      <div class="erp-formset">
+        {% for f in formset %}
+        <div class="erp-formset__row">
+          {% for field in f.visible_fields %}
+          <label class="erp-field">
+            <span>{{ field.label }}</span>
+            {{ field }}
+          </label>
+          {% endfor %}
+          {% if f.instance.pk %}{{ f.id }}{% endif %}
+          {% if f.DELETE %}<label class="erp-field"><span>Remover</span>{{ f.DELETE }}</label>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="erp-form__actions erp-field--full">
+      <button class="btn btn-primary" type="submit">Salvar</button>
+      <a class="btn btn-outline" href="{% url 'erp:mockup_list' %}">Voltar</a>
+      {% if mockup %}
+      <button class="btn btn-outline" type="submit" form="delete-mockup" onclick="return confirm('Excluir mockup?')">Excluir</button>
+      {% endif %}
+    </div>
+  </form>
+  {% if mockup %}
+  <form id="delete-mockup" method="post" action="{% url 'erp:mockup_delete' mockup.pk %}">{% csrf_token %}</form>
+  {% endif %}
+</section>
+{% endblock %}
