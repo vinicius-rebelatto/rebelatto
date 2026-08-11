@@ -278,10 +278,11 @@
 
   function initCustomCursor() {
     if (document.body.classList.contains("erp-body")) return;
-    if (!window.matchMedia("(pointer: fine)").matches) return;
+    const canHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+    if (!canHover.matches) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const cursor = document.querySelector("[data-cursor]");
+    const cursor = document.querySelector("[data-cursor-root]");
     if (!cursor) return;
 
     const labelEl = cursor.querySelector("[data-cursor-label]");
@@ -364,7 +365,7 @@
         const interactive = event.target.closest(
           "[data-cursor], a, button, .btn, .project-link, .project-carousel-btn, .theme-toggle, .nav-toggle"
         );
-        if (!interactive || interactive.closest(".cursor")) {
+        if (!interactive || interactive.closest("[data-cursor-root]")) {
           setState("", "");
           return;
         }

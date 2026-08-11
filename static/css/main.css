@@ -1800,19 +1800,21 @@ html[data-theme="light"] .cursor__label {
   margin: -14px 0 0 -14px;
 }
 
-html.has-custom-cursor,
-html.has-custom-cursor * {
-  cursor: none !important;
+@media (hover: hover) and (pointer: fine) {
+  html.has-custom-cursor,
+  html.has-custom-cursor * {
+    cursor: none !important;
+  }
+
+  html.has-custom-cursor input,
+  html.has-custom-cursor textarea,
+  html.has-custom-cursor select,
+  html.has-custom-cursor [contenteditable="true"] {
+    cursor: text !important;
+  }
 }
 
-html.has-custom-cursor input,
-html.has-custom-cursor textarea,
-html.has-custom-cursor select,
-html.has-custom-cursor [contenteditable="true"] {
-  cursor: text !important;
-}
-
-@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+@media (hover: none), (prefers-reduced-motion: reduce) {
   .cursor {
     display: none !important;
   }
