@@ -3,7 +3,12 @@
 {% block content %}
 <section class="erp-card">
   {% if not show_preview %}
-  <p class="erp-muted">Envie um CSV com colunas: <code>title;phone;website;url;categoryName;street;city;state</code></p>
+  <p class="erp-muted">
+    Aceita CSV com <code>;</code> ou <code>,</code>. Colunas usadas:
+    <code>title</code>, <code>phone</code> (ou <code>phoneUnformatted</code>),
+    <code>website</code>, <code>url</code>, <code>categoryName</code>,
+    <code>street</code>, <code>city</code>, <code>state</code>.
+  </p>
   <form method="post" enctype="multipart/form-data" class="erp-form">
     {% csrf_token %}
     <label class="erp-field">

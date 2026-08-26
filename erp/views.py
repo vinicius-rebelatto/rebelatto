@@ -303,6 +303,28 @@ def _decode_csv(uploaded) -> str:
     return raw.decode("latin-1", errors="replace")
 
 
+def _detect_csv_delimiter(text: str) -> str:
+    sample = text[:8192]
+    try:
+        dialect = csv.Sniffer().sniff(sample, delimiters=";,|\t")
+        if dialect.delimiter in {";", ",", "|", "\t"}:
+            return dialect.delimiter
+    except csv.Error:
+        pass
+    first_line = sample.splitlines()[0] if sample else ""
+    if first_line.count(";") >= first_line.count(","):
+        return ";"
+    return ","
+
+
+def _csv_cell(row: dict, *keys: str) -> str:
+    for key in keys:
+        value = (row.get(key) or "").strip()
+        if value:
+            return value
+    return ""
+
+
 def _normalize_phone(phone: str) -> str:
     return re.sub(r"\D+", "", phone or "")
 
@@ -367,24 +389,31 @@ def cliente_import_csv(request: HttpRequest) -> HttpResponse:
         form = CsvImportForm(request.POST, request.FILES)
         if form.is_valid():
             text = _decode_csv(form.cleaned_data["arquivo"])
-            reader = csv.DictReader(io.StringIO(text), delimiter=";")
+            delimiter = _detect_csv_delimiter(text)
+            reader = csv.DictReader(io.StringIO(text), delimiter=delimiter)
             if not reader.fieldnames:
                 messages.error(request, "CSV inválido ou sem cabeçalho.")
                 return redirect("erp:cliente_import")
 
+            fieldnames = [((name or "").lstrip("\ufeff").strip()) for name in reader.fieldnames]
+            # Normalize keys in each row via a remapped reader approach
             preview_rows = []
             duplicates = 0
-            for row in reader:
-                empresa = (row.get("title") or "").strip()
+            for raw_row in reader:
+                row = {
+                    (key or "").lstrip("\ufeff").strip(): (value or "")
+                    for key, value in raw_row.items()
+                }
+                empresa = _csv_cell(row, "title")
                 if not empresa:
                     continue
-                telefone = (row.get("phone") or "").strip()
-                website = (row.get("website") or "").strip()
-                maps_url = (row.get("url") or "").strip()
-                categoria = (row.get("categoryName") or "").strip()
-                rua = (row.get("street") or "").strip()
-                cidade = (row.get("city") or "").strip()
-                estado = (row.get("state") or "").strip()
+                telefone = _csv_cell(row, "phone", "phoneUnformatted")
+                website = _csv_cell(row, "website")
+                maps_url = _csv_cell(row, "url")
+                categoria = _csv_cell(row, "categoryName")
+                rua = _csv_cell(row, "street")
+                cidade = _csv_cell(row, "city")
+                estado = _csv_cell(row, "state")
 
                 phone_norm = _normalize_phone(telefone)
                 is_dup = False
@@ -413,6 +442,14 @@ def cliente_import_csv(request: HttpRequest) -> HttpResponse:
                     }
                 )
 
+            if not preview_rows:
+                messages.error(
+                    request,
+                    "Nenhuma linha válida encontrada. Use CSV com a coluna title "
+                    f"(delimitador detectado: “{delimiter}”).",
+                )
+                return redirect("erp:cliente_import")
+
             request.session["csv_preview"] = preview_rows
             return render(
                 request,
@@ -423,6 +460,8 @@ def cliente_import_csv(request: HttpRequest) -> HttpResponse:
                     "preview_rows": preview_rows,
                     "duplicates": duplicates,
                     "show_preview": True,
+                    "delimiter": delimiter,
+                    "fieldnames": fieldnames,
                 },
             )
 
