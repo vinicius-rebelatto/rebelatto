@@ -18,6 +18,18 @@
       <option value="{{ value }}" {% if active_filters.status == value %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
+    <select name="categoria">
+      <option value="">Categoria</option>
+      {% for value, label in categoria_choices %}
+      <option value="{{ value }}" {% if active_filters.categoria == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="tipo">
+      <option value="">Tipo</option>
+      {% for value, label in tipo_choices %}
+      <option value="{{ value }}" {% if active_filters.tipo == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
     <select name="cliente">
       <option value="">Cliente</option>
       {% for c in clientes %}
@@ -36,6 +48,8 @@
       <thead>
         <tr>
           <th><a href="{% sort_link 'titulo' %}">Título</a></th>
+          <th><a href="{% sort_link 'categoria' %}">Categoria</a></th>
+          <th><a href="{% sort_link 'tipo' %}">Tipo</a></th>
           <th><a href="{% sort_link 'cliente' %}">Cliente</a></th>
           <th><a href="{% sort_link 'status' %}">Status</a></th>
           <th>Link público</th>
@@ -46,17 +60,25 @@
         {% for m in object_list %}
         <tr>
           <td><a href="{% url 'erp:mockup_edit' m.pk %}">{{ m.titulo }}</a></td>
-          <td><a href="{% url 'erp:cliente_detail' m.cliente_id %}">{{ m.cliente.display_name }}</a></td>
+          <td>{{ m.get_categoria_display }}</td>
+          <td>{{ m.get_tipo_display }}</td>
+          <td>
+            {% if m.cliente %}
+            <a href="{% url 'erp:cliente_detail' m.cliente_id %}">{{ m.cliente.display_name }}</a>
+            {% else %}
+            <span class="erp-muted">—</span>
+            {% endif %}
+          </td>
           <td><span class="erp-badge erp-badge--{{ m.status }}">{{ m.get_status_display }}</span></td>
           <td>
             {% if m.status == 'publicado' %}
-            <a href="{% url 'portfolio:mockup_public' m.slug %}" target="_blank" rel="noopener">/mockup/{{ m.slug }}</a>
+            <a href="{% url 'portfolio:mockup_public' m.slug %}" target="_blank" rel="noopener">/mockups/{{ m.slug }}</a>
             {% else %}—{% endif %}
           </td>
           <td>{{ m.updated_at|date:"d/m/Y H:i" }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="5" class="erp-empty">Nenhum mockup.</td></tr>
+        <tr><td colspan="7" class="erp-empty">Nenhum mockup.</td></tr>
         {% endfor %}
       </tbody>
     </table>

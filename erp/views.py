@@ -483,10 +483,12 @@ def cliente_import_csv(request: HttpRequest) -> HttpResponse:
 
 class MockupListing(ListingMixin):
     search_fields = ["titulo", "slug", "cliente__empresa", "cliente__nome", "descricao"]
-    filter_fields = ["status", "cliente"]
+    filter_fields = ["status", "cliente", "categoria", "tipo"]
     sort_fields = {
         "titulo": "titulo",
         "status": "status",
+        "categoria": "categoria",
+        "tipo": "tipo",
         "updated_at": "updated_at",
         "cliente": "cliente__empresa",
     }
@@ -501,6 +503,8 @@ def mockup_list(request: HttpRequest) -> HttpResponse:
         {
             "page_title": "Mockups",
             "status_choices": Mockup.Status.choices,
+            "categoria_choices": Mockup.Categoria.choices,
+            "tipo_choices": Mockup.Tipo.choices,
             "clientes": Cliente.objects.order_by("empresa", "nome"),
         }
     )

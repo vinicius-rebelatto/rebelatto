@@ -139,14 +139,36 @@ class Mockup(models.Model):
         PUBLICADO = "publicado", "Publicado"
         ARQUIVADO = "arquivado", "Arquivado"
 
+    class Categoria(models.TextChoices):
+        ODONTOLOGIA = "odontologia", "Odontologia"
+        GERAL = "geral", "Geral"
+
+    class Tipo(models.TextChoices):
+        GALERIA = "galeria", "Galeria"
+        LANDING = "landing", "Landing"
+
     cliente = models.ForeignKey(
         Cliente,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name="mockups",
         verbose_name="Cliente",
     )
     titulo = models.CharField("Título", max_length=160)
     slug = models.SlugField("Slug", max_length=220, unique=True)
+    categoria = models.CharField(
+        "Categoria",
+        max_length=32,
+        choices=Categoria.choices,
+        default=Categoria.GERAL,
+    )
+    tipo = models.CharField(
+        "Tipo",
+        max_length=32,
+        choices=Tipo.choices,
+        default=Tipo.GALERIA,
+    )
     status = models.CharField(
         "Status",
         max_length=32,
@@ -171,7 +193,10 @@ class Mockup(models.Model):
     def ensure_slug(self) -> None:
         if self.slug:
             return
-        base_source = self.cliente.empresa or self.cliente.nome or self.titulo
+        if self.cliente_id:
+            base_source = self.cliente.empresa or self.cliente.nome or self.titulo
+        else:
+            base_source = self.titulo
         base = slugify(base_source)[:180] or "mockup"
         candidate = base
         index = 2
@@ -195,7 +220,7 @@ class Mockup(models.Model):
         if self.status == self.Status.PUBLICADO and (
             was_new or previous_status != self.Status.PUBLICADO
         ):
-            if self.cliente.status == Cliente.Status.A_PROSPECTAR:
+            if self.cliente_id and self.cliente.status == Cliente.Status.A_PROSPECTAR:
                 self.cliente.status = Cliente.Status.EM_PROSPECCAO
                 self.cliente.save(update_fields=["status", "updated_at"])
 

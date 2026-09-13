@@ -7,5 +7,7 @@ app_name = "portfolio"
 urlpatterns = [
     path("", views.home, name="home"),
     path("leads/", views.create_lead, name="create_lead"),
-    path("mockup/<slug:slug>/", views.mockup_public, name="mockup_public"),
+    path("chat/", views.chat_message, name="chat"),
+    path("mockups/<slug:slug>/", views.mockup_public, name="mockup_public"),
+    path("mockup/<slug:slug>/", views.mockup_public_legacy, name="mockup_public_legacy"),
 ]

@@ -333,6 +333,10 @@
         if (event.pointerType && event.pointerType !== "mouse") return;
         x = event.clientX;
         y = event.clientY;
+        if (event.target && event.target.closest && event.target.closest("[data-chat-root]")) {
+          hide();
+          return;
+        }
         show();
       },
       { passive: true }
@@ -353,6 +357,11 @@
     document.addEventListener(
       "pointerover",
       (event) => {
+        if (event.target.closest("[data-chat-root]")) {
+          hide();
+          return;
+        }
+
         if (
           event.target.closest(
             "input, textarea, select, [contenteditable='true']"

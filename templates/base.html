@@ -23,6 +23,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
   {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -39,6 +40,7 @@
   </main>
 
   {% include "portfolio/partials/footer.html" %}
+  {% include "portfolio/partials/chatbot.html" with chat_persona="rebel_tech" %}
 
   <div class="cursor" data-cursor-root hidden aria-hidden="true">
     <span class="cursor__dot"></span>
@@ -47,6 +49,7 @@
   </div>
 
   <script src="{% static 'js/main.js' %}" defer></script>
+  <script src="{% static 'js/chatbot.js' %}" defer></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

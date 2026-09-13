@@ -158,3 +158,6 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }
+
+GEMINI_API_KEY = secret_or_env("GEMINI_API_KEY", "")
+GEMINI_MODEL = secret_or_env("GEMINI_MODEL", "gemini-3.5-flash-lite") or "gemini-3.5-flash-lite"

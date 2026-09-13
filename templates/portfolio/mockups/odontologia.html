@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aurora Odontologia — {{ site.marca }}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Protótipo visual de landing para clínicas odontológicas — Rebel Tech.">
+  <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static landing.css %}">
+  <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
+</head>
+<body class="odo-landing">
+  <div class="odo-demo-badge" aria-hidden="true">Protótipo Rebel Tech</div>
+
+  <header class="odo-header" data-odo-header>
+    <div class="container container--wide odo-header__inner">
+      <a class="odo-logo" href="#topo" aria-label="Aurora Odontologia — início">
+        <span class="odo-logo__mark" aria-hidden="true">A</span>
+        <span class="odo-logo__text">
+          <strong>Aurora</strong>
+          <span>Odontologia</span>
+        </span>
+      </a>
+
+      <nav class="odo-nav" aria-label="Principal">
+        <a href="#servicos">Serviços</a>
+        <a href="#estrutura">Estrutura</a>
+        <a href="#depoimentos">Depoimentos</a>
+      </nav>
+
+      <div class="odo-header__actions">
+        <button class="btn btn-primary btn-sm" type="button">Agendar Avaliação</button>
+        <button
+          class="odo-nav-toggle"
+          type="button"
+          data-odo-nav-toggle
+          aria-expanded="false"
+          aria-controls="odo-drawer"
+          aria-label="Abrir menu"
+        >
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="odo-drawer" id="odo-drawer" data-odo-drawer hidden>
+      <nav class="odo-drawer__list" aria-label="Menu">
+        <a href="#servicos">Serviços</a>
+        <a href="#estrutura">Estrutura</a>
+        <a href="#depoimentos">Depoimentos</a>
+        <button class="btn btn-primary btn-block" type="button">Agendar Avaliação</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="topo">
+    <section class="odo-hero" aria-labelledby="odo-hero-title">
+      <div class="container container--wide odo-hero__grid">
+        <div class="odo-hero__copy">
+          <p class="odo-kicker">Clínica odontológica premium</p>
+          <h1 id="odo-hero-title">Tecnologia e conforto para o seu melhor sorriso</h1>
+          <p class="odo-hero__lead">
+            Planejamento digital, atendimento humanizado e estrutura moderna em Joinville.
+            Transformamos a experiência odontológica com precisão e acolhimento.
+          </p>
+          <div class="odo-hero__actions">
+            <button class="btn btn-primary" type="button">Agendar Avaliação</button>
+            <a class="btn btn-outline" href="#servicos">Conhecer tratamentos</a>
+          </div>
+        </div>
+        <div class="odo-hero__visual" role="img" aria-label="Espaço reservado para foto do paciente ou da estrutura da clínica">
+          <div class="odo-placeholder odo-placeholder--hero">
+            <span class="odo-placeholder__label">Imagem hero</span>
+            <span class="odo-placeholder__hint">Paciente ou estrutura da clínica</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="odo-trust" aria-label="Números e convênios">
+      <div class="container container--wide odo-trust__inner">
+        <ul class="odo-trust__stats">
+          <li>
+            <strong>+2.400</strong>
+            <span>Sorrisos transformados</span>
+          </li>
+          <li>
+            <strong>12 anos</strong>
+            <span>De experiência clínica</span>
+          </li>
+          <li>
+            <strong>4.9</strong>
+            <span>Avaliação média dos pacientes</span>
+          </li>
+        </ul>
+        <ul class="odo-trust__logos" aria-label="Convênios e certificações (demonstração)">
+          <li>Unimed</li>
+          <li>Bradesco Dental</li>
+          <li>OdontoPrev</li>
+          <li>SulAmérica</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="odo-section" id="servicos" aria-labelledby="odo-servicos-title">
+      <div class="container">
+        <header class="odo-section__head">
+          <p class="odo-kicker">Tratamentos</p>
+          <h2 id="odo-servicos-title">Especialidades de alto impacto</h2>
+          <p class="odo-section__support">
+            Protocolos modernos com foco em estética, função e longevidade do resultado.
+          </p>
+        </header>
+
+        <div class="odo-services">
+          <article class="odo-card">
+            <div class="odo-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-2.2 2.4-3.5 5.2-3.5 8.2 0 3.6 1.8 6.5 3.5 8.8 1.7-2.3 3.5-5.2 3.5-8.8C15.5 8.2 14.2 5.4 12 3Z"/><path d="M8.5 11.5h7"/></svg>
+            </div>
+            <h3>Implantes</h3>
+            <p>Reabilitação com planejamento 3D e previsibilidade estética para devolver mastigação e confiança.</p>
+          </article>
+
+          <article class="odo-card">
+            <div class="odo-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="7" width="16" height="10" rx="3"/><path d="M8 12h8M10 9.5v5M14 9.5v5"/></svg>
+            </div>
+            <h3>Ortodontia</h3>
+            <p>Alinhadores invisíveis e acompanhamento digital para um sorriso alinhado sem comprometer o dia a dia.</p>
+          </article>
+
+          <article class="odo-card">
+            <div class="odo-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 14c2-4 5-6 8-6s6 2 8 6"/><path d="M7 14.5c1.2 2.2 2.8 3.5 5 3.5s3.8-1.3 5-3.5"/><circle cx="12" cy="8" r="1.2"/></svg>
+            </div>
+            <h3>Lentes de Contato Dental</h3>
+            <p>Laminados ultrafinos para harmonia do sorriso com mínimo desgaste e acabamento natural.</p>
+          </article>
+
+          <article class="odo-card">
+            <div class="odo-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3M12 18v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M3 12h3M18 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/><circle cx="12" cy="12" r="3.5"/></svg>
+            </div>
+            <h3>Clareamento</h3>
+            <p>Protocolos seguros em consultório para um brilho saudável, com acompanhamento profissional.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="odo-section odo-section--soft" id="estrutura" aria-labelledby="odo-sobre-title">
+      <div class="container odo-about">
+        <div class="odo-about__copy">
+          <p class="odo-kicker">Sobre a clínica</p>
+          <h2 id="odo-sobre-title">Atendimento humanizado e infraestrutura moderna</h2>
+          <p>
+            Na Aurora Odontologia, cada plano de tratamento nasce de uma escuta atenta.
+            Unimos tecnologia de ponta — scanners digitais, radiografia de baixa dose e
+            fluxos digitais — a um ambiente acolhedor pensado para reduzir ansiedade.
+          </p>
+          <p>
+            Nossa equipe acompanha o paciente em cada etapa, com transparência sobre
+            prazos, investimento e expectativas de resultado.
+          </p>
+          <ul class="odo-about__list">
+            <li>Consultórios climatizados e esterilização rastreável</li>
+            <li>Planejamento digital com simulação do sorriso</li>
+            <li>Horários flexíveis e estacionamento próximo</li>
+          </ul>
+        </div>
+        <div class="odo-about__visual" role="img" aria-label="Espaço reservado para foto do cirurgião-dentista principal">
+          <div class="odo-placeholder odo-placeholder--portrait">
+            <span class="odo-placeholder__label">Foto do especialista</span>
+            <span class="odo-placeholder__hint">Dra. / Dr. responsável</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="odo-section" id="depoimentos" aria-labelledby="odo-dep-title">
+      <div class="container">
+        <header class="odo-section__head odo-section__head--center">
+          <p class="odo-kicker">Depoimentos</p>
+          <h2 id="odo-dep-title">Pacientes que confiam na Aurora</h2>
+        </header>
+
+        <div class="odo-testimonials">
+          <blockquote class="odo-card odo-quote">
+            <p>“O alinhador mudou minha rotina. Atendimento impecável e resultado além do esperado.”</p>
+            <footer>
+              <strong>Camila R.</strong>
+              <span>Ortodontia</span>
+            </footer>
+          </blockquote>
+          <blockquote class="odo-card odo-quote">
+            <p>“Fiz implantes com total tranquilidade. Explicaram cada passo e o pós-operatório foi leve.”</p>
+            <footer>
+              <strong>Eduardo M.</strong>
+              <span>Implantes</span>
+            </footer>
+          </blockquote>
+          <blockquote class="odo-card odo-quote">
+            <p>“As lentes deixaram meu sorriso natural. Clínica linda e equipe muito atenciosa.”</p>
+            <footer>
+              <strong>Patrícia S.</strong>
+              <span>Estética</span>
+            </footer>
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section class="odo-cta" aria-labelledby="odo-cta-title">
+      <div class="container odo-cta__inner">
+        <div>
+          <p class="odo-kicker odo-kicker--on-dark">Próximo passo</p>
+          <h2 id="odo-cta-title">Tire suas dúvidas no WhatsApp</h2>
+          <p>Nossa equipe responde com orientação inicial e ajuda a agendar sua avaliação.</p>
+        </div>
+        <button class="btn btn-primary" type="button" aria-disabled="true">Falar no WhatsApp</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="odo-footer">
+    <div class="container container--wide odo-footer__grid">
+      <div>
+        <div class="odo-logo odo-logo--footer">
+          <span class="odo-logo__mark" aria-hidden="true">A</span>
+          <span class="odo-logo__text">
+            <strong>Aurora</strong>
+            <span>Odontologia</span>
+          </span>
+        </div>
+        <p class="odo-footer__note">Demonstração visual — conteúdos e contatos são fictícios.</p>
+      </div>
+
+      <div>
+        <h3>Endereço</h3>
+        <p>Rua das Palmeiras, 420 — Sala 302<br>América, Joinville — SC<br>CEP 89204-250</p>
+      </div>
+
+      <div>
+        <h3>Horários</h3>
+        <p>Seg–Sex: 08h–19h<br>Sáb: 08h–12h<br>Dom: fechado</p>
+      </div>
+
+      <div>
+        <h3>Redes</h3>
+        <ul class="odo-social">
+          <li><button type="button" aria-label="Instagram (demonstração)">Instagram</button></li>
+          <li><button type="button" aria-label="Facebook (demonstração)">Facebook</button></li>
+          <li><button type="button" aria-label="YouTube (demonstração)">YouTube</button></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container container--wide odo-footer__bottom">
+      <p>© Aurora Odontologia — protótipo {{ site.marca }}</p>
+    </div>
+  </footer>
+
+  {% include "portfolio/partials/chatbot.html" with chat_persona="odontologia" %}
+  <script src="{% static landing.js %}" defer></script>
+  <script src="{% static 'js/chatbot.js' %}" defer></script>
+</body>
+</html>

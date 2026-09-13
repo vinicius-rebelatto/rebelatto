@@ -1,0 +1,664 @@
+/* Aurora Odontologia — landing mockup (tema claro fixo) */
+
+.odo-landing {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+.odo-landing .bg-aurora {
+  display: none;
+}
+
+.odo-demo-badge {
+  position: fixed;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 60;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #f8fafc;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+/* Header */
+.odo-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background 0.25s var(--ease),
+    border-color 0.25s var(--ease),
+    box-shadow 0.25s var(--ease),
+    backdrop-filter 0.25s var(--ease);
+}
+
+.odo-header.is-scrolled {
+  backdrop-filter: blur(14px);
+  background: var(--header-bg);
+  border-bottom-color: var(--border);
+  box-shadow: var(--scroll-shadow);
+}
+
+.odo-header__inner {
+  min-height: var(--header-h);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 1rem;
+}
+
+.odo-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+  color: inherit;
+  justify-self: start;
+  cursor: pointer;
+}
+
+.odo-logo__mark {
+  display: grid;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 12px;
+  background: var(--color-cyan);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.odo-logo__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.odo-logo__text strong {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.odo-logo__text span {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.odo-nav {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 1.85rem);
+}
+
+.odo-nav a {
+  color: var(--nav-link);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+
+.odo-nav a:hover {
+  color: var(--color-cyan);
+}
+
+.odo-header__actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.odo-nav-toggle {
+  display: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+
+.odo-nav-toggle span {
+  display: block;
+  width: 1.1rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text);
+}
+
+.odo-drawer {
+  border-top: 1px solid var(--border);
+  background: var(--mobile-nav-bg);
+  padding: 1rem var(--page-gutter) 1.25rem;
+}
+
+.odo-drawer[hidden] {
+  display: none !important;
+}
+
+.odo-drawer__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: 420px;
+}
+
+.odo-drawer__list a {
+  padding: 0.75rem 0.25rem;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.odo-drawer__list a:hover {
+  color: var(--color-cyan);
+}
+
+.odo-drawer__list .btn {
+  margin-top: 0.5rem;
+}
+
+/* Shared */
+.odo-kicker {
+  margin: 0 0 0.75rem;
+  color: var(--color-cyan);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.odo-kicker--on-dark {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.odo-section {
+  padding: clamp(4rem, 8vw, 6rem) 0;
+  background: var(--surface);
+}
+
+.odo-section--soft {
+  background: var(--bg-deep);
+}
+
+.odo-section__head {
+  max-width: 640px;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.odo-section__head--center {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.odo-section h2,
+.odo-hero h1,
+.odo-cta h2 {
+  margin: 0 0 0.85rem;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.odo-section h2 {
+  font-size: clamp(1.7rem, 1.3rem + 1.4vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.odo-section__support,
+.odo-about__copy > p,
+.odo-hero__lead,
+.odo-cta p,
+.odo-footer p {
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.odo-section__support {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+/* Hero */
+.odo-hero {
+  padding: clamp(2.5rem, 7vh, 5rem) 0 clamp(2.5rem, 6vh, 4rem);
+  background: var(--bg);
+}
+
+.odo-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.9fr);
+  gap: clamp(1.75rem, 4vw, 3.5rem);
+  align-items: center;
+}
+
+.odo-hero h1 {
+  font-size: clamp(2.1rem, 1.5rem + 2.4vw, 3.55rem);
+  font-weight: 800;
+  line-height: 1.08;
+  max-width: 14ch;
+}
+
+.odo-hero__lead {
+  margin: 0 0 1.6rem;
+  font-size: clamp(1.02rem, 0.95rem + 0.35vw, 1.18rem);
+  max-width: 38rem;
+}
+
+.odo-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.odo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 280px;
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(6, 182, 212, 0.12), transparent 55%),
+    var(--placeholder-bg);
+  border: 1px dashed rgba(15, 23, 42, 0.14);
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.odo-placeholder--hero {
+  min-height: clamp(280px, 42vw, 420px);
+  border-radius: 18px;
+}
+
+.odo-placeholder--portrait {
+  min-height: 360px;
+  border-radius: 16px;
+}
+
+.odo-placeholder__label {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.odo-placeholder__hint {
+  font-size: 0.9rem;
+}
+
+/* Trust */
+.odo-trust {
+  padding: 1.35rem 0;
+  background: var(--surface);
+  border-block: 1px solid var(--border);
+}
+
+.odo-trust__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+}
+
+.odo-trust__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 2.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.odo-trust__stats li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.odo-trust__stats strong {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.odo-trust__stats span {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+.odo-trust__logos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.odo-trust__logos li {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  filter: grayscale(1);
+  opacity: 0.85;
+}
+
+/* Cards / services */
+.odo-services,
+.odo-testimonials {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.odo-services {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.odo-testimonials {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.odo-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.35rem 1.25rem 1.45rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition:
+    transform 0.22s var(--ease),
+    box-shadow 0.22s var(--ease),
+    border-color 0.22s var(--ease);
+  cursor: default;
+}
+
+.odo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--project-card-shadow);
+  border-color: rgba(6, 182, 212, 0.28);
+}
+
+.odo-card__icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  background: var(--cyan-dim);
+  color: var(--color-cyan);
+}
+
+.odo-card__icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.odo-card h3 {
+  margin: 0 0 0.55rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.odo-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.odo-quote footer {
+  margin-top: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.odo-quote footer strong {
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.odo-quote footer span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+/* About */
+.odo-about {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr);
+  gap: clamp(1.75rem, 4vw, 3.25rem);
+  align-items: center;
+}
+
+.odo-about__copy > p {
+  margin: 0 0 1rem;
+  font-size: 1.02rem;
+}
+
+.odo-about__list {
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.odo-about__list li {
+  position: relative;
+  padding-left: 1.35rem;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 0.96rem;
+}
+
+.odo-about__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--color-cyan);
+}
+
+/* CTA */
+.odo-cta {
+  padding: clamp(3rem, 6vw, 4.5rem) 0;
+  background:
+    linear-gradient(135deg, #0f172a 0%, #164e63 55%, #0e7490 100%);
+  color: #f8fafc;
+}
+
+.odo-cta__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.odo-cta h2 {
+  color: #f8fafc;
+  font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.1rem);
+  font-weight: 800;
+}
+
+.odo-cta p {
+  margin: 0;
+  max-width: 36rem;
+  color: rgba(248, 250, 252, 0.82);
+}
+
+.odo-cta .btn-primary {
+  background: #fff;
+  color: #0f172a;
+  border-color: transparent;
+}
+
+.odo-cta .btn-primary:hover {
+  filter: none;
+  background: #e2e8f0;
+}
+
+/* Footer */
+.odo-footer {
+  background: var(--footer-bg);
+  padding: clamp(2.5rem, 5vw, 3.5rem) 0 1.5rem;
+  color: var(--text-muted);
+}
+
+.odo-footer__grid {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr));
+  gap: 1.75rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.odo-footer h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.odo-footer p {
+  margin: 0;
+  font-size: 0.94rem;
+}
+
+.odo-footer__note {
+  margin-top: 0.85rem !important;
+  max-width: 22rem;
+  font-size: 0.88rem !important;
+}
+
+.odo-logo--footer {
+  pointer-events: none;
+}
+
+.odo-social {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.odo-social button {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: 500;
+  padding: 0.2rem 0;
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+
+.odo-social button:hover {
+  color: var(--color-cyan);
+}
+
+.odo-footer__bottom {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.odo-footer__bottom p {
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+/* Buttons already have hover from main.css; reinforce pointer */
+.odo-landing .btn {
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .odo-services {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .odo-header__inner {
+    grid-template-columns: 1fr auto;
+  }
+
+  .odo-nav {
+    display: none;
+  }
+
+  .odo-nav-toggle {
+    display: inline-flex;
+  }
+
+  .odo-hero__grid,
+  .odo-about,
+  .odo-footer__grid,
+  .odo-testimonials {
+    grid-template-columns: 1fr;
+  }
+
+  .odo-hero h1 {
+    max-width: none;
+  }
+
+  .odo-trust__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .odo-services {
+    grid-template-columns: 1fr;
+  }
+
+  .odo-header__actions .btn {
+    display: none;
+  }
+
+  .odo-demo-badge {
+    top: auto;
+    bottom: 5.25rem;
+    right: 0.75rem;
+  }
+}

@@ -27,8 +27,8 @@ class ClienteAdmin(admin.ModelAdmin):
 
 @admin.register(Mockup)
 class MockupAdmin(admin.ModelAdmin):
-    list_display = ("titulo", "cliente", "status", "slug", "updated_at")
-    list_filter = ("status",)
+    list_display = ("titulo", "categoria", "tipo", "cliente", "status", "slug", "updated_at")
+    list_filter = ("status", "categoria", "tipo")
     search_fields = ("titulo", "slug", "cliente__empresa", "cliente__nome")
     prepopulated_fields = {"slug": ("titulo",)}
     inlines = [MockupImagemInline]

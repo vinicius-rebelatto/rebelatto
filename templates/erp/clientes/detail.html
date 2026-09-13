@@ -92,7 +92,7 @@
           <a href="{% url 'erp:mockup_edit' m.pk %}">{{ m.titulo }}</a>
           <span class="erp-badge erp-badge--{{ m.status }}">{{ m.get_status_display }}</span>
           {% if m.status == 'publicado' %}
-          <a class="erp-muted" href="{% url 'portfolio:mockup_public' m.slug %}" target="_blank">/mockup/{{ m.slug }}</a>
+          <a class="erp-muted" href="{% url 'portfolio:mockup_public' m.slug %}" target="_blank">/mockups/{{ m.slug }}</a>
           {% endif %}
         </li>
         {% empty %}

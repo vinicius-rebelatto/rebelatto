@@ -28,3 +28,7 @@ DATABASE = {
     "HOST": "127.0.0.1",
     "PORT": "5432",
 }
+
+# Gemini (chatbot — nunca versionar a chave real)
+GEMINI_API_KEY = ""
+GEMINI_MODEL = "gemini-3.5-flash-lite"

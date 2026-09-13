@@ -1812,6 +1812,21 @@ html[data-theme="light"] .cursor__label {
   html.has-custom-cursor [contenteditable="true"] {
     cursor: text !important;
   }
+
+  html.has-custom-cursor .rt-chat,
+  html.has-custom-cursor .rt-chat * {
+    cursor: auto !important;
+  }
+
+  html.has-custom-cursor .rt-chat button,
+  html.has-custom-cursor .rt-chat .rt-chat__chip {
+    cursor: pointer !important;
+  }
+
+  html.has-custom-cursor .rt-chat textarea,
+  html.has-custom-cursor .rt-chat input {
+    cursor: text !important;
+  }
 }
 
 @media (hover: none), (prefers-reduced-motion: reduce) {

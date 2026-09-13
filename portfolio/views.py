@@ -1,15 +1,21 @@
 import csv
+import json
+import logging
 from pathlib import Path
 from urllib.parse import quote
 
 from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
 from django.views.decorators.http import require_POST
 
 from crm.models import Cliente, Mockup
+from portfolio import chatbot as chatbot_service
+from portfolio.mockup_landings import LANDINGS
 from portfolio.models import Project
+
+logger = logging.getLogger(__name__)
 
 
 def load_icon_list(filename, with_level=False):
@@ -135,8 +141,79 @@ def mockup_public(request, slug):
         slug=slug,
         status=Mockup.Status.PUBLICADO,
     )
+
+    if mockup.tipo == Mockup.Tipo.LANDING:
+        landing = LANDINGS.get(mockup.slug)
+        if landing:
+            return render(
+                request,
+                landing["template"],
+                {
+                    "mockup": mockup,
+                    "site": SITE,
+                    "landing": landing,
+                },
+            )
+
     return render(
         request,
         "portfolio/mockup_public.html",
         {"mockup": mockup, "site": SITE},
     )
+
+
+def mockup_public_legacy(request, slug):
+    return redirect("portfolio:mockup_public", slug=slug, permanent=True)
+
+
+@require_POST
+def chat_message(request):
+    try:
+        payload = json.loads(request.body.decode("utf-8") or "{}")
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"ok": False, "error": "JSON inválido."}, status=400)
+
+    persona_id = (payload.get("persona") or "").strip()
+    message = (payload.get("message") or "").strip()
+    history = chatbot_service.normalize_history(payload.get("history"))
+
+    if chatbot_service.get_persona(persona_id) is None:
+        return JsonResponse({"ok": False, "error": "Assistente inválido."}, status=400)
+
+    if not message:
+        return JsonResponse({"ok": False, "error": "Escreva uma mensagem."}, status=400)
+
+    if len(message) > chatbot_service.MAX_MESSAGE_LENGTH:
+        return JsonResponse(
+            {
+                "ok": False,
+                "error": f"Mensagem muito longa (máx. {chatbot_service.MAX_MESSAGE_LENGTH} caracteres).",
+            },
+            status=400,
+        )
+
+    if not chatbot_service.check_rate_limit(request.session):
+        return JsonResponse(
+            {
+                "ok": False,
+                "error": "Muitas mensagens neste momento. Tente novamente em alguns minutos.",
+            },
+            status=429,
+        )
+
+    try:
+        reply = chatbot_service.generate_reply(persona_id, message, history)
+    except RuntimeError as exc:
+        logger.warning("Chat unavailable: %s", exc)
+        return JsonResponse(
+            {"ok": False, "error": "Chat temporariamente indisponível. Tente mais tarde."},
+            status=503,
+        )
+    except Exception:
+        logger.exception("Gemini chat failed")
+        return JsonResponse(
+            {"ok": False, "error": "Não consegui responder agora. Tente de novo em instantes."},
+            status=502,
+        )
+
+    return JsonResponse({"ok": True, "reply": reply})

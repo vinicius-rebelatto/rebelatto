@@ -1,0 +1,74 @@
+{% load static %}
+{% with persona_id=chat_persona|default:"rebel_tech" %}
+<aside
+  class="rt-chat"
+  data-chat-root
+  data-chat-persona="{{ persona_id }}"
+  data-chat-endpoint="{% url 'portfolio:chat' %}"
+  aria-live="polite"
+>
+  {% csrf_token %}
+  <button
+    type="button"
+    class="rt-chat__fab"
+    data-chat-toggle
+    aria-expanded="false"
+    aria-controls="rt-chat-panel"
+    aria-label="Abrir chat"
+  >
+    <svg class="rt-chat__fab-icon rt-chat__fab-icon--open" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+    </svg>
+    <svg class="rt-chat__fab-icon rt-chat__fab-icon--close" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 6 6 18M6 6l12 12"/>
+    </svg>
+  </button>
+
+  <div
+    class="rt-chat__panel"
+    id="rt-chat-panel"
+    data-chat-panel
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="rt-chat-title"
+  >
+    <header class="rt-chat__header">
+      <div class="rt-chat__identity">
+        <span class="rt-chat__avatar" aria-hidden="true">{{ persona_id|slice:":1"|upper }}</span>
+        <div>
+          <h2 class="rt-chat__title" id="rt-chat-title" data-chat-title>Assistente</h2>
+          <p class="rt-chat__status"><span class="rt-chat__dot" aria-hidden="true"></span> Online</p>
+        </div>
+      </div>
+      <button type="button" class="rt-chat__close" data-chat-close aria-label="Fechar chat">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="rt-chat__messages" data-chat-messages tabindex="0"></div>
+
+    <div class="rt-chat__suggestions" data-chat-suggestions hidden></div>
+
+    <form class="rt-chat__composer" data-chat-form>
+      <label class="visually-hidden" for="rt-chat-input">Mensagem</label>
+      <textarea
+        id="rt-chat-input"
+        class="rt-chat__input"
+        data-chat-input
+        rows="1"
+        maxlength="500"
+        placeholder="Digite sua dúvida…"
+        autocomplete="off"
+      ></textarea>
+      <button type="submit" class="rt-chat__send" data-chat-send aria-label="Enviar mensagem" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+</aside>
+{% endwith %}

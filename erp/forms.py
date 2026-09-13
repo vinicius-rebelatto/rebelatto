@@ -55,6 +55,8 @@ class MockupForm(forms.ModelForm):
             "cliente",
             "titulo",
             "slug",
+            "categoria",
+            "tipo",
             "status",
             "capa",
             "descricao",
@@ -65,6 +67,11 @@ class MockupForm(forms.ModelForm):
             "descricao": forms.Textarea(attrs={"rows": 3}),
             "notas_internas": forms.Textarea(attrs={"rows": 3}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["cliente"].required = False
+        self.fields["cliente"].empty_label = "— Sem cliente (biblioteca) —"
 
 
 MockupImagemFormSet = inlineformset_factory(

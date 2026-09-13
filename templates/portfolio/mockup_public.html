@@ -28,7 +28,7 @@
   <header class="mockup-public__header">
     <div class="container">
       <span class="logo-rebel">Rebel</span><span class="logo-tech"> Tech</span>
-      <p>Proposta visual para <strong>{{ mockup.cliente.display_name }}</strong></p>
+      <p>{% if mockup.cliente %}Proposta visual para <strong>{{ mockup.cliente.display_name }}</strong>{% else %}Biblioteca de mockups — {{ mockup.get_categoria_display }}{% endif %}</p>
     </div>
   </header>
 
