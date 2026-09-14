@@ -73,6 +73,18 @@
     }
   });
 
+  document.querySelectorAll('a[href*="wa.me"]').forEach((link) => {
+    link.addEventListener("click", () => {
+      try {
+        if (typeof window.fbq === "function") {
+          window.fbq("track", "Contact");
+        }
+      } catch (_err) {
+        /* ignore */
+      }
+    });
+  });
+
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!form) return;
@@ -106,6 +118,14 @@
 
       form.reset();
       if (statusEl) statusEl.textContent = data.message || "Enviado!";
+
+      try {
+        if (typeof window.fbq === "function") {
+          window.fbq("track", "Lead");
+        }
+      } catch (_trackErr) {
+        /* ignore tracking errors */
+      }
     } catch (_err) {
       if (statusEl) statusEl.textContent = "Falha de conexão. Tente novamente.";
     }

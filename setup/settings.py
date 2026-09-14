@@ -164,3 +164,4 @@ GEMINI_API_KEY = secret_or_env("GEMINI_API_KEY", "")
 GEMINI_MODEL = secret_or_env("GEMINI_MODEL", "gemini-3.5-flash-lite") or "gemini-3.5-flash-lite"
 
 SITE_URL = (secret_or_env("SITE_URL", "https://rebelatto.tech") or "https://rebelatto.tech").rstrip("/")
+META_PIXEL_ID = (secret_or_env("META_PIXEL_ID", "1016292974800325") or "").strip()
