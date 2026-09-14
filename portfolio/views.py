@@ -5,10 +5,10 @@ from pathlib import Path
 from urllib.parse import quote
 
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 from crm.models import Cliente, Mockup
 from portfolio import chatbot as chatbot_service
@@ -67,6 +67,16 @@ SITE = {
         "entrego soluções completas com foco em performance, usabilidade e uma "
         "arquitetura técnica pronta para acompanhar o crescimento do seu negócio."
     ),
+    "seo_title": "Rebel Tech | Desenvolvimento de Software — Vinícius Rebelatto",
+    "seo_description": (
+        "Desenvolvimento de sites, sistemas web, landing pages e produtos digitais. "
+        "A Rebel Tech cria software moderno, rápido e focado em resultado."
+    ),
+    "seo_keywords": (
+        "desenvolvimento de software, criar site, sistema web, landing page, "
+        "CRM, ERP, produto digital, Rebel Tech, Vinícius Rebelatto, software sob medida"
+    ),
+    "og_image": "img/vinicius.png",
     "whatsapp": "5547997867428",
     "whatsapp_display": "(47) 99786-7428",
     "whatsapp_msg": "Olá! Vi o portfolio da Rebel Tech e gostaria de conversar.",
@@ -164,6 +174,48 @@ def mockup_public(request, slug):
 
 def mockup_public_legacy(request, slug):
     return redirect("portfolio:mockup_public", slug=slug, permanent=True)
+
+
+@require_GET
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /erp/",
+        "Disallow: /admin/",
+        "Disallow: /chat/",
+        "Disallow: /leads/",
+        f"Sitemap: {settings.SITE_URL}/sitemap.xml",
+        "",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")
+
+
+@require_GET
+def sitemap_xml(request):
+    urls = [
+        {
+            "loc": f"{settings.SITE_URL}/",
+            "changefreq": "weekly",
+            "priority": "1.0",
+        },
+    ]
+    body = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    for item in urls:
+        body.extend(
+            [
+                "  <url>",
+                f"    <loc>{item['loc']}</loc>",
+                f"    <changefreq>{item['changefreq']}</changefreq>",
+                f"    <priority>{item['priority']}</priority>",
+                "  </url>",
+            ]
+        )
+    body.append("</urlset>")
+    return HttpResponse("\n".join(body), content_type="application/xml; charset=utf-8")
 
 
 @require_POST

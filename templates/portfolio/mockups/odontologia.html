@@ -4,9 +4,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aurora Odontologia — {{ site.marca }}</title>
+  <title>Landing Odontologia — Protótipo {{ site.marca }}</title>
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="Protótipo visual de landing para clínicas odontológicas — Rebel Tech.">
+  <meta name="description" content="Protótipo de landing page para clínicas odontológicas. Demonstração visual da Rebel Tech — desenvolvimento de sites e sistemas.">
+  <meta name="keywords" content="landing page odontologia, site para clínica odontológica, protótipo Rebel Tech, desenvolvimento web">
+  <meta name="author" content="{{ site.nome }} — {{ site.marca }}">
+  <meta name="theme-color" content="#06b6d4">
+  <link rel="canonical" href="{{ site_url }}{{ request.path }}">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="{{ site.marca }}">
+  <meta property="og:title" content="Landing Odontologia — Protótipo {{ site.marca }}">
+  <meta property="og:description" content="Protótipo de landing page para clínicas odontológicas. Demonstração visual da Rebel Tech.">
+  <meta property="og:url" content="{{ site_url }}{{ request.path }}">
+  <meta property="og:image" content="{{ site_url }}{% static site.og_image %}">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Landing Odontologia — Protótipo {{ site.marca }}">
+  <meta name="twitter:description" content="Protótipo de landing page para clínicas odontológicas — Rebel Tech.">
+  <meta name="twitter:image" content="{{ site_url }}{% static site.og_image %}">
+
   <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

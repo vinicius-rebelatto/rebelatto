@@ -32,3 +32,5 @@ DATABASE = {
 # Gemini (chatbot — nunca versionar a chave real)
 GEMINI_API_KEY = ""
 GEMINI_MODEL = "gemini-3.5-flash-lite"
+
+SITE_URL = "https://rebelatto.tech"

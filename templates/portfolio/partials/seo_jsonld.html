@@ -1,0 +1,68 @@
+{% load static %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "{{ site_url }}/#organization",
+      "name": "{{ site.marca }}",
+      "url": "{{ site_url }}/",
+      "logo": "{{ site_url }}{% static 'img/favicon.png' %}",
+      "email": "{{ site.email }}",
+      "telephone": "+{{ site.whatsapp }}",
+      "sameAs": [
+        "{{ site.linkedin }}",
+        "{{ site.github }}",
+        "{{ site.instagram }}"
+      ],
+      "founder": { "@id": "{{ site_url }}/#person" }
+    },
+    {
+      "@type": "Person",
+      "@id": "{{ site_url }}/#person",
+      "name": "{{ site.nome }}",
+      "jobTitle": "{{ site.cargo }}",
+      "url": "{{ site_url }}/",
+      "image": "{{ site_url }}{% static site.og_image %}",
+      "email": "{{ site.email }}",
+      "telephone": "+{{ site.whatsapp }}",
+      "worksFor": { "@id": "{{ site_url }}/#organization" },
+      "sameAs": [
+        "{{ site.linkedin }}",
+        "{{ site.github }}",
+        "{{ site.instagram }}"
+      ]
+    },
+    {
+      "@type": "ProfessionalService",
+      "@id": "{{ site_url }}/#service",
+      "name": "{{ site.marca }} — Desenvolvimento de Software",
+      "url": "{{ site_url }}/",
+      "image": "{{ site_url }}{% static site.og_image %}",
+      "description": "{{ site.seo_description }}",
+      "provider": { "@id": "{{ site_url }}/#person" },
+      "serviceType": [
+        "Desenvolvimento de software",
+        "Desenvolvimento de sites",
+        "Sistemas web",
+        "Landing pages",
+        "CRM",
+        "ERP",
+        "Produtos digitais"
+      ],
+      "telephone": "+{{ site.whatsapp }}",
+      "email": "{{ site.email }}"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "{{ site_url }}/#website",
+      "url": "{{ site_url }}/",
+      "name": "{{ site.marca }}",
+      "description": "{{ site.seo_description }}",
+      "publisher": { "@id": "{{ site_url }}/#organization" },
+      "inLanguage": "pt-BR"
+    }
+  ]
+}
+</script>

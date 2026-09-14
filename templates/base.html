@@ -4,8 +4,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Rebel Tech — {{ site.nome }}{% endblock %}</title>
-  <meta name="description" content="{% block meta_description %}Portfolio de {{ site.nome }} sob a marca Rebel Tech. Desenvolvimento de software moderno e escalável.{% endblock %}">
+  <title>{% block title %}{{ site.seo_title }}{% endblock %}</title>
+
+  <meta name="description" content="{% block meta_description %}{{ site.seo_description }}{% endblock %}">
+  <meta name="keywords" content="{% block meta_keywords %}{{ site.seo_keywords }}{% endblock %}">
+  <meta name="author" content="{{ site.nome }} — {{ site.marca }}">
+  <meta name="robots" content="{% block meta_robots %}index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1{% endblock %}">
+  <meta name="googlebot" content="{% block meta_googlebot %}index, follow{% endblock %}">
+  <meta name="theme-color" content="#06b6d4">
+  <meta name="language" content="pt-BR">
+  <link rel="canonical" href="{% block canonical_url %}{{ site_url }}{{ request.path }}{% endblock %}">
+
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="{{ site.marca }}">
+  <meta property="og:title" content="{% block og_title %}{{ site.seo_title }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ site.seo_description }}{% endblock %}">
+  <meta property="og:url" content="{% block og_url %}{{ site_url }}{{ request.path }}{% endblock %}">
+  <meta property="og:image" content="{% block og_image %}{{ site_url }}{% static site.og_image %}{% endblock %}">
+  <meta property="og:image:alt" content="{% block og_image_alt %}{{ site.nome }} — {{ site.marca }}{% endblock %}">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% block twitter_title %}{{ site.seo_title }}{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}{{ site.seo_description }}{% endblock %}">
+  <meta name="twitter:image" content="{% block twitter_image %}{{ site_url }}{% static site.og_image %}{% endblock %}">
+
   <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
   <link rel="apple-touch-icon" href="{% static 'img/favicon.png' %}">
   <script>
@@ -24,6 +47,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
+  {% include "portfolio/partials/seo_jsonld.html" %}
   {% block extra_head %}{% endblock %}
 </head>
 <body>

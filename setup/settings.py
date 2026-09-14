@@ -101,6 +101,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "portfolio.context_processors.marketing",
             ],
         },
     },
@@ -161,3 +162,5 @@ MAILERS = {
 
 GEMINI_API_KEY = secret_or_env("GEMINI_API_KEY", "")
 GEMINI_MODEL = secret_or_env("GEMINI_MODEL", "gemini-3.5-flash-lite") or "gemini-3.5-flash-lite"
+
+SITE_URL = (secret_or_env("SITE_URL", "https://rebelatto.tech") or "https://rebelatto.tech").rstrip("/")
