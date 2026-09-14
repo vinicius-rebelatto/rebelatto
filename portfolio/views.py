@@ -203,6 +203,8 @@ def chat_message(request):
 
     try:
         reply = chatbot_service.generate_reply(persona_id, message, history)
+    except chatbot_service.PromptInjectionError as exc:
+        return JsonResponse({"ok": True, "reply": str(exc)})
     except RuntimeError as exc:
         logger.warning("Chat unavailable: %s", exc)
         return JsonResponse(
