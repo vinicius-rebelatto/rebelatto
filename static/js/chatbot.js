@@ -153,7 +153,8 @@
 
       if (toggle) {
         toggle.setAttribute("aria-expanded", open ? "true" : "false");
-        toggle.setAttribute("aria-label", open ? "Fechar chat" : "Abrir chat");
+        toggle.setAttribute("aria-label", "Abrir chat");
+        toggle.hidden = open;
       }
 
       if (open) {
