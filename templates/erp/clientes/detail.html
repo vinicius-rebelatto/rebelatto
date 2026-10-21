@@ -5,6 +5,10 @@
   {% include "erp/partials/icon.html" with name="edit" %}
   <span>Editar</span>
 </a>
+<a class="btn btn-outline btn-sm" href="{% url 'catalogo:proposta_create' %}?cliente={{ cliente.pk }}">
+  {% include "erp/partials/icon.html" with name="file" %}
+  <span>Nova proposta</span>
+</a>
 <a class="btn btn-primary btn-sm" href="{% url 'erp:mockup_create' %}?cliente={{ cliente.pk }}">
   {% include "erp/partials/icon.html" with name="mockup" %}
   <span>Novo mockup</span>

@@ -1,0 +1,40 @@
+{% extends "erp/base.html" %}
+{% load catalogo_extras %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'catalogo:pacote_list' %}">
+  {% include "erp/partials/icon.html" with name="back" %}
+  <span>Catálogo</span>
+</a>
+<a class="btn btn-primary btn-sm" href="{% url 'catalogo:servico_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Novo serviço</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<section class="erp-card">
+  <div class="erp-table-wrap">
+    <table class="erp-table">
+      <thead>
+        <tr><th>Serviço</th><th class="is-right">Preço</th><th>Cobrança</th><th>Uso</th></tr>
+      </thead>
+      <tbody>
+        {% for servico in servicos %}
+        <tr>
+          <td>
+            <a href="{% url 'catalogo:servico_edit' servico.pk %}">{{ servico.nome }}</a>
+            {% if not servico.ativo %}<span class="erp-badge erp-badge--pausado">Inativo</span>{% endif %}
+          </td>
+          <td class="erp-num is-right">{{ servico.preco|brl }}</td>
+          <td>{{ servico.get_cobranca_display }}</td>
+          <td>{% if servico.complemento %}Avulso na proposta{% else %}Dentro de pacote{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="erp-empty">Nenhum serviço.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

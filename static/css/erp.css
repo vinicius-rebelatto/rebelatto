@@ -841,11 +841,13 @@
 }
 
 .erp-badge--convertido,
-.erp-badge--concluido {
+.erp-badge--concluido,
+.erp-badge--fechada {
   --badge-color: var(--erp-success);
 }
 
-.erp-badge--pausado {
+.erp-badge--pausado,
+.erp-badge--rascunho {
   --badge-color: var(--erp-warning);
 }
 
@@ -995,6 +997,10 @@
 .erp-num {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.is-right {
+  text-align: right;
 }
 
 .erp-note {

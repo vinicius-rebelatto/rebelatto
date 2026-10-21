@@ -1,0 +1,78 @@
+{% extends "erp/base.html" %}
+{% load catalogo_extras %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'catalogo:pacote_list' %}">
+  {% include "erp/partials/icon.html" with name="back" %}
+  <span>Catálogo</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="erp-stack">
+  <p class="erp-muted erp-note">{{ resumo }} O percentual maior fica nos tickets maiores: 5% de R$ 1.000 e 10% de R$ 10.000 não são o mesmo gesto.</p>
+
+  <section class="erp-card">
+    <form method="post" class="erp-form">
+      {% csrf_token %}
+      <input type="hidden" name="acao" value="salvar">
+      <div class="erp-table-wrap">
+        <table class="erp-table">
+          <thead>
+            <tr><th>Até (vazio = sem teto)</th><th>Desconto (%)</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for faixa in faixas %}
+            <tr>
+              <td><input name="ate-{{ faixa.pk }}" type="text" inputmode="decimal" value="{% if faixa.valor_ate != None %}{{ faixa.valor_ate }}{% endif %}"></td>
+              <td><input name="pct-{{ faixa.pk }}" type="text" inputmode="decimal" value="{{ faixa.percentual|pontos_input }}" required></td>
+              <td></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="erp-form__actions">
+        <button class="btn btn-primary" type="submit">
+          {% include "erp/partials/icon.html" with name="check" %}
+          <span>Salvar faixas</span>
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="erp-grid-2">
+    <article class="erp-card">
+      <div class="erp-card__header"><h2 class="erp-heading">Nova faixa</h2></div>
+      <form method="post" class="erp-form erp-form--grid">
+        {% csrf_token %}
+        <input type="hidden" name="acao" value="nova">
+        <label class="erp-field">
+          <span>Até</span>
+          <input name="ate-nova" type="text" inputmode="decimal" placeholder="Vazio para sem teto">
+        </label>
+        <label class="erp-field">
+          <span>Desconto (%)</span>
+          <input name="pct-nova" type="text" inputmode="decimal" required>
+        </label>
+        <div class="erp-form__actions erp-field--full">
+          <button class="btn btn-outline" type="submit">Adicionar</button>
+        </div>
+      </form>
+    </article>
+    <article class="erp-card">
+      <div class="erp-card__header"><h2 class="erp-heading">Remover</h2></div>
+      {% for faixa in faixas %}
+      <form method="post" class="erp-form" style="margin-bottom: 0.75rem;">
+        {% csrf_token %}
+        <input type="hidden" name="acao" value="excluir">
+        <input type="hidden" name="faixa" value="{{ faixa.pk }}">
+        <button class="btn btn-outline btn-sm" type="submit">
+          Remover {% if faixa.valor_ate %}até {{ faixa.valor_ate|brl }}{% else %}a faixa sem teto{% endif %}
+        </button>
+      </form>
+      {% endfor %}
+    </article>
+  </section>
+</div>
+{% endblock %}

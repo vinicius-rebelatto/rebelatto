@@ -58,6 +58,16 @@
           <span>Projetos</span>
         </a>
 
+        <span class="erp-sidebar__section erp-sidebar__section--spaced">Comercial</span>
+        <a class="erp-nav__link{% if request.resolver_match.namespace == 'catalogo' and 'proposta' not in request.resolver_match.url_name %} is-active{% endif %}" href="{% url 'catalogo:pacote_list' %}">
+          {% include "erp/partials/icon.html" with name="tag" %}
+          <span>Catálogo</span>
+        </a>
+        <a class="erp-nav__link{% if request.resolver_match.namespace == 'catalogo' and 'proposta' in request.resolver_match.url_name %} is-active{% endif %}" href="{% url 'catalogo:proposta_list' %}">
+          {% include "erp/partials/icon.html" with name="file" %}
+          <span>Propostas</span>
+        </a>
+
         <span class="erp-sidebar__section erp-sidebar__section--spaced">Inteligência artificial</span>
         <a class="erp-nav__link{% if request.resolver_match.url_name == 'painel' %} is-active{% endif %}" href="{% url 'ia:painel' %}">
           {% include "erp/partials/icon.html" with name="trending" %}
@@ -144,6 +154,10 @@
                   {% include "erp/partials/icon.html" with name="key" %}
                 {% elif "modelo" in n %}
                   {% include "erp/partials/icon.html" with name="cpu" %}
+                {% elif "proposta" in n %}
+                  {% include "erp/partials/icon.html" with name="file" %}
+                {% elif "pacote" in n or "servico" in n or n == "desconto_list" %}
+                  {% include "erp/partials/icon.html" with name="tag" %}
                 {% else %}
                   {% include "erp/partials/icon.html" with name="dashboard" %}
                 {% endif %}

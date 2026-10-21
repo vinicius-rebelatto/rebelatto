@@ -1,0 +1,42 @@
+{% extends "erp/base.html" %}
+{% load catalogo_extras %}
+
+{% block page_actions %}
+<a class="btn btn-primary btn-sm" href="{% url 'catalogo:proposta_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Nova proposta</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<section class="erp-card">
+  <div class="erp-table-wrap">
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th>Proposta</th>
+          <th>Cliente</th>
+          <th>Pacote</th>
+          <th class="is-right">Único</th>
+          <th class="is-right">Mensal</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for proposta in propostas %}
+        <tr>
+          <td><a href="{% url 'catalogo:proposta_detail' proposta.pk %}">#{{ proposta.pk }}</a></td>
+          <td>{{ proposta.cliente_nome|default:"—" }}</td>
+          <td>{{ proposta.pacote_nome }}{% if proposta.piso %} <span class="erp-badge erp-badge--premium">Piso</span>{% endif %}</td>
+          <td class="erp-num is-right">{% if proposta.preco_unico %}{{ proposta.total_unico|brl }}{% else %}—{% endif %}</td>
+          <td class="erp-num is-right">{% if proposta.preco_mensal %}{{ proposta.total_mensal|brl }}{% else %}—{% endif %}</td>
+          <td><span class="erp-badge erp-badge--{{ proposta.status }}">{{ proposta.get_status_display }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="erp-empty">Nenhuma proposta.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

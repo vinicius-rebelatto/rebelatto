@@ -1,0 +1,95 @@
+{% extends "erp/base.html" %}
+{% load catalogo_extras %}
+
+{% block content %}
+<section class="erp-grid-2">
+  <article class="erp-card">
+    <form method="post" class="erp-form erp-form--grid" id="proposta-form" action="{% if proposta %}{% url 'catalogo:proposta_edit' proposta.pk %}{% else %}{% url 'catalogo:proposta_create' %}{% endif %}">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="erp-flash erp-flash--error erp-field--full">{{ form.non_field_errors|striptags }}</div>
+      {% endif %}
+      {% include "ia/partials/field.html" with field=form.cliente %}
+      {% include "ia/partials/field.html" with field=form.pacote %}
+      {% include "ia/partials/field.html" with field=form.observacao full=True %}
+
+      <div class="erp-field erp-field--full">
+        <span>Avulsos</span>
+        {% if disponiveis %}
+        <div class="erp-stack">
+          {% for servico in disponiveis %}
+          <label class="erp-field erp-field--check">
+            <input type="checkbox" name="extras" value="{{ servico.pk }}" {% if servico.pk in marcados %}checked{% endif %}>
+            <span>{{ servico.nome }} — {{ servico.preco|brl }} · {{ servico.get_cobranca_display }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="erp-muted">Este pacote não tem opcional nem avulso fora do preço.</p>
+        {% endif %}
+      </div>
+
+      {% include "ia/partials/field.html" with field=form.desconto_fixo full=True %}
+      {% include "ia/partials/field.html" with field=form.desconto_unico %}
+      {% include "ia/partials/field.html" with field=form.desconto_mensal %}
+      {% include "ia/partials/field.html" with field=form.desconto_anual %}
+
+      <div class="erp-form__actions erp-field--full">
+        <button class="btn btn-primary" type="submit">
+          {% include "erp/partials/icon.html" with name="check" %}
+          <span>Salvar proposta</span>
+        </button>
+        <a class="btn btn-outline" href="{% url 'catalogo:proposta_list' %}">
+          {% include "erp/partials/icon.html" with name="x" %}
+          <span>Cancelar</span>
+        </a>
+      </div>
+    </form>
+  </article>
+
+  <aside class="erp-card">
+    <div class="erp-card__header"><h2 class="erp-heading">Como fica</h2></div>
+    <p class="erp-muted">{{ faixas }}</p>
+    {% if conta and pacote %}
+    <dl class="erp-dl">
+      <div><dt>Pacote</dt><dd>{{ pacote.nome }}{% if pacote.piso %} · a partir de{% endif %}</dd></div>
+      {% if conta.grupos.unico %}
+      <div><dt>Único de tabela</dt><dd>{{ conta.grupos.unico|brl }}</dd></div>
+      <div><dt>Desconto</dt><dd>{{ conta.descontos.unico|pct }}</dd></div>
+      <div><dt>Único na proposta</dt><dd>{% if pacote.piso and pacote.cobranca == "unico" %}a partir de {% endif %}{{ conta.totais.unico|brl }}</dd></div>
+      {% endif %}
+      {% if conta.grupos.mensal %}
+      <div><dt>Mensal de tabela</dt><dd>{{ conta.grupos.mensal|brl }}</dd></div>
+      <div><dt>Desconto mensal</dt><dd>{{ conta.descontos.mensal|pct }}</dd></div>
+      <div><dt>Mensal na proposta</dt><dd>{{ conta.totais.mensal|brl }}</dd></div>
+      {% endif %}
+      {% if conta.grupos.anual %}
+      <div><dt>Anual de tabela</dt><dd>{{ conta.grupos.anual|brl }}</dd></div>
+      <div><dt>Desconto anual</dt><dd>{{ conta.descontos.anual|pct }}</dd></div>
+      <div><dt>Anual na proposta</dt><dd>{{ conta.totais.anual|brl }}</dd></div>
+      {% endif %}
+    </dl>
+    {% if conta.escopo %}
+    <p class="erp-muted">Entra no preço: {% for servico in conta.escopo %}{{ servico.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}.</p>
+    {% endif %}
+    {% else %}
+    <p class="erp-muted">Escolha um pacote para ver o valor.</p>
+    {% endif %}
+  </aside>
+</section>
+<script>
+  const pacote = document.getElementById("id_pacote");
+  if (pacote) {
+    pacote.addEventListener("change", () => enviar(pacote.form));
+  }
+  document.querySelectorAll('input[name="extras"]').forEach((box) => {
+    box.addEventListener("change", () => enviar(box.form));
+  });
+  function enviar(form) {
+    const csrf = form.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (csrf) csrf.disabled = true;
+    form.method = "get";
+    form.submit();
+  }
+</script>
+{% endblock %}

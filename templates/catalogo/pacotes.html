@@ -1,0 +1,101 @@
+{% extends "erp/base.html" %}
+{% load catalogo_extras %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'catalogo:desconto_list' %}">
+  {% include "erp/partials/icon.html" with name="alert" %}
+  <span>Descontos</span>
+</a>
+<a class="btn btn-outline btn-sm" href="{% url 'catalogo:servico_list' %}">
+  {% include "erp/partials/icon.html" with name="tag" %}
+  <span>Serviços</span>
+</a>
+<a class="btn btn-outline btn-sm" href="{% url 'catalogo:proposta_list' %}">
+  {% include "erp/partials/icon.html" with name="file" %}
+  <span>Propostas</span>
+</a>
+<a class="btn btn-primary btn-sm" href="{% url 'catalogo:pacote_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Novo pacote</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="erp-stack">
+  <p class="erp-muted erp-note">O preço de tabela é o valor cheio. {{ faixas }}</p>
+
+  <section class="erp-card">
+    <div class="erp-card__header">
+      <h2 class="erp-heading">Pacotes</h2>
+    </div>
+    <div class="erp-table-wrap">
+      <table class="erp-table">
+        <thead>
+          <tr>
+            <th>Pacote</th>
+            <th class="is-right">Tabela</th>
+            <th>Cobrança</th>
+            <th class="is-right">Na proposta</th>
+            <th>Entra no preço</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for linha in linhas %}
+          <tr>
+            <td>
+              <a href="{% url 'catalogo:pacote_edit' linha.pacote.pk %}">{{ linha.pacote.nome }}</a>
+              {% if linha.pacote.piso %}<span class="erp-badge erp-badge--premium">Piso</span>{% endif %}
+              {% if not linha.pacote.ativo %}<span class="erp-badge erp-badge--pausado">Inativo</span>{% endif %}
+              {% if linha.pacote.resumo %}<div class="erp-muted">{{ linha.pacote.resumo }}</div>{% endif %}
+            </td>
+            <td class="erp-num is-right">
+              {% if linha.pacote.piso %}a partir de {% endif %}{{ linha.pacote.preco|brl }}
+            </td>
+            <td>{{ linha.pacote.get_cobranca_display }}</td>
+            <td class="erp-num is-right">
+              {% if linha.pacote.piso %}a partir de {% endif %}{{ linha.na_proposta|brl }}
+              <div class="erp-muted">− {{ linha.desconto|pct }}</div>
+            </td>
+            <td>
+              {{ linha.inclusos|join:", "|default:"—" }}
+              {% if linha.opcionais %}<div class="erp-muted">Opcional: {{ linha.opcionais|join:", " }}</div>{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="erp-empty">Nenhum pacote.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="erp-card">
+    <div class="erp-card__header">
+      <h2 class="erp-heading">Avulsos</h2>
+    </div>
+    <div class="erp-table-wrap">
+      <table class="erp-table">
+        <thead>
+          <tr><th>Serviço</th><th class="is-right">Tabela</th><th>Cobrança</th><th class="is-right">Na proposta</th></tr>
+        </thead>
+        <tbody>
+          {% for servico in avulsos %}
+          <tr>
+            <td><a href="{% url 'catalogo:servico_edit' servico.pk %}">{{ servico.nome }}</a></td>
+            <td class="erp-num is-right">{{ servico.preco|brl }}</td>
+            <td>{{ servico.get_cobranca_display }}</td>
+            <td class="erp-num is-right">
+              {{ servico.na_proposta|brl }}
+              <div class="erp-muted">− {{ servico.desconto_sugerido|pct }}</div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="erp-empty">Nenhum avulso.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="erp-muted erp-note">O desconto do avulso segue a faixa do grupo em que ele cai na proposta, junto com o pacote da mesma cobrança.</p>
+  </section>
+</div>
+{% endblock %}

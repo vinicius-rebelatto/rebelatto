@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "portfolio",
     "crm",
+    "catalogo",
     "erp",
     "ia",
 ]

@@ -1,0 +1,67 @@
+{% extends "erp/base.html" %}
+
+{% block content %}
+<section class="erp-grid-2">
+  <article class="erp-card">
+    <form method="post" class="erp-form erp-form--grid">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="erp-flash erp-flash--error erp-field--full">{{ form.non_field_errors|striptags }}</div>
+      {% endif %}
+      {% include "ia/partials/field.html" with field=form.nome %}
+      {% include "ia/partials/field.html" with field=form.preco %}
+      {% include "ia/partials/field.html" with field=form.cobranca %}
+      {% include "ia/partials/field.html" with field=form.ordem %}
+      {% include "ia/partials/field.html" with field=form.resumo full=True %}
+      {% include "ia/partials/field.html" with field=form.piso %}
+      {% include "ia/partials/field.html" with field=form.ativo %}
+
+      {% if papeis %}
+      <div class="erp-field erp-field--full">
+        <span>O que entra no pacote</span>
+        <div class="erp-table-wrap">
+          <table class="erp-table">
+            <thead><tr><th>Serviço</th><th>No pacote</th></tr></thead>
+            <tbody>
+              {% for linha in papeis %}
+              <tr>
+                <td>{{ linha.servico.nome }}</td>
+                <td>
+                  <select name="papel-{{ linha.servico.pk }}">
+                    <option value="fora"{% if linha.papel == "fora" %} selected{% endif %}>Não entra</option>
+                    <option value="incluso"{% if linha.papel == "incluso" %} selected{% endif %}>Incluso no preço</option>
+                    <option value="opcional"{% if linha.papel == "opcional" %} selected{% endif %}>Opcional, soma o preço</option>
+                  </select>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="erp-form__actions erp-field--full">
+        <button class="btn btn-primary" type="submit">
+          {% include "erp/partials/icon.html" with name="check" %}
+          <span>Salvar pacote</span>
+        </button>
+        <a class="btn btn-outline" href="{% url 'catalogo:pacote_list' %}">
+          {% include "erp/partials/icon.html" with name="x" %}
+          <span>Cancelar</span>
+        </a>
+      </div>
+    </form>
+  </article>
+  {% if pacote %}
+  <aside class="erp-card">
+    <div class="erp-card__header"><h2 class="erp-heading">Remover</h2></div>
+    <p class="erp-muted">Propostas já salvas guardam o próprio preço.</p>
+    <form method="post" action="{% url 'catalogo:pacote_delete' pacote.pk %}" onsubmit="return confirm('Remover este pacote?');">
+      {% csrf_token %}
+      <button class="btn btn-outline btn-sm" type="submit">Remover pacote</button>
+    </form>
+  </aside>
+  {% endif %}
+</section>
+{% endblock %}
