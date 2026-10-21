@@ -1,0 +1,93 @@
+{% extends "erp/base.html" %}
+{% load ia_extras %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'ia:execucao_list' %}">
+  {% include "erp/partials/icon.html" with name="back" %}
+  <span>Voltar</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="erp-stack">
+  <section class="erp-card">
+    <dl class="erp-dl">
+      <div>
+        <dt class="erp-muted">Agente</dt>
+        <dd><a href="{% url 'ia:agente_detail' execucao.agente_id %}">{{ execucao.agente.nome }}</a></dd>
+      </div>
+      <div>
+        <dt class="erp-muted">Versão</dt>
+        <dd>{% if execucao.versao %}v{{ execucao.versao.numero }}{% else %}—{% endif %}</dd>
+      </div>
+      <div>
+        <dt class="erp-muted">Modelo</dt>
+        <dd>{{ execucao.modelo|default:"—" }}{% if execucao.usou_reserva %} · reserva{% endif %}</dd>
+      </div>
+      <div>
+        <dt class="erp-muted">Chave</dt>
+        <dd>{% if execucao.credencial %}••••{{ execucao.credencial.chave_sufixo }}{% else %}—{% endif %}</dd>
+      </div>
+      <div>
+        <dt class="erp-muted">Status</dt>
+        <dd><span class="erp-badge erp-badge--{{ execucao.status }}">{{ execucao.get_status_display }}</span> <span class="erp-badge erp-badge--{{ execucao.origem }}">{{ execucao.get_origem_display }}</span></dd>
+      </div>
+      <div>
+        <dt class="erp-muted">Quando</dt>
+        <dd>{{ execucao.created_at|date:"d/m/Y H:i:s" }}</dd>
+      </div>
+      <div>
+        <dt class="erp-muted">Tokens</dt>
+        <dd>{{ execucao.tokens_entrada|tokens }} entrada · {{ execucao.tokens_saida|tokens }} saída{% if execucao.tokens_cache_leitura or execucao.tokens_cache_escrita %} · cache {{ execucao.tokens_cache_leitura|tokens }} / {{ execucao.tokens_cache_escrita|tokens }}{% endif %}</dd>
+      </div>
+      <div>
+        <dt class="erp-muted">Custo e latência</dt>
+        <dd>{{ execucao.custo_usd|usd }} · {{ execucao.latencia_ms }} ms</dd>
+      </div>
+      {% if execucao.referencia_tipo %}
+      <div>
+        <dt class="erp-muted">Referência</dt>
+        <dd>{{ execucao.referencia_tipo }} {{ execucao.referencia_id }}</dd>
+      </div>
+      {% endif %}
+    </dl>
+    {% if execucao.erro %}
+    <p class="erp-error-text">{{ execucao.erro }}</p>
+    {% endif %}
+  </section>
+
+  <section class="erp-grid-2">
+    <article class="erp-card">
+      <div class="erp-card__header"><h2 class="erp-heading">Entrada</h2></div>
+      <pre class="erp-pre">{{ entrada|default:"—" }}</pre>
+    </article>
+    <article class="erp-card">
+      <div class="erp-card__header"><h2 class="erp-heading">Saída</h2></div>
+      <pre class="erp-pre">{{ execucao.saida|default:"—" }}</pre>
+    </article>
+  </section>
+
+  <section class="erp-card">
+    <div class="erp-card__header">
+      <div>
+        <h2 class="erp-heading">Nota</h2>
+        <p class="erp-muted erp-card__subtitle">A nota manual entra no custo por resultado bom.</p>
+      </div>
+    </div>
+    {% if feedback %}
+    <p>Nota atual: <span class="erp-badge erp-badge--{{ feedback.nota }}">{{ feedback.get_nota_display }}</span></p>
+    {% endif %}
+    <form method="post" action="{% url 'ia:execucao_avaliar' execucao.pk %}" class="erp-form">
+      {% csrf_token %}
+      <label class="erp-field erp-field--full">
+        <span>Comentário</span>
+        <textarea name="comentario" rows="3">{{ feedback.comentario|default:"" }}</textarea>
+      </label>
+      <div class="erp-form__actions">
+        <button class="btn btn-primary" type="submit" name="nota" value="positiva">Boa</button>
+        <button class="btn btn-outline" type="submit" name="nota" value="negativa">Ruim</button>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

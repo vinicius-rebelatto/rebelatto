@@ -864,8 +864,31 @@
   --badge-color: var(--erp-info);
 }
 
-.erp-badge--premium {
+.erp-badge--premium,
+.erp-badge--playground,
+.erp-badge--projecao,
+.erp-badge--80,
+.erp-badge--95 {
   --badge-color: var(--erp-warning);
+}
+
+.erp-badge--sucesso,
+.erp-badge--positiva {
+  --badge-color: var(--erp-success);
+}
+
+.erp-badge--producao {
+  --badge-color: var(--erp-info);
+}
+
+.erp-badge--erro,
+.erp-badge--negativa,
+.erp-badge--estouro {
+  --badge-color: var(--erp-danger);
+}
+
+.erp-badge--50 {
+  --badge-color: var(--erp-info);
 }
 
 /* ---------- Alerts, tags, switch ---------- */
@@ -1342,6 +1365,96 @@
   margin-top: 0.4rem;
   color: var(--text-muted);
   font-size: 0.9rem;
+}
+
+/* ---------- IA: barras, medidor, playground ---------- */
+
+.erp-alert__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.erp-alert form {
+  margin-left: auto;
+}
+
+.erp-meter {
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--erp-surface-2);
+  overflow: hidden;
+}
+
+.erp-meter > span {
+  display: block;
+  height: 100%;
+  background: var(--erp-accent);
+}
+
+.erp-meter > span.is-warning {
+  background: var(--erp-warning);
+}
+
+.erp-meter > span.is-danger {
+  background: var(--erp-danger);
+}
+
+.erp-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.35rem;
+  height: 9rem;
+}
+
+.erp-bars__col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  height: 100%;
+}
+
+.erp-bars__track {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.erp-bars__bar {
+  width: 70%;
+  max-width: 1.35rem;
+  background: var(--erp-accent);
+  border-radius: 4px 4px 0 0;
+}
+
+.erp-bars__label {
+  margin-top: 0.35rem;
+  color: var(--erp-text-subtle);
+  font-size: 0.72rem;
+}
+
+.ia-cards,
+.ia-playground {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.25rem;
+}
+
+.erp-pre {
+  max-height: 22rem;
+  overflow: auto;
+  margin: 0;
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+  background: var(--erp-surface-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
 }
 
 /* ---------- Responsive ---------- */

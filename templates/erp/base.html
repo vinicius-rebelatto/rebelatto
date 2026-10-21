@@ -59,6 +59,22 @@
         </a>
 
         <span class="erp-sidebar__section erp-sidebar__section--spaced">Inteligência artificial</span>
+        <a class="erp-nav__link{% if request.resolver_match.url_name == 'painel' %} is-active{% endif %}" href="{% url 'ia:painel' %}">
+          {% include "erp/partials/icon.html" with name="trending" %}
+          <span>Visão geral</span>
+        </a>
+        <a class="erp-nav__link{% if 'agente' in request.resolver_match.url_name %} is-active{% endif %}" href="{% url 'ia:agente_list' %}">
+          {% include "erp/partials/icon.html" with name="zap" %}
+          <span>Agentes</span>
+        </a>
+        <a class="erp-nav__link{% if 'execucao' in request.resolver_match.url_name %} is-active{% endif %}" href="{% url 'ia:execucao_list' %}">
+          {% include "erp/partials/icon.html" with name="activity" %}
+          <span>Execuções</span>
+        </a>
+        <a class="erp-nav__link{% if 'orcamento' in request.resolver_match.url_name %} is-active{% endif %}" href="{% url 'ia:orcamento_list' %}">
+          {% include "erp/partials/icon.html" with name="alert" %}
+          <span>Orçamento</span>
+        </a>
         <a class="erp-nav__link{% if 'credencial' in request.resolver_match.url_name %} is-active{% endif %}" href="{% url 'ia:credencial_list' %}">
           {% include "erp/partials/icon.html" with name="key" %}
           <span>Chaves</span>
@@ -116,6 +132,14 @@
                   {% include "erp/partials/icon.html" with name="mockup" %}
                 {% elif "project" in n %}
                   {% include "erp/partials/icon.html" with name="projects" %}
+                {% elif n == "painel" %}
+                  {% include "erp/partials/icon.html" with name="trending" %}
+                {% elif "agente" in n %}
+                  {% include "erp/partials/icon.html" with name="zap" %}
+                {% elif "execucao" in n %}
+                  {% include "erp/partials/icon.html" with name="activity" %}
+                {% elif "orcamento" in n %}
+                  {% include "erp/partials/icon.html" with name="alert" %}
                 {% elif "credencial" in n %}
                   {% include "erp/partials/icon.html" with name="key" %}
                 {% elif "modelo" in n %}

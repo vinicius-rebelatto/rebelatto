@@ -1,0 +1,50 @@
+{% extends "erp/base.html" %}
+{% load ia_extras %}
+
+{% block page_actions %}
+<a class="btn btn-primary btn-sm" href="{% url 'ia:agente_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Novo agente</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<p class="erp-muted erp-note">O agente é a função. O modelo que responde é um campo da versão ativa e pode ser trocado sem perder o histórico.</p>
+<div class="ia-cards">
+  {% for agente in agentes %}
+  <article class="erp-card">
+    <div class="erp-card__header">
+      <div>
+        <h2 class="erp-heading"><a href="{% url 'ia:agente_detail' agente.pk %}">{{ agente.nome }}</a></h2>
+        <p class="erp-muted erp-card__subtitle">{{ agente.responsabilidade|default:"Sem descrição." }}</p>
+      </div>
+      {% if agente.ativo %}
+      <span class="erp-badge erp-badge--sucesso">Ativo</span>
+      {% else %}
+      <span class="erp-badge erp-badge--pausado">Desativado</span>
+      {% endif %}
+    </div>
+    <dl class="erp-dl">
+      <div>
+        <dt class="erp-muted">Modelo</dt>
+        <dd>{{ agente.versao_ativa.modelo|default:"Nenhum" }}</dd>
+      </div>
+      <div>
+        <dt class="erp-muted">Reserva</dt>
+        <dd>{{ agente.versao_ativa.modelo_reserva|default:"—" }}</dd>
+      </div>
+      <div>
+        <dt class="erp-muted">Chamadas no mês</dt>
+        <dd>{{ agente.chamadas }}{% if agente.erros %} · {{ agente.erros }} erro{{ agente.erros|pluralize }}{% endif %}</dd>
+      </div>
+      <div>
+        <dt class="erp-muted">Gasto no mês</dt>
+        <dd>{{ agente.custo|default:0|usd }}</dd>
+      </div>
+    </dl>
+  </article>
+  {% empty %}
+  <p class="erp-empty-inline">Nenhum agente ainda.</p>
+  {% endfor %}
+</div>
+{% endblock %}

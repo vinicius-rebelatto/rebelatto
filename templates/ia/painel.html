@@ -1,0 +1,171 @@
+{% extends "erp/base.html" %}
+{% load ia_extras %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'ia:orcamento_list' %}">
+  {% include "erp/partials/icon.html" with name="alert" %}
+  <span>Orçamento</span>
+</a>
+<a class="btn btn-primary btn-sm" href="{% url 'ia:agente_list' %}">
+  {% include "erp/partials/icon.html" with name="zap" %}
+  <span>Agentes</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="erp-stack">
+  {% if alertas %}
+  <section class="erp-stack">
+    {% for alerta in alertas %}
+    <div class="erp-alert{% if alerta.tom %} erp-alert--{{ alerta.tom }}{% endif %}">
+      {% include "erp/partials/icon.html" with name="alert" %}
+      <div class="erp-alert__body">
+        <strong>{{ alerta.get_nivel_display }}</strong>
+        <p>{{ alerta.mensagem }}</p>
+      </div>
+      <form method="post" action="{% url 'ia:alerta_dispensar' alerta.pk %}">
+        {% csrf_token %}
+        <button class="btn btn-outline btn-sm" type="submit">Dispensar</button>
+      </form>
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  <section class="erp-metrics">
+    <article class="erp-metric">
+      <span class="erp-metric__label">
+        {% include "erp/partials/icon.html" with name="trending" %}
+        <span>Gasto do mês</span>
+      </span>
+      <strong class="erp-metric__value">{{ gasto|usd }}</strong>
+      <p class="erp-muted">
+        {% if teto %}teto {{ teto.teto_usd|usd }}{% if percentual is not None %} · {{ percentual }}%{% endif %}{% else %}sem teto global{% endif %}
+        {% if projecao %} · projeção {{ projecao|usd }}{% endif %}
+      </p>
+      {% if teto %}
+      <div class="erp-meter" aria-hidden="true">
+        <span class="{% if tom_teto %}is-{{ tom_teto }}{% endif %}" style="width: {{ largura_teto }}%"></span>
+      </div>
+      {% endif %}
+    </article>
+    <article class="erp-metric">
+      <span class="erp-metric__label">
+        {% include "erp/partials/icon.html" with name="activity" %}
+        <span>Chamadas</span>
+      </span>
+      <strong class="erp-metric__value">{{ chamadas }}</strong>
+      <p class="erp-muted">{% if tokens_entrada %}{{ tokens_entrada|tokens }}{% else %}0{% endif %} entrada · {% if tokens_saida %}{{ tokens_saida|tokens }}{% else %}0{% endif %} saída{% if tokens_cache %} · {{ tokens_cache|tokens }} cache{% endif %}</p>
+    </article>
+    <article class="erp-metric">
+      <span class="erp-metric__label">
+        {% include "erp/partials/icon.html" with name="alert" %}
+        <span>Erros</span>
+      </span>
+      <strong class="erp-metric__value">{{ erros }}</strong>
+      <p class="erp-muted">{% if taxa_erro is not None %}{{ taxa_erro }}% das chamadas{% else %}nenhuma chamada no mês{% endif %}</p>
+    </article>
+    <article class="erp-metric">
+      <span class="erp-metric__label">
+        {% include "erp/partials/icon.html" with name="activity" %}
+        <span>Latência</span>
+      </span>
+      <strong class="erp-metric__value">{% if latencia_media is not None %}{{ latencia_media }} ms{% else %}—{% endif %}</strong>
+      <p class="erp-muted">{% if latencia_p95 is not None %}5% mais lentas: {{ latencia_p95 }} ms{% else %}sem respostas no mês{% endif %}</p>
+    </article>
+  </section>
+
+  <section class="erp-card">
+    <div class="erp-card__header">
+      <h2 class="erp-heading">Gasto por dia</h2>
+    </div>
+    {% if chamadas %}
+    <div class="erp-bars">
+      {% for dia in dias %}
+      <div class="erp-bars__col">
+        <div class="erp-bars__track">
+          <div class="erp-bars__bar" style="height: {{ dia.altura }}%" title="{{ dia.custo|usd }}"></div>
+        </div>
+        <span class="erp-bars__label">{{ dia.rotulo }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="erp-empty-inline">Nenhuma chamada neste mês. O gráfico aparece na primeira execução.</p>
+    {% endif %}
+  </section>
+
+  <section class="erp-grid-2">
+    <article class="erp-card">
+      <div class="erp-card__header"><h2 class="erp-heading">Por provedor</h2></div>
+      <div class="erp-table-wrap">
+        <table class="erp-table erp-table--compact">
+          <thead><tr><th>Provedor</th><th>Chamadas</th><th>Erros</th><th>Custo</th></tr></thead>
+          <tbody>
+            {% for linha in por_provedor %}
+            <tr>
+              <td>{{ linha.nome }}</td>
+              <td>{{ linha.chamadas }}</td>
+              <td>{{ linha.erros }}</td>
+              <td>{{ linha.custo|usd }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="erp-empty">Sem gasto neste mês.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+    <article class="erp-card">
+      <div class="erp-card__header"><h2 class="erp-heading">Por modelo</h2></div>
+      <div class="erp-table-wrap">
+        <table class="erp-table erp-table--compact">
+          <thead><tr><th>Modelo</th><th>Chamadas</th><th>Latência</th><th>Custo</th></tr></thead>
+          <tbody>
+            {% for linha in por_modelo %}
+            <tr>
+              <td>{{ linha.nome }} <span class="erp-muted">{{ linha.provedor }}</span></td>
+              <td>{{ linha.chamadas }}</td>
+              <td>{% if linha.latencia is not None %}{{ linha.latencia }} ms{% else %}—{% endif %}</td>
+              <td>{{ linha.custo|usd }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="erp-empty">Sem gasto neste mês.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+  <section class="erp-card">
+    <div class="erp-card__header">
+      <div>
+        <h2 class="erp-heading">Custo por resultado bom</h2>
+        <p class="erp-muted erp-card__subtitle">Custo do mês dividido pelas execuções que você marcou como boas. Sem notas, a coluna fica vazia.</p>
+      </div>
+    </div>
+    <div class="erp-table-wrap">
+      <table class="erp-table">
+        <thead>
+          <tr><th>Agente</th><th>Chamadas</th><th>Erros</th><th>Notas boas</th><th>Custo</th><th>Custo por boa</th></tr>
+        </thead>
+        <tbody>
+          {% for linha in ranking %}
+          <tr>
+            <td><a href="{% url 'ia:agente_detail' linha.agente.pk %}">{{ linha.agente.nome }}</a></td>
+            <td>{{ linha.chamadas }}</td>
+            <td>{% if linha.taxa_erro is not None %}{{ linha.erros }} ({{ linha.taxa_erro }}%){% else %}—{% endif %}</td>
+            <td>{% if linha.avaliadas %}{{ linha.positivas }} / {{ linha.avaliadas }}{% else %}—{% endif %}</td>
+            <td>{{ linha.custo|usd }}</td>
+            <td>{% if linha.custo_por_bom is not None %}{{ linha.custo_por_bom|usd }}{% else %}—{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="erp-empty">Nenhum agente cadastrado.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

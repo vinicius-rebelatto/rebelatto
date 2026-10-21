@@ -1,0 +1,161 @@
+{% extends "erp/base.html" %}
+{% load ia_extras %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'ia:execucao_list' %}?agente={{ agente.pk }}">
+  {% include "erp/partials/icon.html" with name="activity" %}
+  <span>Execuções</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="erp-stack">
+  {% if not versao or not versao.modelo %}
+  <div class="erp-alert erp-alert--warning">
+    {% include "erp/partials/icon.html" with name="alert" %}
+    <div class="erp-alert__body">Escolha um modelo principal. Enquanto estiver vazio, o chatbot do site continua na chave antiga do ambiente, se ela existir.</div>
+  </div>
+  {% endif %}
+  {% if estouro %}
+  <div class="erp-alert erp-alert--danger">
+    {% include "erp/partials/icon.html" with name="alert" %}
+    <div class="erp-alert__body">O teto deste mês estourou. As próximas chamadas usam o modelo reserva{% if versao.modelo_reserva %}, {{ versao.modelo_reserva }}{% else %}. Cadastre um reserva para elas não serem bloqueadas{% endif %}.</div>
+  </div>
+  {% endif %}
+
+  <section class="erp-grid-2">
+    <article class="erp-card">
+      <div class="erp-card__header">
+        <div>
+          <h2 class="erp-heading">Versão {{ versao.numero|default:"1" }}</h2>
+          <p class="erp-muted erp-card__subtitle">Salvar prompt, modelo ou parâmetro cria uma versão nova. O histórico das execuções continua apontando para a versão que rodou.</p>
+        </div>
+      </div>
+      <form method="post" class="erp-form erp-form--grid">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="erp-flash erp-flash--error erp-field--full">{{ form.non_field_errors|striptags }}</div>
+        {% endif %}
+        {% include "ia/partials/field.html" with field=form.nome %}
+        {% include "ia/partials/field.html" with field=form.ativo %}
+        {% include "ia/partials/field.html" with field=form.responsabilidade full=True %}
+        {% include "ia/partials/field.html" with field=form.prompt full=True %}
+        {% include "ia/partials/field.html" with field=form.temperatura %}
+        {% include "ia/partials/field.html" with field=form.max_tokens %}
+        {% include "ia/partials/field.html" with field=form.modelo %}
+        {% include "ia/partials/field.html" with field=form.modelo_reserva %}
+        <div class="erp-form__actions erp-field--full">
+          <button class="btn btn-primary" type="submit">
+            {% include "erp/partials/icon.html" with name="save" %}
+            <span>Salvar</span>
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <article class="erp-card" id="playground">
+      <div class="erp-card__header">
+        <div>
+          <h2 class="erp-heading">Playground</h2>
+          <p class="erp-muted erp-card__subtitle">Roda a mesma mensagem em até 3 modelos, com o prompt desta versão. Cada modelo gasta crédito e fica no log.</p>
+        </div>
+      </div>
+      <form method="post" action="{% url 'ia:agente_playground' agente.pk %}" class="erp-form">
+        {% csrf_token %}
+        {% include "ia/partials/field.html" with field=playground_form.entrada full=True %}
+        {% include "ia/partials/field.html" with field=playground_form.modelos full=True %}
+        <div class="erp-form__actions">
+          <button class="btn btn-outline" type="submit">
+            {% include "erp/partials/icon.html" with name="zap" %}
+            <span>Rodar</span>
+          </button>
+        </div>
+      </form>
+      {% if resultados %}
+      <div class="ia-playground">
+        {% for item in resultados %}
+        <article class="erp-card">
+          <h3 class="erp-heading">{{ item.pedido }}</h3>
+          {% if item.usou_reserva %}<p class="erp-muted">Rodou no reserva: {{ item.usado }}</p>{% endif %}
+          {% if item.erro %}
+          <p class="erp-error-text">{{ item.erro }}</p>
+          {% else %}
+          <pre class="erp-pre">{{ item.texto }}</pre>
+          {% endif %}
+          <p class="erp-muted">{{ item.custo|usd }} · {{ item.latencia }} ms
+            {% if item.execucao_id %}· <a href="{% url 'ia:execucao_detail' item.execucao_id %}">abrir execução</a>{% endif %}
+          </p>
+        </article>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </article>
+  </section>
+
+  <section class="erp-card">
+    <div class="erp-card__header">
+      <div>
+        <h2 class="erp-heading">Comparativo</h2>
+        <p class="erp-muted erp-card__subtitle">Modelos que já executaram este agente, incluindo o playground.</p>
+      </div>
+    </div>
+    <div class="erp-table-wrap">
+      <table class="erp-table">
+        <thead>
+          <tr><th>Modelo</th><th>Chamadas</th><th>Sucesso</th><th>Latência</th><th>Notas boas</th><th>Custo</th><th>Custo por boa</th></tr>
+        </thead>
+        <tbody>
+          {% for linha in comparativo %}
+          <tr>
+            <td>{{ linha.nome }} <span class="erp-muted">{{ linha.provedor }}</span></td>
+            <td>{{ linha.chamadas }}</td>
+            <td>{{ linha.sucessos }}</td>
+            <td>{% if linha.latencia is not None %}{{ linha.latencia }} ms{% else %}—{% endif %}</td>
+            <td>{% if linha.avaliadas %}{{ linha.positivas }} / {{ linha.avaliadas }}{% else %}—{% endif %}</td>
+            <td>{{ linha.custo|usd }}</td>
+            <td>{% if linha.custo_por_bom is not None %}{{ linha.custo_por_bom|usd }}{% else %}—{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="erp-empty">Nenhuma execução ainda.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="erp-card">
+    <div class="erp-card__header"><h2 class="erp-heading">Versões</h2></div>
+    <div class="erp-table-wrap">
+      <table class="erp-table">
+        <thead><tr><th>#</th><th>Quando</th><th>Modelo</th><th>Reserva</th><th>Temperatura</th><th></th></tr></thead>
+        <tbody>
+          {% for item in versoes %}
+          <tr>
+            <td>{% if item.ativa %}<span class="erp-badge erp-badge--sucesso">v{{ item.numero }}</span>{% else %}v{{ item.numero }}{% endif %}</td>
+            <td>{{ item.created_at|date:"d/m/Y H:i" }}</td>
+            <td>{{ item.modelo|default:"—" }}</td>
+            <td>{{ item.modelo_reserva|default:"—" }}</td>
+            <td>{{ item.temperatura }}</td>
+            <td>
+              {% if not item.ativa %}
+              <form method="post" action="{% url 'ia:agente_restaurar' agente.pk item.pk %}">
+                {% csrf_token %}
+                <button class="btn btn-outline btn-sm" type="submit">Restaurar</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {% if not agente.sistema %}
+  <form method="post" action="{% url 'ia:agente_delete' agente.pk %}" class="erp-danger-zone" onsubmit="return confirm('Excluir este agente?');">
+    {% csrf_token %}
+    <button class="btn btn-danger" type="submit">Excluir agente</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

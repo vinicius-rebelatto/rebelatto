@@ -1,0 +1,85 @@
+{% extends "erp/base.html" %}
+{% load erp_extras ia_extras %}
+
+{% block content %}
+<section class="erp-card">
+  <form method="get" class="erp-toolbar">
+    <input class="erp-search" type="search" name="q" value="{{ q }}" placeholder="Buscar resposta, erro ou referência…">
+    <select name="agente">
+      <option value="">Agente</option>
+      {% for agente in agentes %}
+      <option value="{{ agente.pk }}" {% if active_filters.agente == agente.pk|stringformat:"s" %}selected{% endif %}>{{ agente.nome }}</option>
+      {% endfor %}
+    </select>
+    <select name="modelo">
+      <option value="">Modelo</option>
+      {% for modelo in modelos %}
+      <option value="{{ modelo.pk }}" {% if active_filters.modelo == modelo.pk|stringformat:"s" %}selected{% endif %}>{{ modelo }}</option>
+      {% endfor %}
+    </select>
+    <select name="status">
+      <option value="">Status</option>
+      {% for value, label in status_choices %}
+      <option value="{{ value }}" {% if active_filters.status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="origem">
+      <option value="">Origem</option>
+      {% for value, label in origem_choices %}
+      <option value="{{ value }}" {% if active_filters.origem == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+    <button class="btn btn-primary btn-sm" type="submit">
+      {% include "erp/partials/icon.html" with name="search" %}
+      <span>Filtrar</span>
+    </button>
+  </form>
+
+  <div class="erp-table-wrap">
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th><a href="{% sort_link 'created_at' %}">Quando</a></th>
+          <th>Agente</th>
+          <th>Modelo</th>
+          <th>Status</th>
+          <th><a href="{% sort_link 'custo_usd' %}">Custo</a></th>
+          <th><a href="{% sort_link 'latencia_ms' %}">Latência</a></th>
+          <th>Nota</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in object_list %}
+        <tr>
+          <td><a href="{% url 'ia:execucao_detail' item.pk %}">{{ item.created_at|date:"d/m/Y H:i" }}</a></td>
+          <td>{{ item.agente.nome }}</td>
+          <td>
+            {{ item.modelo|default:"—" }}
+            {% if item.usou_reserva %}<span class="erp-tag erp-tag--warning">reserva</span>{% endif %}
+            {% if item.origem == "playground" %}<span class="erp-tag">playground</span>{% endif %}
+          </td>
+          <td><span class="erp-badge erp-badge--{{ item.status }}">{{ item.get_status_display }}</span></td>
+          <td>{{ item.custo_usd|usd }}</td>
+          <td>{{ item.latencia_ms }} ms</td>
+          <td class="erp-row-actions">
+            {% if item.feedback %}
+            <span class="erp-badge erp-badge--{{ item.feedback.nota }}">{{ item.feedback.get_nota_display }}</span>
+            {% endif %}
+            <form method="post" action="{% url 'ia:execucao_avaliar' item.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button class="btn btn-outline btn-sm" type="submit" name="nota" value="positiva">Boa</button>
+              <button class="btn btn-outline btn-sm" type="submit" name="nota" value="negativa">Ruim</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="erp-empty">Nenhuma execução ainda. O chatbot do site e o playground gravam aqui.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "erp/partials/pagination.html" %}
+</section>
+{% endblock %}

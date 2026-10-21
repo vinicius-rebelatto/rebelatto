@@ -32,11 +32,6 @@ def _redirect_next(request: HttpRequest, fallback: str, **kwargs) -> HttpRespons
 
 
 @staff_required
-def index(request: HttpRequest) -> HttpResponse:
-    return redirect("ia:credencial_list")
-
-
-@staff_required
 def credencial_list(request: HttpRequest) -> HttpResponse:
     credenciais = Credencial.objects.annotate(
         total_modelos=Count("modelos", distinct=True),

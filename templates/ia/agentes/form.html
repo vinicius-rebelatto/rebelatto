@@ -1,0 +1,31 @@
+{% extends "erp/base.html" %}
+
+{% block content %}
+<section class="erp-card">
+  <form method="post" class="erp-form erp-form--grid">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="erp-flash erp-flash--error erp-field--full">{{ form.non_field_errors|striptags }}</div>
+    {% endif %}
+    {% include "ia/partials/field.html" with field=form.nome %}
+    {% include "ia/partials/field.html" with field=form.slug %}
+    {% include "ia/partials/field.html" with field=form.responsabilidade full=True %}
+    {% include "ia/partials/field.html" with field=form.prompt full=True %}
+    {% include "ia/partials/field.html" with field=form.temperatura %}
+    {% include "ia/partials/field.html" with field=form.max_tokens %}
+    {% include "ia/partials/field.html" with field=form.modelo %}
+    {% include "ia/partials/field.html" with field=form.modelo_reserva %}
+    {% include "ia/partials/field.html" with field=form.ativo %}
+    <div class="erp-form__actions erp-field--full">
+      <button class="btn btn-primary" type="submit">
+        {% include "erp/partials/icon.html" with name="check" %}
+        <span>Criar agente</span>
+      </button>
+      <a class="btn btn-outline" href="{% url 'ia:agente_list' %}">
+        {% include "erp/partials/icon.html" with name="x" %}
+        <span>Cancelar</span>
+      </a>
+    </div>
+  </form>
+</section>
+{% endblock %}

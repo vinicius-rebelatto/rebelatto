@@ -1,0 +1,40 @@
+{% extends "erp/base.html" %}
+
+{% block content %}
+<section class="erp-grid-2">
+  <article class="erp-card">
+    <form method="post" class="erp-form erp-form--grid">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="erp-flash erp-flash--error erp-field--full">{{ form.non_field_errors|striptags }}</div>
+      {% endif %}
+      {% include "ia/partials/field.html" with field=form.escopo %}
+      {% include "ia/partials/field.html" with field=form.teto_usd %}
+      {% include "ia/partials/field.html" with field=form.provedor %}
+      {% include "ia/partials/field.html" with field=form.agente %}
+      {% include "ia/partials/field.html" with field=form.ativo %}
+      <div class="erp-form__actions erp-field--full">
+        <button class="btn btn-primary" type="submit">
+          {% include "erp/partials/icon.html" with name="check" %}
+          <span>Salvar teto</span>
+        </button>
+        <a class="btn btn-outline" href="{% url 'ia:orcamento_list' %}">
+          {% include "erp/partials/icon.html" with name="x" %}
+          <span>Cancelar</span>
+        </a>
+      </div>
+    </form>
+  </article>
+  <aside class="erp-card">
+    <div class="erp-card__header">
+      <h2 class="erp-heading">Como o teto age</h2>
+    </div>
+    <ul class="erp-steps">
+      <li>O gasto é a soma das execuções do mês, calculada pela nossa tabela de preços.</li>
+      <li>50%, 80% e 95% só avisam. A área de alertas da visão geral aparece quando existe algum.</li>
+      <li>Em 100%, o agente usa o modelo reserva. Sem reserva, a chamada é recusada.</li>
+      <li>Um teto por provedor ou por agente vale junto com o global: o primeiro que estourar dispara a troca.</li>
+    </ul>
+  </aside>
+</section>
+{% endblock %}

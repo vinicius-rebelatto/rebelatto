@@ -264,7 +264,7 @@ def chat_message(request):
             status=503,
         )
     except Exception:
-        logger.exception("Gemini chat failed")
+        logger.exception("Chat failed")
         return JsonResponse(
             {"ok": False, "error": "Não consegui responder agora. Tente de novo em instantes."},
             status=502,

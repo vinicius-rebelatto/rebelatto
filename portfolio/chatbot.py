@@ -228,6 +228,49 @@ def check_rate_limit(session) -> bool:
     return True
 
 
+def _mensagens_do_chat(system: str, message: str, history: list[dict[str, str]]) -> list[dict[str, str]]:
+    mensagens = [{"role": "system", "content": system}]
+    for turn in history:
+        if turn["role"] == "user":
+            mensagens.append({"role": "user", "content": wrap_user_message(turn["content"])})
+        else:
+            mensagens.append({"role": "assistant", "content": turn["content"]})
+    mensagens.append({"role": "user", "content": wrap_user_message(message)})
+    return mensagens
+
+
+def _responder_pelo_gateway(
+    persona_id: str,
+    persona: dict[str, Any],
+    message: str,
+    history: list[dict[str, str]],
+) -> str | None:
+    """Usa o agente do ERP quando ele tem modelo. Sem modelo, devolve None e o Gemini do ambiente responde."""
+    from ia.agentes import garantir_chatbot
+    from ia.gateway import GatewayError, executar
+
+    agente = garantir_chatbot(persona_id)
+    if not agente.ativo:
+        return None
+    versao = agente.versao_ativa
+    if versao is None or not versao.modelo_id:
+        return None
+    system = versao.prompt or build_system_instruction(persona)
+    try:
+        resultado = executar(
+            agente,
+            _mensagens_do_chat(system, message, history),
+            referencia=("chat", persona_id),
+            usar_prompt_da_versao=False,
+        )
+    except GatewayError as exc:
+        logger.warning("Gateway do chatbot persona=%s: %s", persona_id, exc)
+        raise RuntimeError("Chat temporariamente indisponível.") from exc
+    if not resultado.texto:
+        raise RuntimeError("Resposta vazia do modelo.")
+    return resultado.texto
+
+
 def generate_reply(persona_id: str, message: str, history: list[dict[str, str]]) -> str:
     persona = get_persona(persona_id)
     if persona is None:
@@ -241,6 +284,13 @@ def generate_reply(persona_id: str, message: str, history: list[dict[str, str]])
         logger.info("Blocked prompt-injection attempt for persona=%s", persona_id)
         raise PromptInjectionError(REFUSAL_INJECTION)
 
+    resposta_gateway = _responder_pelo_gateway(persona_id, persona, message, history)
+    if resposta_gateway is not None:
+        return resposta_gateway
+    return _gerar_com_gemini(persona, message, history)
+
+
+def _gerar_com_gemini(persona: dict[str, Any], message: str, history: list[dict[str, str]]) -> str:
     api_key = (settings.GEMINI_API_KEY or "").strip()
     if not api_key:
         raise RuntimeError("Chat temporariamente indisponível.")

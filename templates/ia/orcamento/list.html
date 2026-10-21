@@ -1,0 +1,57 @@
+{% extends "erp/base.html" %}
+{% load ia_extras %}
+
+{% block page_actions %}
+<a class="btn btn-primary btn-sm" href="{% url 'ia:orcamento_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Novo teto</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="erp-stack">
+  <p class="erp-muted erp-note">O teto é mensal, em dólar. Em 50%, 80% e 95% a visão geral mostra um alerta. Em 100%, a chamada desce para o modelo reserva do agente. Se não houver reserva, ela é bloqueada e registrada como erro. A projeção avisa quando o ritmo atual estoura o teto antes do fim do mês.</p>
+  {% if not tem_global %}
+  <div class="erp-alert">
+    {% include "erp/partials/icon.html" with name="alert" %}
+    <div class="erp-alert__body">Ainda não há um teto global. Sem ele, o gasto é só acompanhado.</div>
+  </div>
+  {% endif %}
+
+  <section class="erp-card">
+    <div class="erp-table-wrap">
+      <table class="erp-table">
+        <thead>
+          <tr><th>Escopo</th><th>Teto</th><th>Gasto do mês</th><th>Uso</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for linha in linhas %}
+          <tr>
+            <td>
+              <a href="{% url 'ia:orcamento_edit' linha.orcamento.pk %}">{{ linha.orcamento }}</a>
+              {% if not linha.orcamento.ativo %}<span class="erp-badge erp-badge--pausado">Pausado</span>{% endif %}
+            </td>
+            <td>{{ linha.orcamento.teto_usd|usd }}</td>
+            <td>{{ linha.gasto|usd }}</td>
+            <td>
+              {% if linha.percentual is not None %}{{ linha.percentual }}%{% else %}—{% endif %}
+              <div class="erp-meter">
+                <span class="{% if linha.tom %}is-{{ linha.tom }}{% endif %}" style="width: {{ linha.largura }}%"></span>
+              </div>
+            </td>
+            <td>
+              <form method="post" action="{% url 'ia:orcamento_delete' linha.orcamento.pk %}" onsubmit="return confirm('Remover este teto?');">
+                {% csrf_token %}
+                <button class="btn btn-outline btn-sm" type="submit">Remover</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="erp-empty">Nenhum teto. Crie o global para começar a receber alertas.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}
