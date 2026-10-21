@@ -1,9 +1,15 @@
 (function () {
   var menuBtn = document.querySelector("[data-erp-menu]");
   var sidebar = document.getElementById("erp-sidebar");
+  var backdrop = document.querySelector("[data-erp-backdrop]");
   if (menuBtn && sidebar) {
     menuBtn.addEventListener("click", function () {
       sidebar.classList.toggle("is-open");
+    });
+  }
+  if (backdrop && sidebar) {
+    backdrop.addEventListener("click", function () {
+      sidebar.classList.remove("is-open");
     });
   }
 

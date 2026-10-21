@@ -71,7 +71,7 @@
 
     <form method="post" action="{% url 'erp:cliente_delete' cliente.pk %}" onsubmit="return confirm('Excluir este cliente?');" class="erp-danger-zone">
       {% csrf_token %}
-      <button class="btn btn-outline btn-sm" type="submit">
+      <button class="btn btn-danger btn-sm" type="submit">
         {% include "erp/partials/icon.html" with name="trash" %}
         <span>Excluir cliente</span>
       </button>

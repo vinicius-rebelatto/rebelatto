@@ -44,7 +44,7 @@
         {% include "erp/partials/icon.html" with name="check" %}
         <span>Aceitar selecionados</span>
       </button>
-      <button class="btn btn-outline btn-sm" type="submit" name="action" value="reject">
+      <button class="btn btn-danger btn-sm" type="submit" name="action" value="reject">
         {% include "erp/partials/icon.html" with name="x" %}
         <span>Rejeitar selecionados</span>
       </button>
@@ -81,7 +81,7 @@
                 {% include "erp/partials/icon.html" with name="check" %}
                 <span>Aceitar</span>
               </button>
-              <button class="btn btn-outline btn-sm" form="reject-{{ c.pk }}" type="submit">
+              <button class="btn btn-danger btn-sm" form="reject-{{ c.pk }}" type="submit">
                 {% include "erp/partials/icon.html" with name="x" %}
                 <span>Rejeitar</span>
               </button>

@@ -26,11 +26,6 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body class="erp-body">
-  <div class="bg-aurora" aria-hidden="true">
-    <span class="bg-aurora__blob bg-aurora__blob--a"></span>
-    <span class="bg-aurora__blob bg-aurora__blob--b"></span>
-    <span class="bg-aurora__blob bg-aurora__blob--c"></span>
-  </div>
   <div class="erp-shell">
     <aside class="erp-sidebar" id="erp-sidebar">
       <div class="erp-sidebar__brand">
@@ -41,6 +36,7 @@
       </div>
 
       <nav class="erp-nav" aria-label="ERP">
+        <span class="erp-sidebar__section">Menu</span>
         <a class="erp-nav__link{% if request.resolver_match.url_name == 'dashboard' %} is-active{% endif %}" href="{% url 'erp:dashboard' %}">
           {% include "erp/partials/icon.html" with name="dashboard" %}
           <span>Dashboard</span>
@@ -64,15 +60,18 @@
       </nav>
 
       <div class="erp-sidebar__footer">
-        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Alternar tema" title="Alternar tema">
-          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3a7 7 0 0 0 11.5 11.5Z"/>
-          </svg>
-          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="4"/>
-            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
-          </svg>
-        </button>
+        <div class="erp-theme-row">
+          <span>Tema</span>
+          <button class="theme-toggle" type="button" data-theme-toggle aria-label="Alternar tema" title="Alternar tema">
+            <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3a7 7 0 0 0 11.5 11.5Z"/>
+            </svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+            </svg>
+          </button>
+        </div>
         <a class="erp-nav__link" href="{% url 'portfolio:home' %}" target="_blank" rel="noopener">
           {% include "erp/partials/icon.html" with name="home" %}
           <span>Landing</span>
@@ -86,6 +85,7 @@
         </form>
       </div>
     </aside>
+    <div class="erp-backdrop" data-erp-backdrop aria-hidden="true"></div>
 
     <div class="erp-main">
       <header class="erp-topbar">
