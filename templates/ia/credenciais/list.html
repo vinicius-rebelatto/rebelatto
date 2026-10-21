@@ -1,0 +1,103 @@
+{% extends "erp/base.html" %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'ia:modelo_list' %}">
+  {% include "erp/partials/icon.html" with name="cpu" %}
+  <span>Modelos</span>
+</a>
+<a class="btn btn-primary btn-sm" href="{% url 'ia:credencial_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Nova chave</span>
+</a>
+{% endblock %}
+
+{% block content %}
+{% include "ia/partials/crypto_warning.html" %}
+
+<section class="erp-metrics">
+  <article class="erp-metric">
+    <span class="erp-metric__label">
+      {% include "erp/partials/icon.html" with name="key" %}
+      <span>Chaves ativas e válidas</span>
+    </span>
+    <strong class="erp-metric__value">{{ total_validas }} <small>/ {{ total_chaves }}</small></strong>
+  </article>
+  <article class="erp-metric">
+    <span class="erp-metric__label">
+      {% include "erp/partials/icon.html" with name="cpu" %}
+      <span>Modelos habilitados</span>
+    </span>
+    <strong class="erp-metric__value">{{ total_habilitados }} <small>/ {{ total_modelos }}</small></strong>
+  </article>
+</section>
+
+{% for p in provedores %}
+<section class="erp-card">
+  <div class="erp-card__header">
+    <div>
+      <h2 class="erp-heading">{{ p.label }}</h2>
+      <p class="erp-muted erp-card__subtitle">
+        <a href="{{ p.info.console_url }}" target="_blank" rel="noopener">Criar chave no console</a>
+        {% if p.suporta_admin %} · aceita chave de admin{% endif %}
+      </p>
+    </div>
+    <a class="btn btn-outline btn-sm" href="{% url 'ia:credencial_create' %}?provedor={{ p.value }}">
+      {% include "erp/partials/icon.html" with name="plus" %}
+      <span>Vincular chave</span>
+    </a>
+  </div>
+
+  {% if p.credenciais %}
+  <div class="erp-table-wrap">
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th>Apelido</th>
+          <th>Chave</th>
+          {% if p.suporta_admin %}<th>Admin</th>{% endif %}
+          <th>Status</th>
+          <th>Modelos</th>
+          <th>Último teste</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in p.credenciais %}
+        <tr>
+          <td><a href="{% url 'ia:credencial_detail' c.pk %}">{{ c.apelido }}</a></td>
+          <td><code>••••{{ c.chave_sufixo }}</code></td>
+          {% if p.suporta_admin %}<td>{% if c.tem_admin %}<code>••••{{ c.admin_sufixo }}</code>{% else %}—{% endif %}</td>{% endif %}
+          <td>
+            {% if not c.ativa %}
+            <span class="erp-badge erp-badge--inativa">Desativada</span>
+            {% else %}
+            <span class="erp-badge erp-badge--{{ c.status }}" {% if c.ultimo_erro %}title="{{ c.ultimo_erro }}"{% endif %}>{{ c.get_status_display }}</span>
+            {% endif %}
+          </td>
+          <td>{{ c.modelos_habilitados }} <span class="erp-muted">/ {{ c.total_modelos }} habilitados</span></td>
+          <td>{{ c.ultimo_teste_em|date:"d/m/Y H:i"|default:"—" }}</td>
+          <td class="erp-row-actions">
+            <form method="post" action="{% url 'ia:credencial_test' c.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{% url 'ia:credencial_list' %}">
+              <button class="btn btn-outline btn-sm" type="submit">
+                {% include "erp/partials/icon.html" with name="refresh" %}
+                <span>Testar</span>
+              </button>
+            </form>
+            <a class="btn btn-ghost btn-sm" href="{% url 'ia:credencial_detail' c.pk %}">
+              {% include "erp/partials/icon.html" with name="edit" %}
+              <span>Gerenciar</span>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="erp-empty-inline">Nenhuma chave vinculada.</p>
+  {% endif %}
+</section>
+{% endfor %}
+{% endblock %}

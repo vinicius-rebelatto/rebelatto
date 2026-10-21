@@ -1,0 +1,53 @@
+{% extends "erp/base.html" %}
+
+{% block content %}
+{% include "ia/partials/crypto_warning.html" %}
+
+<section class="erp-grid-2">
+  <article class="erp-card">
+    <form method="post" class="erp-form erp-form--grid" autocomplete="off">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="erp-flash erp-flash--error erp-field--full">{{ form.non_field_errors|striptags }}</div>
+      {% endif %}
+      {% include "ia/partials/field.html" with field=form.provedor %}
+      {% include "ia/partials/field.html" with field=form.apelido %}
+      {% include "ia/partials/field.html" with field=form.chave full=True %}
+      {% include "ia/partials/field.html" with field=form.chave_admin full=True %}
+      <div class="erp-form__actions erp-field--full">
+        <button class="btn btn-primary" type="submit">
+          {% include "erp/partials/icon.html" with name="check" %}
+          <span>Testar e salvar</span>
+        </button>
+        <a class="btn btn-outline" href="{% url 'ia:credencial_list' %}">
+          {% include "erp/partials/icon.html" with name="x" %}
+          <span>Cancelar</span>
+        </a>
+      </div>
+    </form>
+  </article>
+
+  <aside class="erp-card">
+    <div class="erp-card__header">
+      <h2 class="erp-heading">
+        {% include "erp/partials/icon.html" with name="key" %}
+        <span>Como funciona</span>
+      </h2>
+    </div>
+    <ul class="erp-steps">
+      <li>A chave é testada no provedor antes de salvar. Se for inválida, nada é gravado.</li>
+      <li>O teste lista os modelos disponíveis e não consome tokens.</li>
+      <li>A chave é guardada cifrada e nunca volta para a tela; só os 4 últimos caracteres aparecem.</li>
+      <li>Depois de salvar, habilite os modelos que os agentes poderão usar.</li>
+    </ul>
+    <dl class="erp-dl erp-dl--stack">
+      {% for label, info in info_provedores %}
+      <div>
+        <dt>{{ label }}</dt>
+        <dd>{{ info.chave_hint }}{% if info.admin_hint %}<br><span class="erp-muted">Admin: {{ info.admin_hint }}</span>{% endif %}<br><a href="{{ info.console_url }}" target="_blank" rel="noopener">Abrir console</a></dd>
+      </div>
+      {% endfor %}
+    </dl>
+  </aside>
+</section>
+{% endblock %}

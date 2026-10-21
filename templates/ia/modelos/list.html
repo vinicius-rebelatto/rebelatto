@@ -1,0 +1,99 @@
+{% extends "erp/base.html" %}
+{% load erp_extras ia_extras %}
+
+{% block page_actions %}
+<form method="post" action="{% url 'ia:modelos_atualizar_precos' %}">
+  {% csrf_token %}
+  <button class="btn btn-outline btn-sm" type="submit">
+    {% include "erp/partials/icon.html" with name="refresh" %}
+    <span>Atualizar preços (LiteLLM)</span>
+  </button>
+</form>
+<a class="btn btn-primary btn-sm" href="{% url 'ia:credencial_list' %}">
+  {% include "erp/partials/icon.html" with name="key" %}
+  <span>Chaves</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<section class="erp-card">
+  <form method="get" class="erp-toolbar">
+    <input class="erp-search" type="search" name="q" value="{{ q }}" placeholder="Buscar modelo…">
+    <select name="provedor">
+      <option value="">Provedor</option>
+      {% for value, label in provedor_choices %}
+      <option value="{{ value }}" {% if active_filters.provedor == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="faixa">
+      <option value="">Faixa</option>
+      {% for value, label in faixa_choices %}
+      <option value="{{ value }}" {% if active_filters.faixa == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="habilitado">
+      <option value="">Habilitado</option>
+      <option value="1" {% if active_filters.habilitado == '1' %}selected{% endif %}>Sim</option>
+      <option value="0" {% if active_filters.habilitado == '0' %}selected{% endif %}>Não</option>
+    </select>
+    {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+    <button class="btn btn-primary btn-sm" type="submit">
+      {% include "erp/partials/icon.html" with name="search" %}
+      <span>Filtrar</span>
+    </button>
+  </form>
+
+  <p class="erp-muted erp-note">Preços em dólar por 1 milhão de tokens. Preços editados à mão não são sobrescritos pela atualização do LiteLLM.</p>
+
+  <div class="erp-table-wrap">
+    <table class="erp-table">
+      <thead>
+        <tr>
+          <th><a href="{% sort_link 'model_id' %}">Modelo</a></th>
+          <th><a href="{% sort_link 'provedor' %}">Provedor</a></th>
+          <th>Faixa</th>
+          <th><a href="{% sort_link 'preco_entrada' %}">Entrada</a></th>
+          <th><a href="{% sort_link 'preco_saida' %}">Saída</a></th>
+          <th>Cache</th>
+          <th><a href="{% sort_link 'contexto_max' %}">Contexto</a></th>
+          <th>Recursos</th>
+          <th>Chaves</th>
+          <th>Habilitado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in object_list %}
+        <tr>
+          <td>
+            <a href="{% url 'ia:modelo_edit' m.pk %}">{{ m }}</a>
+            {% if m.nome %}<div class="erp-mono">{{ m.model_id }}</div>{% endif %}
+          </td>
+          <td class="erp-nowrap">{{ m.get_provedor_display }}</td>
+          <td>{% if m.faixa %}<span class="erp-badge erp-badge--{{ m.faixa }}">{{ m.get_faixa_display }}</span>{% else %}—{% endif %}</td>
+          <td class="erp-num">{{ m.preco_entrada|usd }}</td>
+          <td class="erp-num">{{ m.preco_saida|usd }}</td>
+          <td class="erp-num">{{ m.preco_cache_leitura|usd }}</td>
+          <td class="erp-num">{{ m.contexto_max|tokens }}</td>
+          <td class="erp-nowrap">
+            {% if m.suporta_visao %}<span class="erp-tag">Imagens</span>{% endif %}
+            {% if m.suporta_ferramentas %}<span class="erp-tag">Ferramentas</span>{% endif %}
+            {% if m.fonte_preco == 'manual' %}<span class="erp-tag erp-tag--accent">Preço manual</span>{% elif not m.tem_preco %}<span class="erp-tag erp-tag--warning">Sem preço</span>{% endif %}
+          </td>
+          <td class="erp-num">{{ m.total_chaves }}</td>
+          <td>
+            <form method="post" action="{% url 'ia:modelo_toggle' m.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button type="submit" class="erp-switch{% if m.habilitado %} is-on{% endif %}" aria-pressed="{{ m.habilitado|yesno:'true,false' }}" aria-label="Alternar {{ m.model_id }}"></button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="10" class="erp-empty">Nenhum modelo ainda. Vincule uma chave para sincronizar os modelos do provedor.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "erp/partials/pagination.html" %}
+</section>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends "erp/base.html" %}
+{% load ia_extras %}
+
+{% block page_actions %}
+<form method="post" action="{% url 'ia:credencial_test' credencial.pk %}">
+  {% csrf_token %}
+  <button class="btn btn-primary btn-sm" type="submit">
+    {% include "erp/partials/icon.html" with name="refresh" %}
+    <span>Testar agora</span>
+  </button>
+</form>
+<a class="btn btn-outline btn-sm" href="{% url 'ia:credencial_list' %}">
+  {% include "erp/partials/icon.html" with name="back" %}
+  <span>Chaves</span>
+</a>
+{% endblock %}
+
+{% block content %}
+{% include "ia/partials/crypto_warning.html" %}
+{% if erro_cripto %}
+<div class="erp-alert erp-alert--danger">
+  {% include "erp/partials/icon.html" with name="alert" %}
+  <div><strong>Chave ilegível.</strong> {{ erro_cripto }} Cadastre a chave novamente abaixo.</div>
+</div>
+{% endif %}
+
+<section class="erp-grid-2">
+  <div class="erp-stack">
+    <article class="erp-card">
+      <div class="erp-card__header">
+        <h2 class="erp-heading">
+          {% include "erp/partials/icon.html" with name="key" %}
+          <span>{{ credencial.get_provedor_display }}</span>
+        </h2>
+        {% if not credencial.ativa %}
+        <span class="erp-badge erp-badge--inativa">Desativada</span>
+        {% else %}
+        <span class="erp-badge erp-badge--{{ credencial.status }}">{{ credencial.get_status_display }}</span>
+        {% endif %}
+      </div>
+      <dl class="erp-dl">
+        <div><dt>Apelido</dt><dd>{{ credencial.apelido }}</dd></div>
+        <div><dt>Chave de API</dt><dd><code>••••{{ credencial.chave_sufixo }}</code></dd></div>
+        {% if suporta_admin %}
+        <div><dt>Chave de admin</dt><dd>{% if credencial.tem_admin %}<code>••••{{ credencial.admin_sufixo }}</code>{% else %}Não vinculada{% endif %}</dd></div>
+        {% endif %}
+        <div><dt>Último teste</dt><dd>{{ credencial.ultimo_teste_em|date:"d/m/Y H:i"|default:"—" }}</dd></div>
+        <div><dt>Vinculada em</dt><dd>{{ credencial.created_at|date:"d/m/Y H:i" }}</dd></div>
+        <div><dt>Console</dt><dd><a href="{{ info.console_url }}" target="_blank" rel="noopener">Abrir</a></dd></div>
+        {% if credencial.ultimo_erro %}
+        <div class="erp-dl--full"><dt>Último erro</dt><dd class="erp-error-text">{{ credencial.ultimo_erro }}</dd></div>
+        {% endif %}
+      </dl>
+    </article>
+
+    <article class="erp-card">
+      <div class="erp-card__header">
+        <h2 class="erp-heading">
+          {% include "erp/partials/icon.html" with name="edit" %}
+          <span>Editar</span>
+        </h2>
+      </div>
+      <form method="post" class="erp-form erp-form--grid" autocomplete="off">
+        {% csrf_token %}
+        {% include "ia/partials/field.html" with field=form.apelido %}
+        {% include "ia/partials/field.html" with field=form.ativa %}
+        {% include "ia/partials/field.html" with field=form.nova_chave full=True %}
+        {% if suporta_admin %}
+        {% include "ia/partials/field.html" with field=form.nova_chave_admin full=True %}
+        {% if credencial.tem_admin %}{% include "ia/partials/field.html" with field=form.remover_admin full=True %}{% endif %}
+        {% endif %}
+        <div class="erp-form__actions erp-field--full">
+          <button class="btn btn-primary" type="submit">
+            {% include "erp/partials/icon.html" with name="save" %}
+            <span>Salvar</span>
+          </button>
+        </div>
+      </form>
+
+      <form method="post" action="{% url 'ia:credencial_delete' credencial.pk %}" class="erp-danger-zone" onsubmit="return confirm('Remover esta chave? Os modelos continuam cadastrados.');">
+        {% csrf_token %}
+        <button class="btn btn-danger btn-sm" type="submit">
+          {% include "erp/partials/icon.html" with name="trash" %}
+          <span>Remover chave</span>
+        </button>
+      </form>
+    </article>
+  </div>
+
+  <article class="erp-card">
+    <div class="erp-card__header">
+      <h2 class="erp-heading">
+        {% include "erp/partials/icon.html" with name="cpu" %}
+        <span>Modelos desta chave ({{ modelos|length }})</span>
+      </h2>
+      <a class="btn btn-ghost btn-sm" href="{% url 'ia:modelo_list' %}?provedor={{ credencial.provedor }}">Ver todos</a>
+    </div>
+    <div class="erp-table-wrap">
+      <table class="erp-table erp-table--compact">
+        <thead>
+          <tr>
+            <th>Modelo</th>
+            <th>Entrada / saída</th>
+            <th>Habilitado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in modelos %}
+          <tr>
+            <td>
+              <a href="{% url 'ia:modelo_edit' m.pk %}">{{ m }}</a>
+              {% if m.nome %}<div class="erp-mono">{{ m.model_id }}</div>{% endif %}
+            </td>
+            <td class="erp-nowrap">{{ m.preco_entrada|usd }} / {{ m.preco_saida|usd }}</td>
+            <td>
+              <form method="post" action="{% url 'ia:modelo_toggle' m.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'ia:credencial_detail' credencial.pk %}">
+                <button type="submit" class="erp-switch{% if m.habilitado %} is-on{% endif %}" aria-pressed="{{ m.habilitado|yesno:'true,false' }}" aria-label="Alternar {{ m.model_id }}"></button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" class="erp-empty">Nenhum modelo. Teste a chave para sincronizar.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "erp/base.html" %}
+{% load ia_extras %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'ia:modelo_list' %}">
+  {% include "erp/partials/icon.html" with name="back" %}
+  <span>Modelos</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<section class="erp-grid-2">
+  <article class="erp-card">
+    <form method="post" class="erp-form erp-form--grid">
+      {% csrf_token %}
+      {% include "ia/partials/field.html" with field=form.nome %}
+      {% include "ia/partials/field.html" with field=form.faixa %}
+      {% include "ia/partials/field.html" with field=form.preco_entrada %}
+      {% include "ia/partials/field.html" with field=form.preco_saida %}
+      {% include "ia/partials/field.html" with field=form.preco_cache_leitura %}
+      {% include "ia/partials/field.html" with field=form.preco_cache_escrita %}
+      {% include "ia/partials/field.html" with field=form.contexto_max %}
+      {% include "ia/partials/field.html" with field=form.saida_max %}
+      {% include "ia/partials/field.html" with field=form.habilitado %}
+      {% include "ia/partials/field.html" with field=form.suporta_visao %}
+      {% include "ia/partials/field.html" with field=form.suporta_ferramentas %}
+      <div class="erp-form__actions erp-field--full">
+        <button class="btn btn-primary" type="submit">
+          {% include "erp/partials/icon.html" with name="save" %}
+          <span>Salvar</span>
+        </button>
+        <a class="btn btn-outline" href="{% url 'ia:modelo_list' %}">
+          {% include "erp/partials/icon.html" with name="x" %}
+          <span>Cancelar</span>
+        </a>
+      </div>
+    </form>
+  </article>
+
+  <aside class="erp-card">
+    <div class="erp-card__header">
+      <h2 class="erp-heading">
+        {% include "erp/partials/icon.html" with name="cpu" %}
+        <span>Detalhes</span>
+      </h2>
+    </div>
+    <dl class="erp-dl">
+      <div><dt>Provedor</dt><dd>{{ modelo.get_provedor_display }}</dd></div>
+      <div class="erp-dl--full"><dt>ID</dt><dd><code>{{ modelo.model_id }}</code></dd></div>
+      <div><dt>Fonte do preço</dt><dd>{{ modelo.get_fonte_preco_display|default:"Sem preço" }}</dd></div>
+      <div><dt>Atualizado em</dt><dd>{{ modelo.preco_atualizado_em|date:"d/m/Y H:i"|default:"—" }}</dd></div>
+      <div class="erp-dl--full">
+        <dt>Disponível nas chaves</dt>
+        <dd>
+          {% for c in credenciais %}<a href="{% url 'ia:credencial_detail' c.pk %}">{{ c.apelido }}</a>{% if not forloop.last %}, {% endif %}{% empty %}Nenhuma{% endfor %}
+        </dd>
+      </div>
+    </dl>
+    {% if modelo.fonte_preco == 'manual' %}
+    <form method="post" action="{% url 'ia:modelo_reset_preco' modelo.pk %}" class="erp-danger-zone">
+      {% csrf_token %}
+      <p class="erp-muted">Este preço foi editado à mão e não é atualizado automaticamente.</p>
+      <button class="btn btn-outline btn-sm" type="submit">
+        {% include "erp/partials/icon.html" with name="refresh" %}
+        <span>Voltar ao preço do LiteLLM</span>
+      </button>
+    </form>
+    {% endif %}
+  </aside>
+</section>
+{% endblock %}

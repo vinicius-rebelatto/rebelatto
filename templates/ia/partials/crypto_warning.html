@@ -1,0 +1,10 @@
+{% if chave_derivada %}
+<div class="erp-alert erp-alert--warning">
+  {% include "erp/partials/icon.html" with name="alert" %}
+  <div>
+    <strong>IA_ENCRYPTION_KEY não configurada.</strong>
+    As chaves estão sendo cifradas com uma chave derivada do <code>SECRET_KEY</code>.
+    Defina <code>IA_ENCRYPTION_KEY</code> no <code>.env</code> da VPS; as chaves já salvas continuam legíveis.
+  </div>
+</div>
+{% endif %}

@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "portfolio",
     "crm",
     "erp",
+    "ia",
 ]
 
 LOGIN_URL = "erp:login"
@@ -159,6 +160,8 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }
+
+IA_ENCRYPTION_KEY = secret_or_env("IA_ENCRYPTION_KEY", "") or ""
 
 GEMINI_API_KEY = secret_or_env("GEMINI_API_KEY", "")
 GEMINI_MODEL = secret_or_env("GEMINI_MODEL", "gemini-3.5-flash-lite") or "gemini-3.5-flash-lite"

@@ -57,6 +57,16 @@
           {% include "erp/partials/icon.html" with name="projects" %}
           <span>Projetos</span>
         </a>
+
+        <span class="erp-sidebar__section erp-sidebar__section--spaced">Inteligência artificial</span>
+        <a class="erp-nav__link{% if 'credencial' in request.resolver_match.url_name %} is-active{% endif %}" href="{% url 'ia:credencial_list' %}">
+          {% include "erp/partials/icon.html" with name="key" %}
+          <span>Chaves</span>
+        </a>
+        <a class="erp-nav__link{% if 'modelo' in request.resolver_match.url_name %} is-active{% endif %}" href="{% url 'ia:modelo_list' %}">
+          {% include "erp/partials/icon.html" with name="cpu" %}
+          <span>Modelos</span>
+        </a>
       </nav>
 
       <div class="erp-sidebar__footer">
@@ -106,6 +116,10 @@
                   {% include "erp/partials/icon.html" with name="mockup" %}
                 {% elif "project" in n %}
                   {% include "erp/partials/icon.html" with name="projects" %}
+                {% elif "credencial" in n %}
+                  {% include "erp/partials/icon.html" with name="key" %}
+                {% elif "modelo" in n %}
+                  {% include "erp/partials/icon.html" with name="cpu" %}
                 {% else %}
                   {% include "erp/partials/icon.html" with name="dashboard" %}
                 {% endif %}
