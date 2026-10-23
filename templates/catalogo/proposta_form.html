@@ -1,5 +1,5 @@
 {% extends "erp/base.html" %}
-{% load catalogo_extras %}
+{% load catalogo_extras l10n static %}
 
 {% block content %}
 <form method="post" class="compose" id="proposta-form" action="{% if proposta %}{% url 'catalogo:proposta_edit' proposta.pk %}{% else %}{% url 'catalogo:proposta_create' %}{% endif %}">
@@ -76,10 +76,10 @@
           <p>Opcional soma o preço do serviço. Avulso entra no mesmo grupo de cobrança.</p>
         </div>
       </header>
-      {% if disponiveis %}
-      <div class="pick-grid">
-        {% for servico in disponiveis %}
-        <label class="pick pick--check{% if servico.pk in marcados %} is-on{% endif %}">
+      <p class="sheet__empty" id="extras-vazio" {% if disponiveis %}hidden{% endif %}>Este pacote não tem opcional nem avulso fora do preço.</p>
+      <div class="pick-grid" id="extras-grid">
+        {% for servico in candidatos %}
+        <label class="pick pick--check{% if servico.pk in marcados %} is-on{% endif %}" {% if servico.pk not in disponiveis_ids %}hidden{% endif %}>
           <input type="checkbox" name="extras" value="{{ servico.pk }}" {% if servico.pk in marcados %}checked{% endif %}>
           <span class="pick__mark" aria-hidden="true"></span>
           <span class="pick__body">
@@ -89,9 +89,6 @@
         </label>
         {% endfor %}
       </div>
-      {% else %}
-      <p class="sheet__empty">Este pacote não tem opcional nem avulso fora do preço.</p>
-      {% endif %}
     </section>
 
     <section class="sheet">
@@ -104,7 +101,7 @@
       </header>
       <div class="linha-list">
         {% for linha in linhas %}
-        <article class="linha">
+        <article class="linha" data-tipo="{{ linha.tipo }}" data-id="{{ linha.servico_id|default:'' }}" data-tabela="{{ linha.tabela|unlocalize }}" data-piso="{% if linha.piso %}1{% else %}0{% endif %}">
           <div class="linha__nome">
             <strong>{{ linha.nome }}</strong>
             <small>
@@ -145,15 +142,13 @@
       <p class="quote-card__who" id="quote-who"></p>
 
       {% if linhas %}
-      {% if escopo %}
-      <p class="quote-card__label">Serviços inclusos</p>
-      <ul class="quote-scope">
+      <p class="quote-card__label" id="quote-scope-label" {% if not escopo %}hidden{% endif %}>Serviços inclusos</p>
+      <ul class="quote-scope" id="quote-scope">
         {% for servico in escopo %}
         <li>{{ servico.nome }}</li>
         {% endfor %}
       </ul>
-      {% endif %}
-      <div class="quote-lines">
+      <div class="quote-lines" id="quote-lines">
         {% for linha in linhas %}
         <div class="quote-line quote-line--item">
           <div>
@@ -180,44 +175,6 @@
     </div>
   </aside>
 </form>
-<script>
-  const form = document.getElementById("proposta-form");
-  const cliente = document.getElementById("id_cliente");
-  const who = document.getElementById("quote-who");
-
-  function nomeCliente() {
-    if (!who) return;
-    who.textContent = cliente && cliente.value ? cliente.options[cliente.selectedIndex].text : "";
-  }
-  nomeCliente();
-  cliente?.addEventListener("change", nomeCliente);
-
-  function enviar() {
-    const csrf = form.querySelector('input[name="csrfmiddlewaretoken"]');
-    if (csrf) csrf.disabled = true;
-    form.method = "get";
-    form.submit();
-  }
-
-  form.querySelectorAll('input[name="pacote"], input[name="extras"], input[name="escopo"]').forEach((el) => {
-    el.addEventListener("change", () => {
-      el.closest(".pick")?.classList.toggle("is-on", el.checked);
-      enviar();
-    });
-  });
-  form.querySelectorAll(".linha input").forEach((el) => {
-    el.addEventListener("change", () => enviar());
-  });
-  form.querySelectorAll(".pct-choice button").forEach((botao) => {
-    botao.addEventListener("click", () => {
-      const campo = botao.parentElement.querySelector("input");
-      if (!campo) return;
-      campo.value = botao.dataset.pct;
-      botao.parentElement.querySelectorAll("button").forEach((outro) => {
-        outro.classList.toggle("is-on", outro === botao);
-      });
-      enviar();
-    });
-  });
-</script>
+{{ catalogo|json_script:"proposta-catalogo" }}
+<script src="{% static 'js/proposta.js' %}"></script>
 {% endblock %}

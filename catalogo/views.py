@@ -18,6 +18,7 @@ from .preco import (
     fracao,
     gravar,
     gravar_linhas,
+    faixas,
     pontos,
     percentual_sugerido,
     texto_faixas,
@@ -535,8 +536,57 @@ def _proposta_form(request: HttpRequest, proposta: Proposta | None) -> HttpRespo
             "escopo": escopo,
             "linhas": linhas,
             "faixas": texto_faixas(),
+            "candidatos": _candidatos_extras(),
+            "disponiveis_ids": {servico.pk for servico in disponiveis},
+            "catalogo": _catalogo_interativo(form.fields["pacote"].queryset),
         },
     )
+
+
+def _candidatos_extras():
+    opcionais = ItemPacote.objects.filter(incluso=False).values("servico_id")
+    return Servico.objects.filter(ativo=True).filter(Q(complemento=True) | Q(pk__in=opcionais)).order_by("ordem", "nome")
+
+
+def _catalogo_interativo(pacotes_qs):
+    pacotes = []
+    for pacote in pacotes_qs.prefetch_related("itens__servico"):
+        escopo = []
+        opcionais = []
+        for item in pacote.itens.all():
+            if item.incluso:
+                escopo.append({"id": item.servico_id, "nome": item.servico.nome})
+            else:
+                opcionais.append(item.servico_id)
+        pacotes.append(
+            {
+                "id": pacote.pk,
+                "nome": pacote.nome,
+                "preco": str(dinheiro(pacote.preco)),
+                "cobranca_label": pacote.get_cobranca_display(),
+                "piso": pacote.piso,
+                "escopo": escopo,
+                "opcionais": opcionais,
+            }
+        )
+    servicos = [
+        {
+            "id": servico.pk,
+            "nome": servico.nome,
+            "preco": str(dinheiro(servico.preco)),
+            "cobranca_label": servico.get_cobranca_display(),
+            "complemento": servico.complemento,
+        }
+        for servico in _candidatos_extras()
+    ]
+    return {
+        "pacotes": pacotes,
+        "servicos": servicos,
+        "faixas": [
+            {"ate": None if faixa.valor_ate is None else str(dinheiro(faixa.valor_ate)), "pct": str(faixa.percentual)}
+            for faixa in faixas()
+        ],
+    }
 
 
 @staff_required

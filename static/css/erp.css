@@ -1625,6 +1625,10 @@
   gap: 0.75rem;
 }
 
+.pick[hidden] {
+  display: none;
+}
+
 .pick {
   position: relative;
   display: flex;
