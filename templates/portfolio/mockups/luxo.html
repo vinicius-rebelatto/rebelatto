@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ónix — estética em Balneário Camboriú</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Ónix é um consultório privado de estética e harmonização facial em Balneário Camboriú. Hora marcada, sala reservada.">
+  <meta name="theme-color" content="#100e0c">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static landing.css %}">
+</head>
+<body>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+
+  <header class="bar" data-bar>
+    <div class="wrap bar__row">
+      <a class="mark" href="#topo" aria-label="Ónix — início">
+        <svg class="mark__seal" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="16" r="12.5" fill="none" stroke="currentColor" stroke-width="0.7"/>
+          <path d="M16 8.5v15" fill="none" stroke="currentColor" stroke-width="0.7"/>
+        </svg>
+        <span class="mark__name">Ónix</span>
+      </a>
+
+      <nav class="nav" aria-label="Principal">
+        <a href="#procedimentos">Procedimentos</a>
+        <a href="#criterio">Critério</a>
+        <a href="#sala">A sala</a>
+        <a href="#visita">Visita</a>
+      </nav>
+
+      <a class="btn btn--ghost btn--small" href="#visita">Conversar</a>
+
+      <button class="menu" type="button" data-menu aria-expanded="false" aria-controls="drawer" aria-label="Abrir menu">
+        <span></span><span></span>
+      </button>
+    </div>
+    <div class="drawer" id="drawer" data-drawer hidden>
+      <nav aria-label="Menu">
+        <a href="#procedimentos">Procedimentos</a>
+        <a href="#criterio">Critério</a>
+        <a href="#sala">A sala</a>
+        <a href="#visita">Visita</a>
+        <a class="btn" href="#visita">Conversar</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero" id="topo" aria-labelledby="hero-title">
+      <div class="wrap hero__grid">
+        <div>
+          <p class="eyebrow">Estética privada · Balneário Camboriú</p>
+          <h1 id="hero-title">Poucas horas.<br><em>Muito critério.</em></h1>
+          <p class="lede">Harmonização e pele em sala reservada. A visita inteira é sua, do começo ao fim.</p>
+          <div class="hero__actions">
+            <a class="btn" href="#visita">Marcar conversa</a>
+            <a class="textlink" href="#procedimentos">Ver o que se faz</a>
+          </div>
+        </div>
+        <p class="hero__aside">Um horário · uma sala</p>
+      </div>
+    </section>
+
+    <section class="strip" aria-label="Como a Ónix recebe">
+      <div class="wrap strip__row">
+        <p>Hora marcada, sem sala de espera compartilhada.</p>
+        <p>Centro de Balneário Camboriú, em frente ao mar.</p>
+        <p>Terça a sábado, das 10h às 19h.</p>
+      </div>
+    </section>
+
+    <section class="block" id="procedimentos" aria-labelledby="proc-title">
+      <div class="wrap">
+        <header class="block__head">
+          <p class="eyebrow">01 — Procedimentos</p>
+          <h2 id="proc-title">Só o que a avaliação sustenta.</h2>
+        </header>
+        <ol class="list">
+          <li>
+            <span class="list__n">01</span>
+            <div>
+              <h3>Harmonização</h3>
+              <p>Um plano curto para o seu rosto. O que não cabe nesta etapa fica de fora.</p>
+            </div>
+          </li>
+          <li>
+            <span class="list__n">02</span>
+            <div>
+              <h3>Pele</h3>
+              <p>Textura e viço, em sessões espaçadas. A pele precisa de intervalo para responder.</p>
+            </div>
+          </li>
+          <li>
+            <span class="list__n">03</span>
+            <div>
+              <h3>Lábios</h3>
+              <p>Contorno preciso. Volume apenas se a boca pedir, e sempre pouco.</p>
+            </div>
+          </li>
+          <li>
+            <span class="list__n">04</span>
+            <div>
+              <h3>Retorno</h3>
+              <p>Uma revisão já marcada, para ver o que o tempo fez e ajustar só o necessário.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="block block--rule" id="criterio" aria-labelledby="rule-title">
+      <div class="wrap">
+        <header class="block__head">
+          <p class="eyebrow">02 — Critério</p>
+          <h2 id="rule-title">Três regras. Nenhuma é flexível.</h2>
+        </header>
+        <div class="rules">
+          <article>
+            <span>I</span>
+            <h3>A sala é sua</h3>
+            <p>Durante a hora marcada, não há outro paciente no corredor.</p>
+          </article>
+          <article>
+            <span>II</span>
+            <h3>Luz natural</h3>
+            <p>Nada é proposto antes de olhar o rosto na janela, sem flash.</p>
+          </article>
+          <article>
+            <span>III</span>
+            <h3>Plano curto</h3>
+            <p>O que será feito cabe em uma página. O resto espera.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="sala" aria-labelledby="room-title">
+      <div class="wrap">
+        <header class="block__head block__head--split">
+          <div>
+            <p class="eyebrow">03 — A sala</p>
+            <h2 id="room-title">O luxo, aqui, é o espaço.</h2>
+          </div>
+          <p class="aside">Poucos móveis, uma janela, silêncio. A fotografia da sala entra quando a clínica fechar o projeto.</p>
+        </header>
+        <figure class="void">
+          <div class="void__ring" aria-hidden="true"></div>
+          <figcaption>
+            <span>Sala reservada</span>
+            <span>Luz da tarde</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="visit" id="visita" aria-labelledby="visit-title">
+      <div class="wrap visit__grid">
+        <div>
+          <p class="eyebrow">04 — Visita</p>
+          <h2 id="visit-title">A conversa é o primeiro horário.</h2>
+          <p class="visit__note">A avaliação não compromete nenhum procedimento.</p>
+          <a class="btn" href="https://wa.me/554733630190" rel="noopener">Chamar no WhatsApp</a>
+        </div>
+        <dl class="facts">
+          <div>
+            <dt>Endereço</dt>
+            <dd>Avenida Atlântica, 1500 — sala 12<br>Centro, Balneário Camboriú — SC</dd>
+          </div>
+          <div>
+            <dt>Horário</dt>
+            <dd>Terça a sábado, 10h–19h<br>Domingo e segunda, fechado</dd>
+          </div>
+          <div>
+            <dt>Telefone</dt>
+            <dd>(47) 3363-0190</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot__row">
+      <p class="mark mark--foot"><span class="mark__name">Ónix</span> <span>estética</span></p>
+      <p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>
+    </div>
+  </footer>
+
+  <script src="{% static landing.js %}" defer></script>
+</body>
+</html>

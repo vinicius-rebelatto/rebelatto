@@ -1,0 +1,205 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alva — estética em Itajaí</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Alva é um consultório de estética e harmonização facial em Itajaí. Avaliação com calma, um paciente por vez.">
+  <meta name="theme-color" content="#f3eee6">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,460;0,9..144,560;1,9..144,460&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static landing.css %}">
+</head>
+<body>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+
+  <header class="bar" data-bar>
+    <div class="wrap bar__row">
+      <a class="mark" href="#topo" aria-label="Alva — início">
+        <svg class="mark__seal" viewBox="0 0 48 48" aria-hidden="true">
+          <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-width="0.8"/>
+          <path d="M13 31.5c3.2-7.4 7.2-11 11-11s7.8 3.6 11 11" fill="none" stroke="currentColor" stroke-width="0.8"/>
+          <circle cx="24" cy="16.5" r="2.1"/>
+        </svg>
+        <span class="mark__name">Alva</span>
+      </a>
+
+      <nav class="nav" aria-label="Principal">
+        <a href="#procedimentos">Procedimentos</a>
+        <a href="#metodo">Método</a>
+        <a href="#sala">A sala</a>
+        <a href="#visita">Visita</a>
+      </nav>
+
+      <a class="btn btn--small" href="#visita">Agendar conversa</a>
+
+      <button class="menu" type="button" data-menu aria-expanded="false" aria-controls="drawer" aria-label="Abrir menu">
+        <span></span><span></span>
+      </button>
+    </div>
+    <div class="drawer" id="drawer" data-drawer hidden>
+      <nav aria-label="Menu">
+        <a href="#procedimentos">Procedimentos</a>
+        <a href="#metodo">Método</a>
+        <a href="#sala">A sala</a>
+        <a href="#visita">Visita</a>
+        <a class="btn" href="#visita">Agendar conversa</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero" id="topo" aria-labelledby="hero-title">
+      <div class="wrap hero__grid">
+        <div class="hero__copy">
+          <p class="eyebrow">Estética · Itajaí</p>
+          <h1 id="hero-title">Um consultório em silêncio, para cuidar do rosto <em>com calma</em>.</h1>
+          <p class="lede">Harmonização facial e cuidado de pele. A visita começa por uma conversa, antes de qualquer procedimento.</p>
+          <div class="hero__actions">
+            <a class="btn" href="#visita">Agendar conversa</a>
+            <a class="textlink" href="#procedimentos">Ver procedimentos</a>
+          </div>
+        </div>
+
+        <figure class="panel" aria-hidden="true">
+          <div class="panel__light"></div>
+          <div class="panel__arch"></div>
+          <figcaption>
+            <span>Sala de avaliação</span>
+            <span>Luz da manhã</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="strip" aria-label="Como a Alva recebe">
+      <div class="wrap strip__row">
+        <p><strong>Um horário</strong> por vez, sem sala de espera cheia.</p>
+        <p><strong>Centro</strong> de Itajaí, a poucos minutos da praia.</p>
+        <p><strong>Segunda a sexta</strong>, das 9h às 18h.</p>
+      </div>
+    </section>
+
+    <section class="block" id="procedimentos" aria-labelledby="proc-title">
+      <div class="wrap">
+        <header class="block__head">
+          <p class="eyebrow">01 — Procedimentos</p>
+          <h2 id="proc-title">O que se faz aqui, sempre depois da avaliação.</h2>
+        </header>
+        <ol class="list">
+          <li>
+            <span class="list__n">01</span>
+            <div>
+              <h3>Harmonização facial</h3>
+              <p>Plano desenhado para o seu rosto, em etapas. Nada é decidido no corredor.</p>
+            </div>
+          </li>
+          <li>
+            <span class="list__n">02</span>
+            <div>
+              <h3>Qualidade de pele</h3>
+              <p>Textura, viço e manchas. Protocolos leves, com intervalo para a pele responder.</p>
+            </div>
+          </li>
+          <li>
+            <span class="list__n">03</span>
+            <div>
+              <h3>Lábios e contorno</h3>
+              <p>Volume contido e contorno definido. O objetivo é parecer descansada, não outra pessoa.</p>
+            </div>
+          </li>
+          <li>
+            <span class="list__n">04</span>
+            <div>
+              <h3>Manutenção</h3>
+              <p>Retornos curtos para ajustar o que o tempo pede. O plano fica registrado com você.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="block block--method" id="metodo" aria-labelledby="method-title">
+      <div class="wrap method">
+        <header class="block__head">
+          <p class="eyebrow">02 — Método</p>
+          <h2 id="method-title">Três tempos. Nenhum deles é apressado.</h2>
+        </header>
+        <div class="steps">
+          <article>
+            <span>I</span>
+            <h3>Conversa</h3>
+            <p>Você conta o que incomoda. A gente olha o rosto em luz natural e diz o que faz sentido — e o que não faz.</p>
+          </article>
+          <article>
+            <span>II</span>
+            <h3>Plano</h3>
+            <p>Um roteiro escrito: o que vem agora, o que espera, e o intervalo entre um e outro.</p>
+          </article>
+          <article>
+            <span>III</span>
+            <h3>Cuidado</h3>
+            <p>O procedimento, e um retorno para ver como a pele se acomodou. Sem surpresa na saída.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="sala" aria-labelledby="room-title">
+      <div class="wrap">
+        <header class="block__head block__head--split">
+          <div>
+            <p class="eyebrow">03 — A sala</p>
+            <h2 id="room-title">Pouca coisa na parede. Muita luz.</h2>
+          </div>
+          <p class="aside">O espaço foi pensado para a conversa durar o tempo que precisar. As fotos reais entram quando a clínica fechar o projeto.</p>
+        </header>
+        <figure class="window">
+          <div class="window__glass">
+            <div class="window__glow"></div>
+            <div class="window__mullion"></div>
+            <div class="window__sill"></div>
+          </div>
+          <figcaption>Janela da sala de avaliação. A fotografia entra depois do contrato.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="visit" id="visita" aria-labelledby="visit-title">
+      <div class="wrap visit__grid">
+        <div>
+          <p class="eyebrow">04 — Visita</p>
+          <h2 id="visit-title">Marque uma conversa. A avaliação não compromete o procedimento.</h2>
+          <a class="btn btn--light" href="https://wa.me/554732680140" rel="noopener">Chamar no WhatsApp</a>
+        </div>
+        <dl class="facts">
+          <div>
+            <dt>Endereço</dt>
+            <dd>Rua Hercílio Luz, 240 — sala 3<br>Centro, Itajaí — SC</dd>
+          </div>
+          <div>
+            <dt>Horário</dt>
+            <dd>Segunda a sexta, 9h–18h<br>Sábado e domingo, fechado</dd>
+          </div>
+          <div>
+            <dt>Telefone</dt>
+            <dd>(47) 3268-0140</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot__row">
+      <p class="mark mark--foot"><span class="mark__name">Alva</span> <span>estética</span></p>
+      <p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>
+    </div>
+  </footer>
+
+  <script src="{% static landing.js %}" defer></script>
+</body>
+</html>
