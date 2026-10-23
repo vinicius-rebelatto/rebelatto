@@ -103,6 +103,8 @@ class PaginaTests(TestCase):
         self.assertEqual(nova.status_code, 200)
         self.assertContains(nova, "Landing Express")
         self.assertContains(nova, "R$ 465,50")
+        self.assertContains(nova, "Serviços inclusos")
+        self.assertContains(nova, "Preço de cada item")
 
     def test_criar_proposta_pela_tela(self):
         pacote = Pacote.objects.get(nome="Landing Express")
@@ -123,3 +125,49 @@ class PaginaTests(TestCase):
         self.assertContains(detalhe, "R$ 465,50")
         self.assertContains(detalhe, "Clínica Aurora")
         self.assertContains(detalhe, "Página")
+
+    def test_preco_e_desconto_por_linha(self):
+        pacote = Pacote.objects.get(nome="Landing Express")
+        chatbot = Servico.objects.get(nome="Chatbot")
+        escopo = list(pacote.itens.filter(incluso=True).values_list("servico_id", flat=True))
+        fora = escopo.pop()
+        resposta = self.client.post(
+            "/erp/catalogo/propostas/nova/",
+            {
+                "cliente": self.cliente.pk,
+                "pacote": pacote.pk,
+                "pacote_base": pacote.pk,
+                "escopo": escopo,
+                "extras": chatbot.pk,
+                "preco_pacote": "500,00",
+                "pct_pacote": "0",
+                f"preco_extra_{chatbot.pk}": "390,00",
+                f"pct_extra_{chatbot.pk}": "0",
+            },
+        )
+        proposta = Proposta.objects.get()
+        self.assertRedirects(resposta, f"/erp/catalogo/propostas/{proposta.pk}/")
+        self.assertEqual(proposta.preco_unico, Decimal("880.00"))
+        self.assertEqual(proposta.total_unico, Decimal("890.00"))
+        self.assertEqual(proposta.desconto_unico, Decimal("0"))
+        self.assertFalse(proposta.itens.filter(nome=Servico.objects.get(pk=fora).nome).exists())
+        self.assertEqual(proposta.itens.filter(tipo="escopo").count(), len(escopo))
+        self.assertEqual(proposta.itens.get(tipo="pacote").preco_negociado, Decimal("500.00"))
+        self.assertEqual(proposta.itens.get(nome="Chatbot").desconto, Decimal("0"))
+
+        sozinho = self.client.post(
+            "/erp/catalogo/propostas/nova/",
+            {
+                "cliente": self.cliente.pk,
+                "pacote": pacote.pk,
+                "pacote_base": pacote.pk,
+                "escopo": escopo + [fora],
+                "preco_pacote": "500.00",
+                "pct_pacote": "5",
+            },
+        )
+        segunda = Proposta.objects.exclude(pk=proposta.pk).get()
+        self.assertRedirects(sozinho, f"/erp/catalogo/propostas/{segunda.pk}/")
+        self.assertEqual(segunda.total_unico, Decimal("475.00"))
+        self.assertEqual(segunda.desconto_unico, Decimal("0.05"))
+        self.assertEqual(segunda.itens.filter(tipo="escopo").count(), len(escopo) + 1)

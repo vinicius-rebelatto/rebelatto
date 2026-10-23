@@ -173,6 +173,8 @@ class ItemProposta(models.Model):
     tipo = models.CharField(max_length=10, choices=Tipo.choices, default=Tipo.ESCOPO)
     cobranca = models.CharField(max_length=10, choices=Cobranca.choices, default=Cobranca.UNICO)
     preco = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    preco_negociado = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    desconto = models.DecimalField(max_digits=5, decimal_places=4, default=0)
     ordem = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -180,3 +182,14 @@ class ItemProposta(models.Model):
 
     def __str__(self) -> str:
         return self.nome
+
+    @property
+    def valor_final(self):
+        from decimal import Decimal
+
+        from catalogo.preco import com_desconto
+
+        if self.tipo == self.Tipo.ESCOPO:
+            return Decimal("0")
+        base = self.preco_negociado or self.preco
+        return com_desconto(base, self.desconto)

@@ -50,11 +50,19 @@
         <p class="erp-muted">Nenhum pacote ativo.</p>
         {% endfor %}
       </div>
-      {% if conta and conta.escopo %}
-      <p class="sheet__label">Entra no preço</p>
-      <div class="pills">
-        {% for servico in conta.escopo %}
-        <span class="pill">{{ servico.nome }}</span>
+      {% if pacote %}
+      <input type="hidden" name="pacote_base" value="{{ pacote.pk }}">
+      <p class="sheet__label">Serviços deste pacote</p>
+      <p class="sheet__empty">Todos começam inclusos no preço fechado. Desmarque o que não entra nesta proposta.</p>
+      <div class="scope-list">
+        {% for servico in pacote.itens.all %}
+        {% if servico.incluso %}
+        <label class="pick pick--check{% if servico.servico in escopo %} is-on{% endif %}">
+          <input type="checkbox" name="escopo" value="{{ servico.servico_id }}" {% if servico.servico in escopo %}checked{% endif %}>
+          <span class="pick__mark" aria-hidden="true"></span>
+          <span class="pick__body"><strong>{{ servico.servico.nome }}</strong></span>
+        </label>
+        {% endif %}
         {% endfor %}
       </div>
       {% endif %}
@@ -90,63 +98,43 @@
       <header class="sheet__head">
         <span class="step">4</span>
         <div>
-          <h2>Desconto</h2>
-          <p>{{ faixas }}</p>
+          <h2>Preço de cada item</h2>
+          <p>O valor de tabela é a sugestão. Dá para cobrar outro preço e escolher o desconto daquela linha, ou nenhum. {{ faixas }}</p>
         </div>
       </header>
-      <label class="pick pick--check{% if form.desconto_fixo.value %} is-on{% endif %}">
-        {{ form.desconto_fixo }}
-        <span class="pick__mark" aria-hidden="true"></span>
-        <span class="pick__body">
-          <strong>{{ form.desconto_fixo.label }}</strong>
-          <small>Sem esta marca, o percentual segue a faixa do valor. Digitar um número trava o desconto.</small>
-        </span>
-      </label>
-      {% if form.desconto_fixo.errors %}<p class="erp-error">{{ form.desconto_fixo.errors|striptags }}</p>{% endif %}
-
-      {% if conta %}
-      <div class="discount-grid">
-        {% if conta.grupos.unico %}
-        <label class="discount-box">
-          <span>Valor único</span>
-          <div class="discount-box__control">
-            {{ form.desconto_unico }}
-            <em>%</em>
+      <div class="linha-list">
+        {% for linha in linhas %}
+        <article class="linha">
+          <div class="linha__nome">
+            <strong>{{ linha.nome }}</strong>
+            <small>
+              Tabela {% if linha.piso %}a partir de {% endif %}{{ linha.tabela|brl }}
+              · {{ linha.cobranca_label }}
+            </small>
           </div>
-          <small>de {{ conta.grupos.unico|brl }} para {% if pacote.piso and pacote.cobranca == "unico" %}a partir de {% endif %}{{ conta.totais.unico|brl }}</small>
-          {% if form.desconto_unico.errors %}<span class="erp-error">{{ form.desconto_unico.errors|striptags }}</span>{% endif %}
-        </label>
-        {% else %}
-        <input type="hidden" name="desconto_unico" value="{{ form.desconto_unico.value|default:'0' }}">
-        {% endif %}
-        {% if conta.grupos.mensal %}
-        <label class="discount-box">
-          <span>Mensal</span>
-          <div class="discount-box__control">
-            {{ form.desconto_mensal }}
-            <em>%</em>
+          <label class="linha__campo">
+            <span>Na proposta</span>
+            <input type="text" inputmode="decimal" name="{% if linha.tipo == 'pacote' %}preco_pacote{% else %}preco_extra_{{ linha.servico_id }}{% endif %}" value="{{ linha.negociado }}">
+          </label>
+          <div class="linha__campo">
+            <span>Desconto desta linha</span>
+            <div class="pct-choice">
+              <button type="button" data-pct="0" class="{% if linha.chip == '0' %}is-on{% endif %}">Sem</button>
+              <button type="button" data-pct="5" class="{% if linha.chip == '5' %}is-on{% endif %}">5%</button>
+              <button type="button" data-pct="10" class="{% if linha.chip == '10' %}is-on{% endif %}">10%</button>
+              <label class="pct-choice__custom">
+                <input type="text" inputmode="decimal" name="{% if linha.tipo == 'pacote' %}pct_pacote{% else %}pct_extra_{{ linha.servico_id }}{% endif %}" value="{{ linha.pct_texto }}">
+                <em>%</em>
+              </label>
+            </div>
           </div>
-          <small>de {{ conta.grupos.mensal|brl }} para {{ conta.totais.mensal|brl }}</small>
-          {% if form.desconto_mensal.errors %}<span class="erp-error">{{ form.desconto_mensal.errors|striptags }}</span>{% endif %}
-        </label>
-        {% else %}
-        <input type="hidden" name="desconto_mensal" value="{{ form.desconto_mensal.value|default:'0' }}">
-        {% endif %}
-        {% if conta.grupos.anual %}
-        <label class="discount-box">
-          <span>Anual</span>
-          <div class="discount-box__control">
-            {{ form.desconto_anual }}
-            <em>%</em>
+          <div class="linha__fica">
+            <span>Fica</span>
+            <strong>{% if linha.piso %}a partir de {% endif %}{{ linha.total|brl }}</strong>
           </div>
-          <small>de {{ conta.grupos.anual|brl }} para {{ conta.totais.anual|brl }}</small>
-          {% if form.desconto_anual.errors %}<span class="erp-error">{{ form.desconto_anual.errors|striptags }}</span>{% endif %}
-        </label>
-        {% else %}
-        <input type="hidden" name="desconto_anual" value="{{ form.desconto_anual.value|default:'0' }}">
-        {% endif %}
+        </article>
+        {% endfor %}
       </div>
-      {% endif %}
     </section>
   </div>
 
@@ -156,44 +144,28 @@
       <h2>{% if pacote %}{{ pacote.nome }}{% else %}Escolha um pacote{% endif %}</h2>
       <p class="quote-card__who" id="quote-who"></p>
 
-      {% if conta and pacote %}
+      {% if linhas %}
+      {% if escopo %}
+      <p class="quote-card__label">Serviços inclusos</p>
+      <ul class="quote-scope">
+        {% for servico in escopo %}
+        <li>{{ servico.nome }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
       <div class="quote-lines">
-        {% if conta.grupos.unico %}
-        <div class="quote-line">
+        {% for linha in linhas %}
+        <div class="quote-line quote-line--item">
           <div>
-            <span>Único</span>
-            <strong class="quote-line__off">− {{ conta.descontos.unico|pct }}</strong>
+            <strong>{{ linha.nome }}</strong>
+            <span>{% if linha.desconto %}− {{ linha.desconto|pct }}{% else %}sem desconto{% endif %}</span>
           </div>
           <div class="quote-line__money">
-            <s>{{ conta.grupos.unico|brl }}</s>
-            <b>{% if pacote.piso and pacote.cobranca == "unico" %}a partir de {% endif %}{{ conta.totais.unico|brl }}</b>
+            {% if linha.negociado != linha.tabela or linha.desconto %}<s>{% if linha.piso %}a partir de {% endif %}{{ linha.tabela|brl }}</s>{% endif %}
+            <b>{% if linha.piso %}a partir de {% endif %}{{ linha.total|brl }}</b>
           </div>
         </div>
-        {% endif %}
-        {% if conta.grupos.mensal %}
-        <div class="quote-line">
-          <div>
-            <span>Mensal</span>
-            <strong class="quote-line__off">− {{ conta.descontos.mensal|pct }}</strong>
-          </div>
-          <div class="quote-line__money">
-            <s>{{ conta.grupos.mensal|brl }}</s>
-            <b>{{ conta.totais.mensal|brl }}</b>
-          </div>
-        </div>
-        {% endif %}
-        {% if conta.grupos.anual %}
-        <div class="quote-line">
-          <div>
-            <span>Anual</span>
-            <strong class="quote-line__off">− {{ conta.descontos.anual|pct }}</strong>
-          </div>
-          <div class="quote-line__money">
-            <s>{{ conta.grupos.anual|brl }}</s>
-            <b>{{ conta.totais.anual|brl }}</b>
-          </div>
-        </div>
-        {% endif %}
+        {% endfor %}
       </div>
       {% else %}
       <p class="erp-muted">Escolha um pacote para ver o valor.</p>
@@ -204,13 +176,12 @@
         <span>Salvar proposta</span>
       </button>
       <a class="btn btn-outline btn-block" href="{% if proposta %}{% url 'catalogo:proposta_detail' proposta.pk %}{% else %}{% url 'catalogo:proposta_list' %}{% endif %}">Cancelar</a>
-      <p class="quote-card__hint">Enquanto estiver em rascunho, salvar de novo lê o preço atual da tabela.</p>
+      <p class="quote-card__hint">O preço digitado fica nesta proposta. Fechar congela os números.</p>
     </div>
   </aside>
 </form>
 <script>
   const form = document.getElementById("proposta-form");
-  const fixo = document.getElementById("id_desconto_fixo");
   const cliente = document.getElementById("id_cliente");
   const who = document.getElementById("quote-who");
 
@@ -228,24 +199,23 @@
     form.submit();
   }
 
-  form.querySelectorAll('input[name="pacote"], input[name="extras"]').forEach((el) => {
+  form.querySelectorAll('input[name="pacote"], input[name="extras"], input[name="escopo"]').forEach((el) => {
     el.addEventListener("change", () => {
       el.closest(".pick")?.classList.toggle("is-on", el.checked);
       enviar();
     });
   });
-  if (fixo) {
-    fixo.addEventListener("change", () => {
-      fixo.closest(".pick")?.classList.toggle("is-on", fixo.checked);
-      enviar();
-    });
-  }
-  form.querySelectorAll(".discount-box input").forEach((el) => {
-    el.addEventListener("change", () => {
-      if (fixo && !fixo.checked) {
-        fixo.checked = true;
-        fixo.closest(".pick")?.classList.add("is-on");
-      }
+  form.querySelectorAll(".linha input").forEach((el) => {
+    el.addEventListener("change", () => enviar());
+  });
+  form.querySelectorAll(".pct-choice button").forEach((botao) => {
+    botao.addEventListener("click", () => {
+      const campo = botao.parentElement.querySelector("input");
+      if (!campo) return;
+      campo.value = botao.dataset.pct;
+      botao.parentElement.querySelectorAll("button").forEach((outro) => {
+        outro.classList.toggle("is-on", outro === botao);
+      });
       enviar();
     });
   });

@@ -29,7 +29,7 @@
             {% if proposta.fechada %}
             Proposta fechada. Mudar o catálogo não mexe nestes números.
             {% else %}
-            Rascunho. Salvar de novo lê o preço atual da tabela.
+            Rascunho. O preço negociado fica nesta proposta até você fechar.
             {% endif %}
           </p>
         </div>
@@ -44,6 +44,10 @@
           <span class="line__price">
             {% if item.tipo == "escopo" %}
             <em class="pill">incluso</em>
+            {% elif item.desconto or item.preco_negociado and item.preco_negociado != item.preco %}
+            <s>{{ item.preco|brl }}</s>
+            {{ item.valor_final|brl }}
+            <small>{% if item.desconto %}− {{ item.desconto|pct }}{% else %}sem desconto{% endif %}</small>
             {% else %}
             {{ item.preco|brl }}
             {% endif %}
@@ -75,7 +79,7 @@
         <div class="quote-line">
           <div>
             <span>Único{% if proposta.desconto_fixo %} · à mão{% endif %}</span>
-            <strong class="quote-line__off">− {{ proposta.desconto_unico|pct }}</strong>
+            <strong class="quote-line__off">{% if proposta.desconto_unico %}− {{ proposta.desconto_unico|pct }}{% elif proposta.total_unico != proposta.preco_unico %}por item{% else %}sem desconto{% endif %}</strong>
           </div>
           <div class="quote-line__money">
             <s>{{ proposta.preco_unico|brl }}</s>
@@ -87,7 +91,7 @@
         <div class="quote-line">
           <div>
             <span>Mensal</span>
-            <strong class="quote-line__off">− {{ proposta.desconto_mensal|pct }}</strong>
+            <strong class="quote-line__off">{% if proposta.desconto_mensal %}− {{ proposta.desconto_mensal|pct }}{% elif proposta.total_mensal != proposta.preco_mensal %}por item{% else %}sem desconto{% endif %}</strong>
           </div>
           <div class="quote-line__money">
             <s>{{ proposta.preco_mensal|brl }}</s>
@@ -99,7 +103,7 @@
         <div class="quote-line">
           <div>
             <span>Anual</span>
-            <strong class="quote-line__off">− {{ proposta.desconto_anual|pct }}</strong>
+            <strong class="quote-line__off">{% if proposta.desconto_anual %}− {{ proposta.desconto_anual|pct }}{% elif proposta.total_anual != proposta.preco_anual %}por item{% else %}sem desconto{% endif %}</strong>
           </div>
           <div class="quote-line__money">
             <s>{{ proposta.preco_anual|brl }}</s>

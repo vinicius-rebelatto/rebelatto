@@ -11,7 +11,17 @@ from erp.views import staff_required
 
 from .forms import PacoteForm, PropostaForm, ServicoForm
 from .models import Cobranca, FaixaDesconto, ItemPacote, Pacote, Proposta, Servico
-from .preco import com_desconto, cotar, fracao, gravar, pontos, percentual_sugerido, texto_faixas
+from .preco import (
+    com_desconto,
+    cotar,
+    dinheiro,
+    fracao,
+    gravar,
+    gravar_linhas,
+    pontos,
+    percentual_sugerido,
+    texto_faixas,
+)
 
 
 def _extras_da_proposta(pacote, ids):
@@ -341,6 +351,111 @@ def proposta_edit(request: HttpRequest, pk: int) -> HttpResponse:
     return _proposta_form(request, proposta)
 
 
+def _origem(request: HttpRequest):
+    return request.POST if request.method == "POST" else request.GET
+
+
+def _ler_dinheiro(texto, padrao):
+    if texto is None or str(texto).strip() == "":
+        return dinheiro(padrao)
+    bruto = str(texto).strip().replace("R$", "").replace(" ", "")
+    if "," in bruto:
+        bruto = bruto.replace(".", "").replace(",", ".")
+    try:
+        return dinheiro(Decimal(bruto))
+    except InvalidOperation:
+        return dinheiro(padrao)
+
+
+def _ler_pct(texto, padrao):
+    if texto is None or str(texto).strip() == "":
+        return padrao
+    return fracao(str(texto).strip().replace(",", "."))
+
+
+def _chip(percentual) -> str:
+    texto = f"{pontos(percentual):f}".rstrip("0").rstrip(".")
+    return texto if texto in {"0", "5", "10"} else ""
+
+
+def _servicos_do_pacote(pacote):
+    if pacote is None:
+        return []
+    return [item.servico for item in pacote.itens.select_related("servico").order_by("ordem", "id") if item.incluso]
+
+
+def _montar_tela(request, proposta, pacote, extras):
+    """Preço negociado e desconto de cada item, mais o escopo marcado."""
+    origem = _origem(request)
+    pacote_mudou = "pacote_base" in origem and origem.get("pacote_base") != str(pacote.pk if pacote else "")
+    personalizado = "pacote_base" in origem and not pacote_mudou
+    salvos = {}
+    if proposta and proposta.pk and pacote and proposta.pacote_id == pacote.pk and not personalizado:
+        for item in proposta.itens.all():
+            salvos[item.nome] = item
+
+    escopo_todos = _servicos_do_pacote(pacote)
+    if personalizado:
+        escolhidos = {int(valor) for valor in origem.getlist("escopo") if str(valor).isdigit()}
+        escopo = [servico for servico in escopo_todos if servico.pk in escolhidos]
+    elif salvos:
+        nomes = {item.nome for item in salvos.values() if item.tipo == "escopo"}
+        escopo = [servico for servico in escopo_todos if servico.nome in nomes]
+    else:
+        escopo = list(escopo_todos)
+
+    linhas = []
+    if pacote is not None:
+        tabela = dinheiro(pacote.preco)
+        salvo = salvos.get(pacote.nome)
+        if personalizado:
+            negociado = _ler_dinheiro(origem.get("preco_pacote"), tabela)
+            desconto = _ler_pct(origem.get("pct_pacote"), percentual_sugerido(negociado))
+        elif salvo and salvo.preco_negociado:
+            negociado = dinheiro(salvo.preco_negociado)
+            desconto = salvo.desconto
+        else:
+            negociado = tabela
+            desconto = percentual_sugerido(tabela)
+        linhas.append(_linha("pacote", pacote.nome, "pacote", pacote.cobranca, tabela, negociado, desconto, pacote.piso))
+
+    for servico in extras:
+        tabela = dinheiro(servico.preco)
+        salvo = salvos.get(servico.nome)
+        if personalizado and (f"preco_extra_{servico.pk}" in origem or f"pct_extra_{servico.pk}" in origem):
+            negociado = _ler_dinheiro(origem.get(f"preco_extra_{servico.pk}"), tabela)
+            desconto = _ler_pct(origem.get(f"pct_extra_{servico.pk}"), percentual_sugerido(negociado))
+        elif salvo and salvo.tipo == "avulso" and salvo.preco_negociado:
+            negociado = dinheiro(salvo.preco_negociado)
+            desconto = salvo.desconto
+        else:
+            negociado = tabela
+            desconto = percentual_sugerido(tabela)
+        linhas.append(
+            _linha(f"extra-{servico.pk}", servico.nome, "avulso", servico.cobranca, tabela, negociado, desconto, False, servico.pk)
+        )
+    return escopo, linhas
+
+
+def _linha(chave, nome, tipo, cobranca, tabela, negociado, desconto, piso, servico_id=None):
+    return {
+        "chave": chave,
+        "nome": nome,
+        "tipo": tipo,
+        "cobranca": cobranca,
+        "cobranca_label": dict(Cobranca.choices).get(cobranca, cobranca),
+        "tabela": dinheiro(tabela),
+        "negociado": dinheiro(negociado),
+        "desconto": desconto,
+        "total": com_desconto(negociado, desconto),
+        "pct": pontos(desconto),
+        "pct_texto": f"{pontos(desconto):f}".rstrip("0").rstrip(".") or "0",
+        "chip": _chip(desconto),
+        "piso": piso,
+        "servico_id": servico_id,
+    }
+
+
 def _proposta_form(request: HttpRequest, proposta: Proposta | None) -> HttpResponse:
     pacote = _pacote_escolhido(request, proposta)
     disponiveis = _extras_da_proposta(pacote, [])
@@ -352,6 +467,7 @@ def _proposta_form(request: HttpRequest, proposta: Proposta | None) -> HttpRespo
     else:
         marcados = set()
     extras = [servico for servico in disponiveis if servico.pk in marcados]
+    escopo, linhas = _montar_tela(request, proposta, pacote, extras) if pacote is not None else ([], [])
     fixo = request.method == "GET" and bool(request.GET.get("desconto_fixo"))
     informados = {
         Cobranca.UNICO: fracao(request.GET.get("desconto_unico")),
@@ -381,16 +497,27 @@ def _proposta_form(request: HttpRequest, proposta: Proposta | None) -> HttpRespo
     if request.method == "POST" and form.is_valid():
         if proposta is None:
             proposta = Proposta(status=Proposta.Status.RASCUNHO)
-        gravar(
-            proposta,
-            form.cleaned_data["pacote"],
-            extras,
-            form.cleaned_data["desconto_fixo"],
-            _informados(form),
-            form.cleaned_data["cliente"],
-            form.cleaned_data["observacao"],
-            request.user,
-        )
+        if "preco_pacote" in request.POST:
+            gravar_linhas(
+                proposta,
+                form.cleaned_data["pacote"],
+                escopo,
+                linhas,
+                form.cleaned_data["cliente"],
+                form.cleaned_data["observacao"],
+                request.user,
+            )
+        else:
+            gravar(
+                proposta,
+                form.cleaned_data["pacote"],
+                extras,
+                form.cleaned_data["desconto_fixo"],
+                _informados(form),
+                form.cleaned_data["cliente"],
+                form.cleaned_data["observacao"],
+                request.user,
+            )
         messages.success(request, "Proposta salva. Feche quando o preço puder ficar congelado.")
         return redirect("catalogo:proposta_detail", pk=proposta.pk)
 
@@ -405,6 +532,8 @@ def _proposta_form(request: HttpRequest, proposta: Proposta | None) -> HttpRespo
             "disponiveis": disponiveis,
             "marcados": marcados,
             "conta": conta,
+            "escopo": escopo,
+            "linhas": linhas,
             "faixas": texto_faixas(),
         },
     )

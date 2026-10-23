@@ -154,6 +154,8 @@ def gravar(proposta: Proposta, pacote, extras, fixo, informados, cliente, observ
         tipo=ItemProposta.Tipo.PACOTE,
         cobranca=pacote.cobranca,
         preco=dinheiro(pacote.preco),
+        preco_negociado=dinheiro(pacote.preco),
+        desconto=conta["descontos"][pacote.cobranca],
         ordem=ordem,
     )
     for servico in conta["escopo"]:
@@ -174,6 +176,90 @@ def gravar(proposta: Proposta, pacote, extras, fixo, informados, cliente, observ
             tipo=ItemProposta.Tipo.AVULSO,
             cobranca=servico.cobranca,
             preco=dinheiro(servico.preco),
+            preco_negociado=dinheiro(servico.preco),
+            desconto=conta["descontos"][servico.cobranca],
             ordem=ordem,
         )
+    return proposta
+
+
+def _pct_comum(valores) -> Decimal:
+    if not valores:
+        return Decimal("0")
+    primeiro = valores[0]
+    if all(valor == primeiro for valor in valores):
+        return primeiro
+    return Decimal("0")
+
+
+@transaction.atomic
+def gravar_linhas(proposta, pacote, escopo, linhas, cliente, observacao, usuario) -> Proposta:
+    """Cada linha tem preço negociado e desconto próprios."""
+    grupos = {cobranca: Decimal("0") for cobranca in GRUPOS}
+    totais = {cobranca: Decimal("0") for cobranca in GRUPOS}
+    percentuais = {cobranca: [] for cobranca in GRUPOS}
+    for linha in linhas:
+        cobranca = linha["cobranca"]
+        grupos[cobranca] += Decimal(linha["tabela"])
+        totais[cobranca] += com_desconto(linha["negociado"], linha["desconto"])
+        percentuais[cobranca].append(linha["desconto"])
+
+    proposta.cliente = cliente
+    proposta.cliente_nome = cliente.display_name
+    proposta.pacote = pacote
+    proposta.pacote_nome = pacote.nome
+    proposta.piso = pacote.piso
+    proposta.observacao = observacao or ""
+    proposta.desconto_fixo = any(
+        linha["desconto"] != percentual_sugerido(linha["tabela"]) for linha in linhas
+    )
+    if usuario is not None and proposta.criado_por_id is None:
+        proposta.criado_por = usuario
+    for cobranca, nome in CAMPO.items():
+        setattr(proposta, f"preco_{nome}", dinheiro(grupos[cobranca]))
+        setattr(proposta, f"desconto_{nome}", _pct_comum(percentuais[cobranca]))
+        setattr(proposta, f"total_{nome}", dinheiro(totais[cobranca]))
+    proposta.save()
+
+    proposta.itens.all().delete()
+    ordem = 1
+    for linha in linhas:
+        if linha["tipo"] != ItemProposta.Tipo.PACOTE:
+            continue
+        ItemProposta.objects.create(
+            proposta=proposta,
+            nome=linha["nome"],
+            tipo=ItemProposta.Tipo.PACOTE,
+            cobranca=linha["cobranca"],
+            preco=dinheiro(linha["tabela"]),
+            preco_negociado=dinheiro(linha["negociado"]),
+            desconto=linha["desconto"],
+            ordem=ordem,
+        )
+        ordem += 1
+        break
+    for servico in escopo:
+        ItemProposta.objects.create(
+            proposta=proposta,
+            nome=servico.nome,
+            tipo=ItemProposta.Tipo.ESCOPO,
+            cobranca=servico.cobranca,
+            preco=Decimal("0"),
+            ordem=ordem,
+        )
+        ordem += 1
+    for linha in linhas:
+        if linha["tipo"] == ItemProposta.Tipo.PACOTE:
+            continue
+        ItemProposta.objects.create(
+            proposta=proposta,
+            nome=linha["nome"],
+            tipo=ItemProposta.Tipo.AVULSO,
+            cobranca=linha["cobranca"],
+            preco=dinheiro(linha["tabela"]),
+            preco_negociado=dinheiro(linha["negociado"]),
+            desconto=linha["desconto"],
+            ordem=ordem,
+        )
+        ordem += 1
     return proposta

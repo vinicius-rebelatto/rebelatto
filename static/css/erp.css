@@ -375,7 +375,7 @@
 
 .erp-content {
   width: 100%;
-  max-width: 1920px;
+  max-width: none;
   padding: 2rem 2.5rem 3rem;
   display: flex;
   flex-direction: column;
@@ -384,7 +384,7 @@
 
 .erp-messages {
   width: 100%;
-  max-width: 1920px;
+  max-width: none;
   padding: 1.5rem 2.5rem 0;
   display: flex;
   flex-direction: column;
@@ -1533,7 +1533,7 @@
 
 .compose {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 22rem;
+  grid-template-columns: minmax(0, 1fr) 24rem;
   gap: 1.5rem;
   align-items: start;
 }
@@ -1618,10 +1618,11 @@
   background: var(--erp-surface-2);
 }
 
-.pick-grid {
+.pick-grid,
+.scope-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0.7rem;
+  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+  gap: 0.75rem;
 }
 
 .pick {
@@ -1698,17 +1699,18 @@
   color: var(--erp-text-muted);
   font-size: 0.8rem;
   line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .pick__price {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 0.35rem;
   margin-top: 0.15rem;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .pick__price em {
@@ -1759,6 +1761,149 @@
   font-size: 0.8rem;
   font-style: normal;
   font-weight: 600;
+}
+
+.linha-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(8.5rem, 0.7fr) minmax(16rem, 1.1fr) auto;
+  gap: 1rem;
+  align-items: end;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--erp-border);
+  border-radius: 14px;
+  background: var(--erp-surface);
+}
+
+.linha__nome strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.linha__nome small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--erp-text-muted);
+  font-size: 0.82rem;
+}
+
+.linha__campo > span,
+.linha__fica span,
+.quote-card__label {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--erp-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.linha__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.linha__campo input,
+.pct-choice__custom input {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--erp-border);
+  border-radius: 10px;
+  background: var(--erp-bg);
+  color: var(--erp-text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.pct-choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.pct-choice button {
+  border: 1px solid var(--erp-border);
+  border-radius: 999px;
+  background: var(--erp-bg);
+  color: var(--erp-text);
+  padding: 0.4rem 0.75rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pct-choice button.is-on {
+  border-color: var(--erp-accent);
+  background: var(--erp-accent);
+  color: #fff;
+}
+
+.pct-choice__custom {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: 5.5rem;
+}
+
+.pct-choice__custom em {
+  color: var(--erp-text-muted);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.linha__fica {
+  text-align: right;
+}
+
+.linha__fica strong {
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.quote-scope {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  margin: 0.15rem 0 0.2rem;
+  padding: 0;
+}
+
+.quote-scope li {
+  position: relative;
+  padding-left: 0.95rem;
+  font-size: 0.9rem;
+}
+
+.quote-scope li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--erp-accent);
+}
+
+.quote-line--item strong {
+  display: block;
+  font-size: 0.92rem;
+}
+
+.quote-line--item span {
+  color: var(--erp-accent-hover);
+  font-weight: 700;
 }
 
 .discount-grid {
@@ -2007,8 +2152,18 @@
   .erp-form--grid,
   .erp-grid-2,
   .erp-dl,
-  .compose {
+  .compose,
+  .linha {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pick-grid,
+  .scope-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .linha__fica {
+    text-align: left;
   }
 
   .erp-tabs {
