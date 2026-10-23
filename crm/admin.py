@@ -16,6 +16,8 @@ class ClienteAdmin(admin.ModelAdmin):
         "telefone",
         "origem",
         "status",
+        "categoria_lead",
+        "nota",
         "etapa_rejeicao",
         "updated_at",
     )

@@ -40,6 +40,15 @@
       <div><dt>Origem</dt><dd>{{ cliente.get_origem_display }}</dd></div>
       <div><dt>Slug</dt><dd><code>{{ cliente.slug }}</code></dd></div>
       <div><dt>Categoria</dt><dd>{{ cliente.categoria|default:"—" }}</dd></div>
+      {% if cliente.categoria_lead %}
+      <div><dt>Qualificação</dt><dd><span class="erp-badge erp-badge--{{ cliente.categoria_lead }}">{{ cliente.get_categoria_lead_display }}</span> · {{ cliente.nota }}</dd></div>
+      {% if cliente.motivo_nota %}<div class="erp-dl--full"><dt>Por quê</dt><dd>{{ cliente.motivo_nota }}</dd></div>{% endif %}
+      {% if cliente.dossie %}<div class="erp-dl--full"><dt>Dossiê</dt><dd class="dossie">{{ cliente.dossie }}</dd></div>{% endif %}
+      {% if unidades > 1 %}<div><dt>Unidades</dt><dd>{{ unidades }} unidades com este nome</dd></div>{% endif %}
+      {% endif %}
+      {% if cliente.avaliacoes or cliente.nota_maps %}
+      <div><dt>Avaliações</dt><dd>{% if cliente.avaliacoes %}{{ cliente.avaliacoes }}{% else %}—{% endif %}{% if cliente.nota_maps %} · nota {{ cliente.nota_maps }}{% endif %}</dd></div>
+      {% endif %}
       <div><dt>Endereço</dt><dd>{{ cliente.rua|default:"—" }}{% if cliente.cidade %}, {{ cliente.cidade }}{% endif %}{% if cliente.estado %} — {{ cliente.estado }}{% endif %}</dd></div>
       {% if cliente.maps_url %}
       <div><dt>Maps</dt><dd><a href="{{ cliente.maps_url }}" target="_blank" rel="noopener">Abrir</a></dd></div>

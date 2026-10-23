@@ -1,0 +1,24 @@
+{% extends "erp/base.html" %}
+
+{% block content %}
+<section class="erp-card">
+  <p class="erp-muted">A categoria define a abordagem. A nota só ordena dentro dela. Sem telefone e fechado em definitivo saem da primeira leva. Site próprio fica guardado. Salvar recalcula quem ainda está na filtragem; lead já aceito ou rejeitado mantém a nota.</p>
+  <form method="post" class="erp-form erp-form--grid">
+    {% csrf_token %}
+    {% for field in form %}
+    <label class="erp-field {% if field.name == 'nome' or field.name == 'termos_nicho' or field.name == 'termos_vizinhos' %}erp-field--full{% endif %}">
+      <span>{{ field.label }}</span>
+      {{ field }}
+      {% if field.help_text %}<small class="erp-muted">{{ field.help_text }}</small>{% endif %}
+      {{ field.errors }}
+    </label>
+    {% endfor %}
+    <div class="erp-form__actions erp-field--full">
+      <button class="btn btn-primary" type="submit">
+        {% include "erp/partials/icon.html" with name="check" %}
+        <span>Salvar e recalcular</span>
+      </button>
+    </div>
+  </form>
+</section>
+{% endblock %}

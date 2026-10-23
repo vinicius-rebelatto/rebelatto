@@ -2178,3 +2178,71 @@
     position: static;
   }
 }
+
+.erp-body .fila-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+}
+
+.erp-body .fila-tabs a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--erp-border);
+  border-radius: 999px;
+  color: var(--erp-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: transparent;
+}
+
+.erp-body .fila-tabs a.is-active {
+  color: var(--erp-accent-hover);
+  border-color: var(--erp-accent);
+  background: color-mix(in srgb, var(--erp-accent) 10%, transparent);
+}
+
+.lead-sub {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--erp-text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: normal;
+  max-width: 36rem;
+}
+
+.nota-lead {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.dossie {
+  white-space: pre-line;
+}
+
+.erp-badge--sem_site {
+  --badge-color: var(--erp-success);
+}
+
+.erp-badge--rede_social {
+  --badge-color: var(--erp-info);
+}
+
+.erp-badge--site_fraco {
+  --badge-color: var(--erp-warning);
+}
+
+.erp-badge--site_proprio {
+  --badge-color: var(--erp-neutral);
+}
+
+.erp-badge--fora_nicho,
+.erp-badge--fechado,
+.erp-badge--sem_telefone {
+  --badge-color: var(--erp-danger);
+}

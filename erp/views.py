@@ -1,9 +1,11 @@
 import csv
 import io
 import re
+from collections import Counter
 from functools import wraps
 
 from django.contrib import messages
+from django.db import transaction
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
@@ -13,13 +15,16 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.views.decorators.http import require_http_methods, require_POST
 
-from crm.models import Cliente, Mockup
+from crm.importacao import dados_novos, linha_apify, qualificar_linhas, recalcular_importados
+from crm.models import Cliente, Mockup, PerfilNicho
+from crm.qualificacao import FORA, LEVA
 from portfolio.models import Project
 
 from .forms import (
     ClienteForm,
     CsvImportForm,
     MockupForm,
+    PerfilNichoForm,
     MockupImagemFormSet,
     ProjectForm,
     RejectForm,
@@ -161,16 +166,19 @@ def cliente_create(request: HttpRequest) -> HttpResponse:
 @staff_required
 def cliente_detail(request: HttpRequest, pk: int) -> HttpResponse:
     cliente = get_object_or_404(Cliente, pk=pk)
-    reject_form = RejectForm()
+    unidades = 1
+    if cliente.empresa:
+        unidades = Cliente.objects.filter(empresa__iexact=cliente.empresa).count()
     return render(
         request,
         "erp/clientes/detail.html",
         {
             "page_title": cliente.display_name,
             "cliente": cliente,
-            "reject_form": reject_form,
+            "reject_form": RejectForm(),
             "mockups": cliente.mockups.all(),
             "projetos": cliente.projetos.all(),
+            "unidades": unidades,
         },
     )
 
@@ -239,33 +247,67 @@ def cliente_delete(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 class FiltragemListing(ListingMixin):
-    search_fields = ["empresa", "telefone", "cidade", "categoria", "website"]
-    filter_fields = ["cidade", "estado", "categoria"]
+    search_fields = ["empresa", "telefone", "cidade", "categoria", "website", "motivo_nota"]
+    filter_fields = []
     sort_fields = {
         "empresa": "empresa",
-        "cidade": "cidade",
-        "categoria": "categoria",
-        "created_at": "created_at",
+        "nota": "nota",
+        "categoria": "categoria_lead",
     }
-    default_sort = "empresa"
+    default_sort = "-nota"
+    default_order = ("ordem_fila", "-nota", "empresa")
     paginate_by = 50
+
+
+FILAS_QUALIFICACAO = (
+    ("leva", "Primeira leva", LEVA),
+    ("sem_site", "Sem site", ("sem_site",)),
+    ("rede_social", "Rede social", ("rede_social",)),
+    ("site_fraco", "Site fraco", ("site_fraco",)),
+    ("site_proprio", "Site próprio", ("site_proprio",)),
+    ("fora", "Fora", FORA),
+)
 
 
 @staff_required
 def cliente_filtragem(request: HttpRequest) -> HttpResponse:
+    fila = request.GET.get("fila") or "leva"
+    if fila not in {item[0] for item in FILAS_QUALIFICACAO}:
+        fila = "leva"
+    base = Cliente.objects.filter(status=Cliente.Status.IMPORTADO)
+    contagem = {
+        row["categoria_lead"]: row["total"]
+        for row in base.values("categoria_lead").annotate(total=Count("id"))
+    }
+    abas = []
+    for chave, rotulo, categorias in FILAS_QUALIFICACAO:
+        query = request.GET.copy()
+        query["fila"] = chave
+        query.pop("page", None)
+        query.pop("sort", None)
+        abas.append(
+            {
+                "chave": chave,
+                "rotulo": rotulo,
+                "total": sum(contagem.get(item, 0) for item in categorias),
+                "url": "?" + query.urlencode(),
+            }
+        )
+    categorias = next(item[2] for item in FILAS_QUALIFICACAO if item[0] == fila)
     mixin = FiltragemListing()
-    qs = Cliente.objects.filter(status=Cliente.Status.IMPORTADO)
-    listing = _listing_context(mixin, request, qs)
+    listing = _listing_context(mixin, request, base.filter(categoria_lead__in=categorias))
+    repetidos = Counter(
+        nome.casefold()
+        for nome in base.exclude(empresa="").values_list("empresa", flat=True)
+    )
+    for cliente in listing["object_list"]:
+        cliente.unidades = repetidos.get(cliente.empresa.casefold(), 1) if cliente.empresa else 1
     listing.update(
         {
-            "page_title": "Filtragem de leads",
-            "reject_form": RejectForm(),
-            "cidades": qs.exclude(cidade="").order_by("cidade").values_list("cidade", flat=True).distinct(),
-            "estados": qs.exclude(estado="").order_by("estado").values_list("estado", flat=True).distinct(),
-            "categorias": qs.exclude(categoria="")
-            .order_by("categoria")
-            .values_list("categoria", flat=True)
-            .distinct(),
+            "page_title": "Qualificação de leads",
+            "fila": fila,
+            "abas": abas,
+            "sem_classificar": contagem.get("", 0),
         }
     )
     return render(request, "erp/clientes/filtragem.html", listing)
@@ -293,6 +335,28 @@ def cliente_filtragem_bulk(request: HttpRequest) -> HttpResponse:
     return redirect("erp:cliente_filtragem")
 
 
+@staff_required
+@require_http_methods(["GET", "POST"])
+def cliente_nicho(request: HttpRequest) -> HttpResponse:
+    perfil = PerfilNicho.atual()
+    form = PerfilNichoForm(request.POST or None, instance=perfil)
+    if request.method == "POST" and form.is_valid():
+        perfil = form.save()
+        total, visitados = recalcular_importados(perfil)
+        texto = "Perfil salvo."
+        if total:
+            texto = f"Perfil salvo. {total} lead(s) da filtragem recalculado(s)."
+            if visitados:
+                texto += f" {visitados} site(s) verificado(s)."
+        messages.success(request, texto)
+        return redirect("erp:cliente_nicho")
+    return render(
+        request,
+        "erp/clientes/nicho.html",
+        {"page_title": "Nicho", "form": form, "perfil": perfil},
+    )
+
+
 def _decode_csv(uploaded) -> str:
     raw = uploaded.read()
     for encoding in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
@@ -317,14 +381,6 @@ def _detect_csv_delimiter(text: str) -> str:
     return ","
 
 
-def _csv_cell(row: dict, *keys: str) -> str:
-    for key in keys:
-        value = (row.get(key) or "").strip()
-        if value:
-            return value
-    return ""
-
-
 def _normalize_phone(phone: str) -> str:
     return re.sub(r"\D+", "", phone or "")
 
@@ -339,6 +395,39 @@ def _unique_cliente_slug(base: str) -> str:
     return candidate
 
 
+def _e_duplicata(empresa: str, telefone: str, cidade: str) -> bool:
+    phone_norm = _normalize_phone(telefone)
+    if phone_norm and len(phone_norm) >= 8:
+        return Cliente.objects.filter(telefone__icontains=phone_norm[-8:]).exists()
+    return Cliente.objects.filter(empresa__iexact=empresa, cidade__iexact=cidade).exists()
+
+
+def _duplicatas_no_arquivo(linhas: list[dict]) -> int:
+    """Mesmo telefone repete. Mesmo nome em outra unidade, com outro telefone, continua lead."""
+    extras = 0
+    telefones: set[str] = set()
+    sem_telefone: set[tuple[str, str]] = set()
+    for linha in linhas:
+        if linha.get("duplicate"):
+            continue
+        phone_norm = _normalize_phone(linha.get("telefone") or "")
+        if len(phone_norm) >= 8:
+            chave = phone_norm[-8:]
+            if chave in telefones:
+                linha["duplicate"] = True
+                extras += 1
+                continue
+            telefones.add(chave)
+            continue
+        par = ((linha.get("empresa") or "").casefold(), (linha.get("cidade") or "").casefold())
+        if par in sem_telefone:
+            linha["duplicate"] = True
+            extras += 1
+            continue
+        sem_telefone.add(par)
+    return extras
+
+
 @staff_required
 @require_http_methods(["GET", "POST"])
 def cliente_import_csv(request: HttpRequest) -> HttpResponse:
@@ -348,41 +437,38 @@ def cliente_import_csv(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         if request.POST.get("confirm") == "1":
             preview_rows = request.session.get("csv_preview") or []
+            if preview_rows and "categoria_lead" not in preview_rows[0]:
+                preview_rows, _ = qualificar_linhas(preview_rows, PerfilNicho.atual())
             created = 0
             skipped = 0
-            for item in preview_rows:
-                if item.get("duplicate"):
-                    skipped += 1
-                    continue
-                empresa = item["empresa"]
-                phone_norm = _normalize_phone(item.get("telefone", ""))
-                if phone_norm and len(phone_norm) >= 8:
-                    if Cliente.objects.filter(telefone__icontains=phone_norm[-8:]).exists():
+            na_leva = 0
+            with transaction.atomic():
+                for item in preview_rows:
+                    if item.get("duplicate"):
                         skipped += 1
                         continue
-                if Cliente.objects.filter(
-                    empresa__iexact=empresa, cidade__iexact=item.get("cidade", "")
-                ).exists():
-                    skipped += 1
-                    continue
-                Cliente.objects.create(
-                    empresa=empresa,
-                    slug=_unique_cliente_slug(empresa),
-                    telefone=item.get("telefone", ""),
-                    website=item.get("website", ""),
-                    maps_url=item.get("maps_url", ""),
-                    categoria=item.get("categoria", ""),
-                    rua=item.get("rua", ""),
-                    cidade=item.get("cidade", ""),
-                    estado=item.get("estado", ""),
-                    origem=Cliente.Origem.CSV,
-                    status=Cliente.Status.IMPORTADO,
-                )
-                created += 1
+                    if _e_duplicata(
+                        item.get("empresa", ""),
+                        item.get("telefone", ""),
+                        item.get("cidade", ""),
+                    ):
+                        skipped += 1
+                        continue
+                    Cliente.objects.create(
+                        slug=_unique_cliente_slug(item.get("empresa") or "cliente"),
+                        origem=Cliente.Origem.CSV,
+                        status=Cliente.Status.IMPORTADO,
+                        **dados_novos(item),
+                    )
+                    created += 1
+                    if item.get("categoria_lead") in LEVA:
+                        na_leva += 1
             request.session.pop("csv_preview", None)
             messages.success(
                 request,
-                f"Importação concluída: {created} novo(s), {skipped} duplicata(s) ignorada(s).",
+                "Importação concluída: "
+                f"{created} novo(s), {na_leva} na primeira leva, "
+                f"{skipped} duplicata(s) ignorada(s).",
             )
             return redirect("erp:cliente_filtragem")
 
@@ -396,7 +482,6 @@ def cliente_import_csv(request: HttpRequest) -> HttpResponse:
                 return redirect("erp:cliente_import")
 
             fieldnames = [((name or "").lstrip("\ufeff").strip()) for name in reader.fieldnames]
-            # Normalize keys in each row via a remapped reader approach
             preview_rows = []
             duplicates = 0
             for raw_row in reader:
@@ -404,43 +489,16 @@ def cliente_import_csv(request: HttpRequest) -> HttpResponse:
                     (key or "").lstrip("\ufeff").strip(): (value or "")
                     for key, value in raw_row.items()
                 }
-                empresa = _csv_cell(row, "title")
-                if not empresa:
+                linha = linha_apify(row)
+                if linha is None:
                     continue
-                telefone = _csv_cell(row, "phone", "phoneUnformatted")
-                website = _csv_cell(row, "website")
-                maps_url = _csv_cell(row, "url")
-                categoria = _csv_cell(row, "categoryName")
-                rua = _csv_cell(row, "street")
-                cidade = _csv_cell(row, "city")
-                estado = _csv_cell(row, "state")
-
-                phone_norm = _normalize_phone(telefone)
-                is_dup = False
-                if phone_norm and len(phone_norm) >= 8:
-                    if Cliente.objects.filter(telefone__icontains=phone_norm[-8:]).exists():
-                        is_dup = True
-                if not is_dup and Cliente.objects.filter(
-                    empresa__iexact=empresa, cidade__iexact=cidade
-                ).exists():
-                    is_dup = True
-
-                if is_dup:
-                    duplicates += 1
-
-                preview_rows.append(
-                    {
-                        "empresa": empresa,
-                        "telefone": telefone,
-                        "website": website,
-                        "maps_url": maps_url,
-                        "categoria": categoria,
-                        "rua": rua,
-                        "cidade": cidade,
-                        "estado": estado,
-                        "duplicate": is_dup,
-                    }
+                linha["duplicate"] = _e_duplicata(
+                    linha["empresa"], linha["telefone"], linha["cidade"]
                 )
+                if linha["duplicate"]:
+                    duplicates += 1
+                preview_rows.append(linha)
+            duplicates += _duplicatas_no_arquivo(preview_rows)
 
             if not preview_rows:
                 messages.error(
@@ -450,6 +508,7 @@ def cliente_import_csv(request: HttpRequest) -> HttpResponse:
                 )
                 return redirect("erp:cliente_import")
 
+            preview_rows, sitios = qualificar_linhas(preview_rows, PerfilNicho.atual())
             request.session["csv_preview"] = preview_rows
             return render(
                 request,
@@ -459,6 +518,7 @@ def cliente_import_csv(request: HttpRequest) -> HttpResponse:
                     "form": CsvImportForm(),
                     "preview_rows": preview_rows,
                     "duplicates": duplicates,
+                    "sitios": sitios,
                     "show_preview": True,
                     "delimiter": delimiter,
                     "fieldnames": fieldnames,
@@ -474,6 +534,7 @@ def cliente_import_csv(request: HttpRequest) -> HttpResponse:
             "preview_rows": preview_rows,
             "show_preview": bool(preview_rows),
             "duplicates": sum(1 for r in preview_rows if r.get("duplicate")),
+            "sitios": 0,
         },
     )
 

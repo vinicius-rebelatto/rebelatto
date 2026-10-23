@@ -17,8 +17,9 @@
 </nav>
 {% elif "cliente" in name %}
 <nav class="erp-tabs" aria-label="Clientes">
-  <a class="erp-tab{% if 'filtragem' not in name %} is-active{% endif %}" href="{% url 'erp:cliente_list' %}">Clientes</a>
-  <a class="erp-tab{% if 'filtragem' in name %} is-active{% endif %}" href="{% url 'erp:cliente_filtragem' %}">Filtragem</a>
+  <a class="erp-tab{% if name == 'cliente_list' or name == 'cliente_detail' or name == 'cliente_create' or name == 'cliente_edit' %} is-active{% endif %}" href="{% url 'erp:cliente_list' %}">Clientes</a>
+  <a class="erp-tab{% if 'filtragem' in name or name == 'cliente_import' %} is-active{% endif %}" href="{% url 'erp:cliente_filtragem' %}">Filtragem</a>
+  <a class="erp-tab{% if name == 'cliente_nicho' %} is-active{% endif %}" href="{% url 'erp:cliente_nicho' %}">Nicho</a>
 </nav>
 {% elif "mockup" in name or "project" in name %}
 <nav class="erp-tabs" aria-label="Projetos">

@@ -20,6 +20,15 @@ class Cliente(models.Model):
         PROSPECCAO = "prospeccao", "Prospecção"
         ORCAMENTO = "orcamento", "Orçamento"
 
+    class CategoriaLead(models.TextChoices):
+        SEM_SITE = "sem_site", "Sem site"
+        REDE_SOCIAL = "rede_social", "Rede social"
+        SITE_FRACO = "site_fraco", "Site fraco"
+        SITE_PROPRIO = "site_proprio", "Site próprio"
+        FORA_NICHO = "fora_nicho", "Fora do nicho"
+        FECHADO = "fechado", "Fechado"
+        SEM_TELEFONE = "sem_telefone", "Sem telefone"
+
     nome = models.CharField("Nome", max_length=160, blank=True)
     empresa = models.CharField("Empresa", max_length=200, blank=True)
     slug = models.SlugField("Slug", max_length=220, unique=True)
@@ -56,6 +65,33 @@ class Cliente(models.Model):
     )
     motivo_rejeicao = models.TextField("Motivo da rejeição", blank=True)
     notas = models.TextField("Notas", blank=True)
+
+    nota_maps = models.DecimalField(
+        "Nota no Maps",
+        max_digits=3,
+        decimal_places=1,
+        null=True,
+        blank=True,
+    )
+    avaliacoes = models.PositiveIntegerField("Avaliações", null=True, blank=True)
+    imagens = models.PositiveIntegerField("Fotos", null=True, blank=True)
+    fechado_permanente = models.BooleanField("Fechado em definitivo", default=False)
+    fechado_temporario = models.BooleanField("Fechado temporariamente", default=False)
+    nao_reivindicado = models.BooleanField("Perfil não reivindicado", default=False)
+    link_agendamento = models.CharField("Link de agendamento", max_length=300, blank=True)
+    presenca = models.CharField("Presença digital", max_length=32, blank=True)
+    presenca_detalhe = models.CharField("Detalhe da presença", max_length=160, blank=True)
+    categoria_lead = models.CharField(
+        "Categoria do lead",
+        max_length=32,
+        choices=CategoriaLead.choices,
+        blank=True,
+        db_index=True,
+    )
+    nota = models.PositiveSmallIntegerField("Nota", default=0)
+    motivo_nota = models.CharField("Motivo da nota", max_length=300, blank=True)
+    dossie = models.TextField("Dossiê", blank=True)
+    ordem_fila = models.PositiveSmallIntegerField("Ordem na fila", default=9)
 
     created_at = models.DateTimeField("Criado em", auto_now_add=True)
     updated_at = models.DateTimeField("Atualizado em", auto_now=True)
@@ -131,6 +167,84 @@ class Cliente(models.Model):
         if self.status != self.Status.REJEITADO:
             self.etapa_rejeicao = None
         super().save(*args, **kwargs)
+
+
+class PerfilNicho(models.Model):
+    """Perfil de cliente ideal. A nota usa estes pesos; a categoria escolhe a abordagem."""
+
+    nome = models.CharField("Nome", max_length=120, default="Clínicas de estética")
+    termos_nicho = models.TextField(
+        "Termos do nicho",
+        default="estética\nharmonização\nesteticista\nspa",
+        help_text="Um termo por linha. A categoria do Maps precisa conter um deles.",
+    )
+    termos_vizinhos = models.TextField(
+        "Termos vizinhos",
+        blank=True,
+        default="dermatolog\nmicropigment\nsobrancelha\nbiomedicina",
+        help_text="Entram na leva, com menos pontos. Um termo por linha.",
+    )
+    pontos_nicho = models.PositiveSmallIntegerField(
+        "Pontos do nicho",
+        default=25,
+        help_text="Soma quando a categoria do Maps bate com o nicho.",
+    )
+    pontos_vizinho = models.PositiveSmallIntegerField(
+        "Pontos da categoria vizinha",
+        default=10,
+        help_text="Soma quando a categoria só bate com um termo vizinho.",
+    )
+    pontos_avaliacoes_ideais = models.PositiveSmallIntegerField(
+        "Avaliações de 20 a 400",
+        default=35,
+        help_text="Clínica real, ainda local.",
+    )
+    pontos_avaliacoes_poucas = models.PositiveSmallIntegerField(
+        "Avaliações de 5 a 19",
+        default=15,
+    )
+    pontos_avaliacoes_muitas = models.PositiveSmallIntegerField(
+        "Mais de 400 avaliações",
+        default=10,
+        help_text="Operação grande, ciclo de venda mais longo.",
+    )
+    pontos_nota_volume = models.PositiveSmallIntegerField(
+        "Nota do Maps com volume",
+        default=15,
+        help_text="Soma quando a nota é 4,2 ou mais e há pelo menos 15 avaliações.",
+    )
+    pontos_nao_reivindicado = models.PositiveSmallIntegerField(
+        "Perfil do Google não reivindicado",
+        default=8,
+    )
+    pontos_poucas_imagens = models.PositiveSmallIntegerField(
+        "Menos de 5 fotos",
+        default=7,
+    )
+    pontos_agendamento = models.PositiveSmallIntegerField(
+        "Já tem link de agendamento",
+        default=10,
+        help_text="Este valor é descontado da nota.",
+    )
+    fator_temporario = models.PositiveSmallIntegerField(
+        "Fechado temporariamente",
+        default=20,
+        help_text="Percentual da nota que permanece. 20 deixa o lead no fim da categoria.",
+    )
+
+    class Meta:
+        verbose_name = "Perfil de nicho"
+        verbose_name_plural = "Perfis de nicho"
+
+    def __str__(self) -> str:
+        return self.nome
+
+    @classmethod
+    def atual(cls) -> "PerfilNicho":
+        perfil = cls.objects.order_by("id").first()
+        if perfil is not None:
+            return perfil
+        return cls.objects.create(nome="Clínicas de estética")
 
 
 class Mockup(models.Model):

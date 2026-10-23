@@ -10,6 +10,7 @@ class ListingMixin:
     filter_fields: list[str] = []
     sort_fields: dict[str, str] = {}
     default_sort: str = "-id"
+    default_order: tuple[str, ...] = ()
     boolean_filters: set[str] = set()
 
     def get_listing_queryset(self, request, queryset):
@@ -36,15 +37,25 @@ class ListingMixin:
             queryset = queryset.filter(**{field: value})
             active_filters[field] = value
 
-        sort = (request.GET.get("sort") or self.default_sort).strip()
-        descending = sort.startswith("-")
-        sort_key = sort.lstrip("-")
-        if sort_key in self.sort_fields:
-            order_field = self.sort_fields[sort_key]
-            queryset = queryset.order_by(f"-{order_field}" if descending else order_field)
+        sort_param = (request.GET.get("sort") or "").strip()
+        if not sort_param and self.default_order:
+            queryset = queryset.order_by(*self.default_order)
+            sort = ""
         else:
-            sort = self.default_sort
-            queryset = queryset.order_by(self.default_sort)
+            sort = sort_param or self.default_sort
+            descending = sort.startswith("-")
+            sort_key = sort.lstrip("-")
+            if sort_key in self.sort_fields:
+                order_field = self.sort_fields[sort_key]
+                queryset = queryset.order_by(
+                    f"-{order_field}" if descending else order_field
+                )
+            elif self.default_order:
+                sort = ""
+                queryset = queryset.order_by(*self.default_order)
+            else:
+                sort = self.default_sort
+                queryset = queryset.order_by(self.default_sort)
 
         page_number = request.GET.get("page") or 1
         paginator = Paginator(queryset, self.paginate_by)

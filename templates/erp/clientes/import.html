@@ -4,10 +4,8 @@
 <section class="erp-card">
   {% if not show_preview %}
   <p class="erp-muted">
-    Aceita CSV com <code>;</code> ou <code>,</code>. Colunas usadas:
-    <code>title</code>, <code>phone</code> (ou <code>phoneUnformatted</code>),
-    <code>website</code>, <code>url</code>, <code>categoryName</code>,
-    <code>street</code>, <code>city</code>, <code>state</code>.
+    CSV do Google Maps, com <code>;</code> ou <code>,</code>. Cada lead entra numa categoria e ganha uma nota.
+    Domínio próprio recebe uma visita à página inicial; rede social e construtor gratuito saem só do endereço.
   </p>
   <form method="post" enctype="multipart/form-data" class="erp-form">
     {% csrf_token %}
@@ -26,26 +24,33 @@
       {% include "erp/partials/icon.html" with name="eye" %}
       <span>Pré-visualização</span>
     </h2>
-    <p class="erp-muted">{{ preview_rows|length }} linha(s) · {{ duplicates }} duplicata(s) serão ignoradas</p>
+    <p class="erp-muted">{{ preview_rows|length }} linha(s) · {{ duplicates }} duplicata(s) serão ignoradas{% if sitios %} · {{ sitios }} site(s) verificado(s){% endif %}</p>
   </div>
   <div class="erp-table-wrap">
     <table class="erp-table">
       <thead>
         <tr>
           <th>Empresa</th>
-          <th>Telefone</th>
-          <th>Cidade</th>
           <th>Categoria</th>
+          <th>Nota</th>
+          <th>Motivo</th>
           <th>Status</th>
         </tr>
       </thead>
       <tbody>
         {% for row in preview_rows %}
         <tr class="{% if row.duplicate %}is-dup{% endif %}">
-          <td>{{ row.empresa }}</td>
-          <td>{{ row.telefone|default:"—" }}</td>
-          <td>{{ row.cidade|default:"—" }}</td>
-          <td>{{ row.categoria|default:"—" }}</td>
+          <td>
+            {{ row.empresa }}
+            {% if row.unidades > 1 and not row.duplicate %}<span class="lead-sub">{{ row.unidades }} unidades com este nome</span>{% endif %}
+          </td>
+          <td>
+            {% if row.categoria_lead %}
+            <span class="erp-badge erp-badge--{{ row.categoria_lead }}">{{ row.categoria_label }}</span>
+            {% else %}—{% endif %}
+          </td>
+          <td class="nota-lead">{% if row.duplicate %}—{% else %}{{ row.nota }}{% endif %}</td>
+          <td>{{ row.motivo_nota|default:"—" }}</td>
           <td>{% if row.duplicate %}<span class="erp-badge erp-badge--rejeitado">Duplicata</span>{% else %}<span class="erp-badge erp-badge--importado">Novo</span>{% endif %}</td>
         </tr>
         {% endfor %}
