@@ -125,3 +125,28 @@ class ImportacaoTests(TestCase):
         visitas.assert_called_once_with(["https://proprio.example"])
         self.assertEqual(Cliente.objects.get(slug="rede").categoria_lead, "rede_social")
         self.assertEqual(Cliente.objects.get(slug="proprio").categoria_lead, "site_fraco")
+
+
+class ListaClientesTests(TestCase):
+    def setUp(self):
+        usuario = get_user_model().objects.create_user("staff-lista", password="x", is_staff=True)
+        self.client.force_login(usuario)
+        Cliente.objects.create(empresa="Clinica Ativa", slug="ativa", status=Cliente.Status.A_PROSPECTAR)
+        Cliente.objects.create(
+            empresa="Clinica Recusada",
+            slug="recusada",
+            status=Cliente.Status.REJEITADO,
+            etapa_rejeicao=Cliente.EtapaRejeicao.FILTRAGEM,
+        )
+
+    def test_rejeitado_fica_oculto_ate_o_filtro(self):
+        lista = self.client.get(reverse("erp:cliente_list"))
+        self.assertContains(lista, "Clinica Ativa")
+        self.assertNotContains(lista, "Clinica Recusada")
+
+        rejeitados = self.client.get(reverse("erp:cliente_list") + "?status=rejeitado")
+        self.assertContains(rejeitados, "Clinica Recusada")
+        self.assertNotContains(rejeitados, "Clinica Ativa")
+
+        por_etapa = self.client.get(reverse("erp:cliente_list") + "?etapa_rejeicao=filtragem")
+        self.assertContains(por_etapa, "Clinica Recusada")

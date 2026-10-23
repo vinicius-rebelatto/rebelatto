@@ -123,19 +123,24 @@ class ClienteListing(ListingMixin):
 
 @staff_required
 def cliente_list(request: HttpRequest) -> HttpResponse:
+    status = (request.GET.get("status") or "").strip()
+    etapa = (request.GET.get("etapa_rejeicao") or "").strip()
+    clientes = Cliente.objects.all()
+    if status != Cliente.Status.REJEITADO and not etapa:
+        clientes = clientes.exclude(status=Cliente.Status.REJEITADO)
     mixin = ClienteListing()
-    listing = _listing_context(mixin, request, Cliente.objects.all())
+    listing = _listing_context(mixin, request, clientes)
     listing.update(
         {
             "page_title": "Clientes",
             "status_choices": Cliente.Status.choices,
             "origem_choices": Cliente.Origem.choices,
             "etapa_choices": Cliente.EtapaRejeicao.choices,
-            "cidades": Cliente.objects.exclude(cidade="")
+            "cidades": clientes.exclude(cidade="")
             .order_by("cidade")
             .values_list("cidade", flat=True)
             .distinct(),
-            "estados": Cliente.objects.exclude(estado="")
+            "estados": clientes.exclude(estado="")
             .order_by("estado")
             .values_list("estado", flat=True)
             .distinct(),
