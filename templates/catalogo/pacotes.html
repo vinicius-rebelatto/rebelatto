@@ -2,18 +2,6 @@
 {% load catalogo_extras %}
 
 {% block page_actions %}
-<a class="btn btn-outline btn-sm" href="{% url 'catalogo:desconto_list' %}">
-  {% include "erp/partials/icon.html" with name="alert" %}
-  <span>Descontos</span>
-</a>
-<a class="btn btn-outline btn-sm" href="{% url 'catalogo:servico_list' %}">
-  {% include "erp/partials/icon.html" with name="tag" %}
-  <span>Serviços</span>
-</a>
-<a class="btn btn-outline btn-sm" href="{% url 'catalogo:proposta_list' %}">
-  {% include "erp/partials/icon.html" with name="file" %}
-  <span>Propostas</span>
-</a>
 <a class="btn btn-primary btn-sm" href="{% url 'catalogo:pacote_create' %}">
   {% include "erp/partials/icon.html" with name="plus" %}
   <span>Novo pacote</span>

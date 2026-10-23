@@ -2,10 +2,6 @@
 {% load catalogo_extras %}
 
 {% block page_actions %}
-<a class="btn btn-outline btn-sm" href="{% url 'catalogo:pacote_list' %}">
-  {% include "erp/partials/icon.html" with name="back" %}
-  <span>Catálogo</span>
-</a>
 <a class="btn btn-primary btn-sm" href="{% url 'catalogo:servico_create' %}">
   {% include "erp/partials/icon.html" with name="plus" %}
   <span>Novo serviço</span>

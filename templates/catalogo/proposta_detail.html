@@ -18,64 +18,97 @@
 {% endblock %}
 
 {% block content %}
-<div class="erp-stack">
-  <section class="erp-card">
-    <div class="erp-card__header">
-      <h2 class="erp-heading">{{ proposta.pacote_nome }}</h2>
-      <span class="erp-badge erp-badge--{{ proposta.status }}">{{ proposta.get_status_display }}</span>
-    </div>
-    <dl class="erp-dl">
-      <div><dt>Cliente</dt><dd>{{ proposta.cliente_nome|default:"—" }}</dd></div>
-      <div><dt>Pacote</dt><dd>{{ proposta.pacote_nome }}{% if proposta.piso %} · piso{% endif %}</dd></div>
-      {% if proposta.preco_unico %}
-      <div><dt>Único de tabela</dt><dd>{{ proposta.preco_unico|brl }}</dd></div>
-      <div><dt>Desconto</dt><dd>{{ proposta.desconto_unico|pct }}{% if proposta.desconto_fixo %} · informado à mão{% endif %}</dd></div>
-      <div><dt>Único na proposta</dt><dd>{% if proposta.piso %}a partir de {% endif %}{{ proposta.total_unico|brl }}</dd></div>
-      {% endif %}
-      {% if proposta.preco_mensal %}
-      <div><dt>Mensal de tabela</dt><dd>{{ proposta.preco_mensal|brl }}</dd></div>
-      <div><dt>Desconto mensal</dt><dd>{{ proposta.desconto_mensal|pct }}</dd></div>
-      <div><dt>Mensal na proposta</dt><dd>{{ proposta.total_mensal|brl }}</dd></div>
-      {% endif %}
-      {% if proposta.preco_anual %}
-      <div><dt>Anual de tabela</dt><dd>{{ proposta.preco_anual|brl }}</dd></div>
-      <div><dt>Desconto anual</dt><dd>{{ proposta.desconto_anual|pct }}</dd></div>
-      <div><dt>Anual na proposta</dt><dd>{{ proposta.total_anual|brl }}</dd></div>
-      {% endif %}
+<div class="compose">
+  <div class="compose__main">
+    <section class="sheet">
+      <header class="sheet__head">
+        <span class="step">1</span>
+        <div>
+          <h2>O que entra</h2>
+          <p>
+            {% if proposta.fechada %}
+            Proposta fechada. Mudar o catálogo não mexe nestes números.
+            {% else %}
+            Rascunho. Salvar de novo lê o preço atual da tabela.
+            {% endif %}
+          </p>
+        </div>
+      </header>
+      <ul class="line-list">
+        {% for item in proposta.itens.all %}
+        <li class="line{% if item.tipo == 'pacote' %} line--pacote{% endif %}">
+          <div>
+            <strong>{{ item.nome }}</strong>
+            <small>{{ item.get_tipo_display }} · {{ item.get_cobranca_display }}</small>
+          </div>
+          <span class="line__price">
+            {% if item.tipo == "escopo" %}
+            <em class="pill">incluso</em>
+            {% else %}
+            {{ item.preco|brl }}
+            {% endif %}
+          </span>
+        </li>
+        {% endfor %}
+      </ul>
       {% if proposta.observacao %}
-      <div class="erp-dl--full"><dt>Observação</dt><dd>{{ proposta.observacao }}</dd></div>
+      <p class="sheet__note">{{ proposta.observacao }}</p>
       {% endif %}
-    </dl>
-  </section>
+      <form method="post" action="{% url 'catalogo:proposta_excluir' proposta.pk %}" onsubmit="return confirm('Excluir esta proposta?');">
+        {% csrf_token %}
+        <button class="btn btn-danger btn-sm" type="submit">Excluir proposta</button>
+      </form>
+    </section>
+  </div>
 
-  <section class="erp-card">
-    <div class="erp-card__header"><h2 class="erp-heading">Itens gravados</h2></div>
-    <div class="erp-table-wrap">
-      <table class="erp-table">
-        <thead><tr><th>Item</th><th>Tipo</th><th>Cobrança</th><th class="is-right">Preço de tabela</th></tr></thead>
-        <tbody>
-          {% for item in proposta.itens.all %}
-          <tr>
-            <td>{{ item.nome }}</td>
-            <td>{{ item.get_tipo_display }}</td>
-            <td>{{ item.get_cobranca_display }}</td>
-            <td class="erp-num is-right">{% if item.tipo == "escopo" %}incluso{% else %}{{ item.preco|brl }}{% endif %}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <aside class="compose__side">
+    <div class="quote-card">
+      <div class="quote-card__top">
+        <p class="quote-card__eyebrow">Proposta #{{ proposta.pk }}</p>
+        <span class="erp-badge erp-badge--{{ proposta.status }}">{{ proposta.get_status_display }}</span>
+      </div>
+      <h2>{{ proposta.pacote_nome }}</h2>
+      <p class="quote-card__who">{{ proposta.cliente_nome|default:"Sem cliente" }}</p>
+
+      <div class="quote-lines">
+        {% if proposta.preco_unico %}
+        <div class="quote-line">
+          <div>
+            <span>Único{% if proposta.desconto_fixo %} · à mão{% endif %}</span>
+            <strong class="quote-line__off">− {{ proposta.desconto_unico|pct }}</strong>
+          </div>
+          <div class="quote-line__money">
+            <s>{{ proposta.preco_unico|brl }}</s>
+            <b>{% if proposta.piso %}a partir de {% endif %}{{ proposta.total_unico|brl }}</b>
+          </div>
+        </div>
+        {% endif %}
+        {% if proposta.preco_mensal %}
+        <div class="quote-line">
+          <div>
+            <span>Mensal</span>
+            <strong class="quote-line__off">− {{ proposta.desconto_mensal|pct }}</strong>
+          </div>
+          <div class="quote-line__money">
+            <s>{{ proposta.preco_mensal|brl }}</s>
+            <b>{{ proposta.total_mensal|brl }}</b>
+          </div>
+        </div>
+        {% endif %}
+        {% if proposta.preco_anual %}
+        <div class="quote-line">
+          <div>
+            <span>Anual</span>
+            <strong class="quote-line__off">− {{ proposta.desconto_anual|pct }}</strong>
+          </div>
+          <div class="quote-line__money">
+            <s>{{ proposta.preco_anual|brl }}</s>
+            <b>{{ proposta.total_anual|brl }}</b>
+          </div>
+        </div>
+        {% endif %}
+      </div>
     </div>
-    <p class="erp-muted erp-note">
-      {% if proposta.fechada %}
-      Esta proposta está fechada. Mudar o catálogo não mexe nestes números.
-      {% else %}
-      Enquanto estiver em rascunho, salvar de novo lê o preço atual da tabela.
-      {% endif %}
-    </p>
-    <form method="post" action="{% url 'catalogo:proposta_excluir' proposta.pk %}" onsubmit="return confirm('Excluir esta proposta?');">
-      {% csrf_token %}
-      <button class="btn btn-outline btn-sm" type="submit">Excluir proposta</button>
-    </form>
-  </section>
+  </aside>
 </div>
 {% endblock %}

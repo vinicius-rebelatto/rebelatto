@@ -1,0 +1,29 @@
+{% with ns=request.resolver_match.namespace name=request.resolver_match.url_name %}
+{% if ns == "ia" %}
+<nav class="erp-tabs" aria-label="Inteligência artificial">
+  <a class="erp-tab{% if name == 'painel' %} is-active{% endif %}" href="{% url 'ia:painel' %}">Visão geral</a>
+  <a class="erp-tab{% if 'agente' in name %} is-active{% endif %}" href="{% url 'ia:agente_list' %}">Agentes</a>
+  <a class="erp-tab{% if 'execucao' in name %} is-active{% endif %}" href="{% url 'ia:execucao_list' %}">Execuções</a>
+  <a class="erp-tab{% if 'orcamento' in name %} is-active{% endif %}" href="{% url 'ia:orcamento_list' %}">Orçamento</a>
+  <a class="erp-tab{% if 'credencial' in name %} is-active{% endif %}" href="{% url 'ia:credencial_list' %}">Chaves</a>
+  <a class="erp-tab{% if 'modelo' in name %} is-active{% endif %}" href="{% url 'ia:modelo_list' %}">Modelos</a>
+</nav>
+{% elif ns == "catalogo" %}
+<nav class="erp-tabs" aria-label="Comercial">
+  <a class="erp-tab{% if 'pacote' in name %} is-active{% endif %}" href="{% url 'catalogo:pacote_list' %}">Catálogo</a>
+  <a class="erp-tab{% if 'servico' in name %} is-active{% endif %}" href="{% url 'catalogo:servico_list' %}">Serviços</a>
+  <a class="erp-tab{% if name == 'desconto_list' %} is-active{% endif %}" href="{% url 'catalogo:desconto_list' %}">Descontos</a>
+  <a class="erp-tab{% if 'proposta' in name %} is-active{% endif %}" href="{% url 'catalogo:proposta_list' %}">Propostas</a>
+</nav>
+{% elif "cliente" in name %}
+<nav class="erp-tabs" aria-label="Clientes">
+  <a class="erp-tab{% if 'filtragem' not in name %} is-active{% endif %}" href="{% url 'erp:cliente_list' %}">Clientes</a>
+  <a class="erp-tab{% if 'filtragem' in name %} is-active{% endif %}" href="{% url 'erp:cliente_filtragem' %}">Filtragem</a>
+</nav>
+{% elif "mockup" in name or "project" in name %}
+<nav class="erp-tabs" aria-label="Projetos">
+  <a class="erp-tab{% if 'mockup' in name %} is-active{% endif %}" href="{% url 'erp:mockup_list' %}">Mockups</a>
+  <a class="erp-tab{% if 'project' in name %} is-active{% endif %}" href="{% url 'erp:project_list' %}">Projetos</a>
+</nav>
+{% endif %}
+{% endwith %}

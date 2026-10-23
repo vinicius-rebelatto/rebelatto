@@ -1,13 +1,6 @@
 {% extends "erp/base.html" %}
 {% load catalogo_extras %}
 
-{% block page_actions %}
-<a class="btn btn-outline btn-sm" href="{% url 'catalogo:pacote_list' %}">
-  {% include "erp/partials/icon.html" with name="back" %}
-  <span>Catálogo</span>
-</a>
-{% endblock %}
-
 {% block content %}
 <div class="erp-stack">
   <p class="erp-muted erp-note">{{ resumo }} O percentual maior fica nos tickets maiores: 5% de R$ 1.000 e 10% de R$ 10.000 não são o mesmo gesto.</p>

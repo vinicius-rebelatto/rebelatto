@@ -361,6 +361,12 @@ def _proposta_form(request: HttpRequest, proposta: Proposta | None) -> HttpRespo
     conta = cotar(pacote, extras, fixo=fixo, informados=informados) if pacote is not None else None
 
     iniciais = _iniciais(proposta, pacote, extras)
+    if request.method == "GET":
+        bruto = request.GET.get("cliente")
+        if bruto and bruto.isdigit():
+            iniciais["cliente"] = int(bruto)
+        if "observacao" in request.GET:
+            iniciais["observacao"] = request.GET.get("observacao", "")
     if request.method == "GET" and request.GET.get("pacote") and pacote is not None and conta is not None:
         iniciais["pacote"] = pacote.pk
         iniciais["desconto_fixo"] = fixo

@@ -29,10 +29,12 @@
     }
   }
 
-  themeToggle?.addEventListener("click", () => {
-    setTheme(getTheme() === "dark" ? "light" : "dark");
-  });
-  setTheme(getTheme());
+  if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+      setTheme(getTheme() === "dark" ? "light" : "dark");
+    });
+    setTheme(getTheme());
+  }
 
   function closeDrawer() {
     if (!drawer) return;

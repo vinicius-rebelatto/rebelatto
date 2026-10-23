@@ -1,23 +1,12 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark" class="erp-html">
+<html lang="pt-BR" class="erp-html">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login ERP — Rebel Tech</title>
   <link rel="icon" href="{% static 'img/favicon.ico' %}" sizes="any">
   <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
-  <script>
-    (function () {
-      try {
-        var stored = localStorage.getItem("rebel-theme");
-        var theme = stored === "dark" || stored === "light" ? stored : "dark";
-        document.documentElement.setAttribute("data-theme", theme);
-      } catch (e) {
-        document.documentElement.setAttribute("data-theme", "dark");
-      }
-    })();
-  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
