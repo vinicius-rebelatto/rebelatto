@@ -125,6 +125,20 @@ class PaginaTests(TestCase):
         self.assertContains(detalhe, "R$ 465,50")
         self.assertContains(detalhe, "Clínica Aurora")
         self.assertContains(detalhe, "Página")
+        self.assertContains(detalhe, "Exportar PDF")
+        documento = self.client.get(f"/erp/catalogo/propostas/{proposta.pk}/documento/")
+        self.assertEqual(documento.status_code, 200)
+        self.assertContains(documento, "Clínica Aurora")
+        self.assertContains(documento, "Landing Express")
+        self.assertContains(documento, "R$ 465,50")
+        self.assertContains(documento, "Página")
+        self.assertNotContains(documento, "Primeira clínica")
+        pdf = self.client.get(f"/erp/catalogo/propostas/{proposta.pk}/pdf/")
+        if pdf.status_code == 302:
+            self.assertRedirects(pdf, f"/erp/catalogo/propostas/{proposta.pk}/")
+        else:
+            self.assertEqual(pdf["Content-Type"], "application/pdf")
+            self.assertTrue(pdf.content.startswith(b"%PDF"))
 
     def test_preco_e_desconto_por_linha(self):
         pacote = Pacote.objects.get(nome="Landing Express")

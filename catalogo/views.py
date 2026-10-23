@@ -10,6 +10,7 @@ from crm.models import Cliente
 from erp.views import staff_required
 
 from .forms import PacoteForm, PropostaForm, ServicoForm
+from .pdf import PdfIndisponivel, gerar_pdf, nome_arquivo, render_html
 from .models import Cobranca, FaixaDesconto, ItemPacote, Pacote, Proposta, Servico
 from .preco import (
     com_desconto,
@@ -587,6 +588,25 @@ def _catalogo_interativo(pacotes_qs):
             for faixa in faixas()
         ],
     }
+
+
+@staff_required
+def proposta_documento(request: HttpRequest, pk: int) -> HttpResponse:
+    proposta = get_object_or_404(Proposta.objects.prefetch_related("itens"), pk=pk)
+    return HttpResponse(render_html(proposta))
+
+
+@staff_required
+def proposta_pdf(request: HttpRequest, pk: int) -> HttpResponse:
+    proposta = get_object_or_404(Proposta.objects.prefetch_related("itens"), pk=pk)
+    try:
+        dados = gerar_pdf(proposta)
+    except PdfIndisponivel as exc:
+        messages.error(request, str(exc))
+        return redirect("catalogo:proposta_detail", pk=proposta.pk)
+    resposta = HttpResponse(dados, content_type="application/pdf")
+    resposta["Content-Disposition"] = f'attachment; filename="{nome_arquivo(proposta)}"'
+    return resposta
 
 
 @staff_required

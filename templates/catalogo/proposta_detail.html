@@ -2,6 +2,10 @@
 {% load catalogo_extras %}
 
 {% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'catalogo:proposta_pdf' proposta.pk %}">
+  {% include "erp/partials/icon.html" with name="file" %}
+  <span>Exportar PDF</span>
+</a>
 {% if not proposta.fechada %}
 <a class="btn btn-outline btn-sm" href="{% url 'catalogo:proposta_edit' proposta.pk %}">
   {% include "erp/partials/icon.html" with name="edit" %}
