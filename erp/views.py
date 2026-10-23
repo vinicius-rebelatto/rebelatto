@@ -125,9 +125,12 @@ class ClienteListing(ListingMixin):
 def cliente_list(request: HttpRequest) -> HttpResponse:
     status = (request.GET.get("status") or "").strip()
     etapa = (request.GET.get("etapa_rejeicao") or "").strip()
+    origem = (request.GET.get("origem") or "").strip()
     clientes = Cliente.objects.all()
     if status != Cliente.Status.REJEITADO and not etapa:
         clientes = clientes.exclude(status=Cliente.Status.REJEITADO)
+    if origem != Cliente.Origem.CONTATO:
+        clientes = clientes.exclude(origem=Cliente.Origem.CONTATO)
     mixin = ClienteListing()
     listing = _listing_context(mixin, request, clientes)
     listing.update(

@@ -138,6 +138,12 @@ class ListaClientesTests(TestCase):
             status=Cliente.Status.REJEITADO,
             etapa_rejeicao=Cliente.EtapaRejeicao.FILTRAGEM,
         )
+        Cliente.objects.create(
+            empresa="Lead do Site",
+            slug="lead-do-site",
+            origem=Cliente.Origem.CONTATO,
+            status=Cliente.Status.A_PROSPECTAR,
+        )
 
     def test_rejeitado_fica_oculto_ate_o_filtro(self):
         lista = self.client.get(reverse("erp:cliente_list"))
@@ -150,3 +156,12 @@ class ListaClientesTests(TestCase):
 
         por_etapa = self.client.get(reverse("erp:cliente_list") + "?etapa_rejeicao=filtragem")
         self.assertContains(por_etapa, "Clinica Recusada")
+
+    def test_contato_fica_oculto_ate_o_filtro(self):
+        lista = self.client.get(reverse("erp:cliente_list"))
+        self.assertContains(lista, "Clinica Ativa")
+        self.assertNotContains(lista, "Lead do Site")
+
+        contato = self.client.get(reverse("erp:cliente_list") + "?origem=contato")
+        self.assertContains(contato, "Lead do Site")
+        self.assertNotContains(contato, "Clinica Ativa")
