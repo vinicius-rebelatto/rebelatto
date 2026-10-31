@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ marca.nome }} — estética{% if marca.cidade %} em {{ marca.cidade }}{% endif %}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="{% if marca.lead %}Página de exemplo para {{ marca.nome }}.{% else %}Íris é um estúdio de estética em Brusque. Contato, endereço e agendamento em uma página.{% endif %}">
+  <meta name="theme-color" content="#ddd3c6">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/mockups/_base.css' %}">
+  <link rel="stylesheet" href="{% static landing.css %}">
+  {% include "portfolio/mockups/_lead_head.html" %}
+</head>
+<body{% if marca.lead %} data-lead{% endif %}>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+
+  <main id="conteudo" class="table">
+    <h1 class="visually-hidden">{{ marca.nome }}</h1>
+
+    <div class="cards">
+      <article class="card card--front" aria-label="Frente do cartão">
+        <span class="card__corner" aria-hidden="true"></span>
+        <div class="card__mark">
+          {% if marca.logo_url %}
+          <img class="mark__logo card__logo" src="{{ marca.logo_url }}" alt="{{ marca.nome }}">
+          {% else %}
+          {% if not marca.lead %}
+          <svg class="mark__seal" viewBox="0 0 40 40" aria-hidden="true">
+            <circle cx="20" cy="20" r="18.5" fill="none" stroke="currentColor" stroke-width=".6"/>
+            <ellipse cx="20" cy="20" rx="9" ry="14" fill="none" stroke="currentColor" stroke-width=".6"/>
+            <circle cx="20" cy="20" r="2.2" fill="currentColor"/>
+          </svg>
+          {% endif %}
+          <p class="mark__name card__name">{{ marca.nome }}</p>
+          {% endif %}
+        </div>
+        <p class="card__role">Estética{% if marca.cidade %} <span>·</span> {{ marca.cidade }}{% endif %}</p>
+        <span class="card__rule rt-detalhe" aria-hidden="true"></span>
+      </article>
+
+      <article class="card card--back" aria-label="Verso do cartão">
+        <dl class="facts">
+          {% include "portfolio/mockups/_fatos.html" with horario_1="Terça a sábado, 9h–18h" horario_2="Com hora marcada" %}
+        </dl>
+        <div class="card__actions">
+          <a class="btn" href="{{ marca.whatsapp_url }}" rel="noopener">
+            {% include "portfolio/mockups/_whatsapp_icon.html" %}
+            <span>Agendar</span>
+          </a>
+          <a class="btn btn--ghost" href="#procedimentos">Procedimentos</a>
+        </div>
+      </article>
+    </div>
+
+    <section class="proc" id="procedimentos" aria-labelledby="proc-title">
+      <h2 id="proc-title">Procedimentos {% include "portfolio/mockups/_exemplo.html" %}</h2>
+      <p>Avaliação facial <span>·</span> Harmonização <span>·</span> Limpeza de pele <span>·</span> Peeling <span>·</span> Lábios <span>·</span> Skinbooster</p>
+    </section>
+
+    <footer class="foot">
+      {% if marca.lead %}<p>Página de exemplo feita pela Rebel Tech. Textos marcados como exemplo são ilustrativos.</p>{% else %}<p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>{% endif %}
+    </footer>
+  </main>
+
+  {% include "portfolio/mockups/_lead_bar.html" %}
+  <script src="{% static landing.js %}" defer></script>
+</body>
+</html>

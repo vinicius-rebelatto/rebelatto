@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ marca.nome }} — agende sua avaliação{% if marca.cidade %} em {{ marca.cidade }}{% endif %}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="{% if marca.lead %}Página de exemplo para {{ marca.nome }}.{% else %}Lis é uma clínica de estética em Florianópolis. O agendamento acontece pelo WhatsApp, em poucas mensagens.{% endif %}">
+  <meta name="theme-color" content="#f7f4ee">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gloock&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/mockups/_base.css' %}">
+  <link rel="stylesheet" href="{% static landing.css %}">
+  {% include "portfolio/mockups/_lead_head.html" %}
+</head>
+<body{% if marca.lead %} data-lead{% endif %}>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+
+  <header class="bar" data-bar>
+    <div class="wrap bar__row bar__row--short">
+      <a class="mark" href="#topo" aria-label="{{ marca.nome }} — início">
+        {% if marca.logo_url %}
+        <img class="mark__logo" src="{{ marca.logo_url }}" alt="{{ marca.nome }}">
+        {% else %}
+        {% if not marca.lead %}<span class="mark__dot" aria-hidden="true"></span>{% endif %}
+        <span class="mark__name">{{ marca.nome }}</span>
+        {% endif %}
+      </a>
+      <a class="btn btn--small btn--bar" href="{{ marca.whatsapp_url }}" rel="noopener">
+        {% include "portfolio/mockups/_whatsapp_icon.html" %}
+        <span>Agendar</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero" id="topo" aria-labelledby="hero-title">
+      <div class="wrap hero__grid">
+        <div class="hero__copy">
+          <p class="eyebrow"><span class="eyebrow__pulse" aria-hidden="true"></span>Agenda aberta{% if marca.cidade %} · {{ marca.cidade }}{% endif %}</p>
+          <h1 id="hero-title">Sua avaliação marcada em <em class="rt-detalhe">duas mensagens</em>.</h1>
+          <p class="lede">Mande um oi pelo WhatsApp, escolha o horário e pronto. A conversa acontece antes de qualquer procedimento.</p>
+          <div class="hero__actions">
+            <a class="btn btn--big" href="{{ marca.whatsapp_url }}" rel="noopener">
+              {% include "portfolio/mockups/_whatsapp_icon.html" %}
+              <span>Agendar pelo WhatsApp</span>
+            </a>
+            {% if marca.telefone %}<p class="hero__phone">ou ligue <strong>{{ marca.telefone }}</strong></p>{% endif %}
+          </div>
+        </div>
+
+        <figure class="chat" aria-label="Exemplo de conversa de agendamento">
+          <div class="chat__head">
+            <span class="chat__avatar" aria-hidden="true">{{ marca.nome|slice:":1" }}</span>
+            <div>
+              <strong>{{ marca.nome }}</strong>
+              <span>responde em horário comercial</span>
+            </div>
+          </div>
+          <div class="chat__body">
+            <p class="msg msg--out">Oi! Queria marcar uma avaliação.</p>
+            <p class="msg msg--in">Olá! Que bom falar com você. Temos horário na quinta às 10h ou na sexta às 15h. Qual fica melhor?</p>
+            <p class="msg msg--out">Sexta às 15h 🙂</p>
+            <p class="msg msg--in">Combinado! Sua avaliação está marcada para sexta, 15h.</p>
+          </div>
+          <figcaption>Conversa ilustrativa</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-title">
+      <div class="wrap">
+        <h2 id="steps-title" class="visually-hidden">Como agendar</h2>
+        <ol class="steps__row">
+          <li><span class="rt-detalhe">1</span><h3>Chame no WhatsApp</h3><p>Um oi já basta. Diga o que gostaria de avaliar.</p></li>
+          <li><span class="rt-detalhe">2</span><h3>Escolha o horário</h3><p>A clínica responde com os horários livres da semana.</p></li>
+          <li><span class="rt-detalhe">3</span><h3>Venha conversar</h3><p>A primeira visita é uma avaliação. Nada é feito às pressas.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="block" id="procedimentos" aria-labelledby="proc-title">
+      <div class="wrap block__grid">
+        <header>
+          <p class="eyebrow">Procedimentos</p>
+          {% include "portfolio/mockups/_exemplo.html" %}
+          <h2 id="proc-title">O que dá para agendar.</h2>
+          <p class="muted">Cada procedimento começa pela avaliação. É nela que se decide o que faz sentido para você.</p>
+        </header>
+        <ul class="tags list">
+          <li>Avaliação facial</li>
+          <li>Harmonização facial</li>
+          <li>Limpeza de pele</li>
+          <li>Peeling</li>
+          <li>Preenchimento labial</li>
+          <li>Toxina botulínica</li>
+          <li>Bioestimuladores</li>
+          <li>Skinbooster</li>
+          <li>Retorno e manutenção</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="visit" id="visita" aria-labelledby="visit-title">
+      <div class="wrap visit__card">
+        <div class="visit__copy">
+          <h2 id="visit-title">Tem um horário esperando por você.</h2>
+          <a class="btn btn--big" href="{{ marca.whatsapp_url }}" rel="noopener">
+            {% include "portfolio/mockups/_whatsapp_icon.html" %}
+            <span>Agendar pelo WhatsApp</span>
+          </a>
+        </div>
+        <dl class="facts">
+          {% include "portfolio/mockups/_fatos.html" with horario_1="Segunda a sexta, 9h–19h" horario_2="Sábado, 9h–13h" %}
+        </dl>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot__row">
+      <p class="mark mark--foot"><span class="mark__name">{{ marca.nome }}</span></p>
+      {% if marca.lead %}<p>Página de exemplo feita pela Rebel Tech. Textos marcados como exemplo são ilustrativos.</p>{% else %}<p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>{% endif %}
+    </div>
+  </footer>
+
+  {% include "portfolio/mockups/_lead_bar.html" %}
+  <script src="{% static landing.js %}" defer></script>
+</body>
+</html>

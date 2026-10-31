@@ -29,12 +29,26 @@ class ClienteForm(forms.ModelForm):
             "status",
             "motivo_rejeicao",
             "notas",
+            "logo",
+            "cor_destaque",
         ]
         widgets = {
+            "cor_destaque": forms.TextInput(attrs={"placeholder": "#8d4554"}),
             "mensagem": forms.Textarea(attrs={"rows": 3}),
             "motivo_rejeicao": forms.Textarea(attrs={"rows": 2}),
             "notas": forms.Textarea(attrs={"rows": 3}),
         }
+
+
+    def clean_cor_destaque(self):
+        cor = (self.cleaned_data.get("cor_destaque") or "").strip().lower()
+        if not cor:
+            return ""
+        import re
+
+        if not re.fullmatch(r"#[0-9a-f]{6}", cor):
+            raise forms.ValidationError("Use o formato #rrggbb.")
+        return cor
 
 
 class RejectForm(forms.Form):

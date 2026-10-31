@@ -93,6 +93,17 @@ class Cliente(models.Model):
     dossie = models.TextField("Dossiê", blank=True)
     ordem_fila = models.PositiveSmallIntegerField("Ordem na fila", default=9)
 
+    logo = models.ImageField("Logo", upload_to="clientes/logos/", blank=True)
+    cor_destaque = models.CharField(
+        "Cor de destaque",
+        max_length=7,
+        blank=True,
+        help_text="Hex, ex.: #8d4554. Entra no botão e num detalhe do mockup.",
+    )
+    ultimo_template = models.CharField("Último template aberto", max_length=40, blank=True)
+    mockup_visto_em = models.DateTimeField("Mockup visto em", null=True, blank=True)
+    mockup_visitas = models.PositiveIntegerField("Visitas ao mockup", default=0)
+
     created_at = models.DateTimeField("Criado em", auto_now_add=True)
     updated_at = models.DateTimeField("Atualizado em", auto_now=True)
 
@@ -149,6 +160,22 @@ class Cliente(models.Model):
                     "updated_at",
                 ]
             )
+
+    CATEGORIAS_MOCKUP = ("sem_site", "rede_social", "site_fraco")
+
+    @property
+    def recebe_mockup(self) -> bool:
+        """Sem site, site em rede ou site fraco. Site próprio fica fora."""
+        return (
+            self.categoria_lead in self.CATEGORIAS_MOCKUP
+            and self.status != self.Status.REJEITADO
+        )
+
+    @property
+    def mockup_path(self) -> str:
+        from django.urls import reverse
+
+        return reverse("portfolio:mockup_lead", kwargs={"slug": self.slug})
 
     def ensure_slug(self) -> None:
         if self.slug:

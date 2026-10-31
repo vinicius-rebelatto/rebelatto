@@ -1,0 +1,111 @@
+:root {
+  --bg: #1b1416;
+  --surface: #241b1e;
+  --surface-2: #2e2327;
+  --ink: #f4ebe6;
+  --muted: #b9aaa5;
+  --line: rgba(244, 235, 230, 0.13);
+  --accent: #e2b2a0;
+  --accent-hover: #ecc4b5;
+  --accent-ink: #1b1416;
+  --bar-bg: rgba(27, 20, 22, 0.88);
+  --serif: "Libre Caslon Display", Didot, Georgia, serif;
+  --sans: "Karla", "Segoe UI", system-ui, sans-serif;
+}
+
+body { font-family: var(--sans); font-size: 1.02rem; line-height: 1.6; }
+
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 30rem); min-height: 100vh; }
+
+.portrait { position: sticky; top: 0; height: 100vh; padding: 1.2rem; }
+.portrait__frame {
+  position: relative; display: flex; align-items: flex-end; height: 100%; overflow: hidden;
+  border-radius: 14rem 14rem 1.2rem 1.2rem;
+  background:
+    radial-gradient(120% 70% at 50% 18%, #6b4a46 0%, #3a2a2c 45%, #1f1719 80%);
+}
+.portrait__glow { position: absolute; top: 12%; left: 50%; width: 60%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(circle, rgba(242, 205, 188, .38), transparent 70%); }
+.portrait__initial {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -58%);
+  color: rgba(244, 235, 230, .12); font-family: var(--serif); font-size: min(46vh, 34rem); line-height: 1;
+}
+.portrait__mark { position: relative; width: 100%; padding: 2.4rem; background: linear-gradient(transparent, rgba(27, 20, 22, .75)); }
+.portrait__mark .mark__name { margin: 0; font-family: var(--serif); font-size: clamp(2.4rem, 4.4vw, 4.4rem); line-height: 1; }
+.portrait__mark .mark__logo { max-height: 5rem !important; max-width: 14rem !important; }
+.portrait__role { margin: .8rem 0 0; color: var(--muted); font-size: .78rem; letter-spacing: .24em; text-transform: uppercase; }
+
+.feed { position: relative; padding: 0 2.2rem 2rem; border-left: 1px solid var(--line); }
+.bar { margin: 0 -2.2rem; padding: 0 2.2rem; }
+.bar__row { grid-template-columns: minmax(0, 1fr) auto; min-height: 4.2rem; }
+.bar .mark { visibility: hidden; }
+.bar.is-scrolled .mark { visibility: visible; }
+.bar .mark__name { overflow: hidden; font-family: var(--serif); font-size: 1.2rem; text-overflow: ellipsis; white-space: nowrap; }
+.bar .btn--small { display: inline-flex; }
+
+.btn { border-radius: 999px; font-weight: 600; }
+.btn--ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn--ghost:hover { background: var(--surface-2); border-color: var(--line); }
+.btn--wide { width: 100%; min-height: 3.4rem; font-size: 1rem; }
+
+.eyebrow { margin: 0 0 1rem; color: var(--accent); font-size: .78rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; }
+h1, h2, h3 { font-weight: 400; }
+h1 { margin-bottom: 1.1rem; font-family: var(--serif); font-size: clamp(2.4rem, 3.4vw, 3.1rem); line-height: 1.06; }
+h1 em { font-style: italic; color: var(--accent); }
+h2 { margin: 0; font-family: var(--serif); font-size: 1.9rem; }
+h3 { margin-bottom: .3rem; font-family: var(--sans); font-size: 1.05rem; font-weight: 600; }
+.lede { margin-bottom: 1.8rem; color: var(--muted); font-size: 1.08rem; }
+
+.intro { padding: 4rem 0 3.2rem; border-bottom: 1px solid var(--line); }
+
+.section__head { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; margin-bottom: 1.3rem; }
+.section__head .exemplo { margin: 0; }
+.hint { margin: 0 0 0 auto; color: var(--muted); font-size: .8rem; }
+
+.cards { padding: 3rem 0; border-bottom: 1px solid var(--line); }
+.cards__track {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 78%; gap: .9rem;
+  margin: 0 -2.2rem; padding: 0 2.2rem .6rem; overflow-x: auto;
+  scroll-snap-type: x mandatory; scroll-padding: 2.2rem; scrollbar-width: none;
+}
+.cards__track::-webkit-scrollbar { display: none; }
+.pcard {
+  display: flex; flex-direction: column; justify-content: flex-end; min-height: 15rem; padding: 1.4rem;
+  border-radius: 1.2rem; background: linear-gradient(160deg, var(--surface-2), var(--surface));
+  box-shadow: inset 0 0 0 1px var(--line); scroll-snap-align: start;
+}
+.list__n { margin-bottom: auto; color: var(--accent); font-family: var(--serif); font-size: 1.6rem; }
+.pcard p { margin: 0; color: var(--muted); font-size: .95rem; }
+
+.steps { padding: 3rem 0; border-bottom: 1px solid var(--line); }
+.timeline { position: relative; display: grid; gap: 1.5rem; padding-left: 1.6rem; }
+.timeline::before { content: ""; position: absolute; top: .4rem; bottom: .4rem; left: .3rem; width: 1px; background: var(--line); }
+.timeline li { position: relative; }
+.timeline li::before { content: ""; position: absolute; top: .45rem; left: -1.6rem; width: .65rem; height: .65rem; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--bg); }
+.timeline p { margin: 0; color: var(--muted); }
+
+.contact { padding: 3rem 0 2rem; }
+.contact h2 { margin-bottom: 1.3rem; }
+.facts { display: grid; gap: .9rem; }
+.facts div { padding: 1.1rem 1.2rem; border-radius: 1rem; background: var(--surface); }
+.facts dt { margin-bottom: .2rem; color: var(--muted); font-size: .72rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
+
+.foot { padding: 1rem 0 2rem; color: var(--muted); font-size: .82rem; }
+.foot p { margin: 0; }
+
+.dock { display: none; }
+
+@media (max-width: 900px) {
+  .stage { display: block; }
+  .portrait { position: relative; height: auto; padding: .8rem .8rem 0; }
+  .portrait__frame { height: min(78vh, 36rem); border-radius: 12rem 12rem 1.2rem 1.2rem; }
+  .portrait__initial { font-size: 22rem; }
+  .portrait__mark { padding: 1.8rem; }
+  .feed { padding: 0 1.2rem 6rem; border-left: 0; }
+  .bar { margin: 0 -1.2rem; padding: 0 1.2rem; }
+  .cards__track { margin: 0 -1.2rem; padding: 0 1.2rem .6rem; scroll-padding: 1.2rem; }
+  .intro { padding-top: 2.4rem; }
+  .intro .eyebrow { display: none; }
+  .dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; display: block; padding: .8rem 1.2rem calc(.8rem + env(safe-area-inset-bottom)); background: linear-gradient(transparent, var(--bg) 35%); }
+  body[data-lead] .dock { display: none; }
+  body[data-lead] .feed { padding-bottom: 2rem; }
+}

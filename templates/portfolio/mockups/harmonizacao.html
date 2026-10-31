@@ -4,26 +4,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Nara — harmonização facial em Joinville</title>
+  <title>{{ marca.nome }} — harmonização facial{% if marca.cidade %} em {{ marca.cidade }}{% endif %}</title>
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="Nara é um estúdio de harmonização facial em Joinville. O plano do rosto é desenhado na avaliação, antes de qualquer aplicação.">
+  <meta name="description" content="{% if marca.lead %}Página de exemplo para {{ marca.nome }}.{% else %}Nara é um estúdio de harmonização facial em Joinville. O plano do rosto é desenhado na avaliação, antes de qualquer aplicação.{% endif %}">
   <meta name="theme-color" content="#f3ece8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static landing.css %}">
+  {% include "portfolio/mockups/_lead_head.html" %}
 </head>
-<body>
+<body{% if marca.lead %} data-lead{% endif %}>
   <a class="skip" href="#conteudo">Ir para o conteúdo</a>
 
   <header class="bar" data-bar>
     <div class="wrap bar__row">
-      <a class="mark" href="#topo" aria-label="Nara — início">
-        <svg class="mark__seal" viewBox="0 0 32 32" aria-hidden="true">
+      <a class="mark" href="#topo" aria-label="{{ marca.nome }} — início">
+        {% if marca.logo_url %}
+        <img class="mark__logo" src="{{ marca.logo_url }}" alt="{{ marca.nome }}">
+        {% else %}
+        {% if not marca.lead %}<svg class="mark__seal" viewBox="0 0 32 32" aria-hidden="true">
           <path d="M7 9c6 2 10 8 11 16" fill="none" stroke="currentColor" stroke-width="1.1"/>
           <path d="M12 8c5 2.4 8 8 8.5 16" fill="none" stroke="currentColor" stroke-width="1.1"/>
-        </svg>
-        <span class="mark__name">Nara</span>
+        </svg>{% endif %}
+        <span class="mark__name">{{ marca.nome }}</span>
+        {% endif %}
       </a>
 
       <nav class="nav" aria-label="Principal">
@@ -54,7 +59,7 @@
     <section class="hero" id="topo" aria-labelledby="hero-title">
       <div class="wrap hero__grid">
         <div class="hero__copy">
-          <p class="eyebrow">Um procedimento · Joinville</p>
+          <p class="eyebrow">Um procedimento{% if marca.cidade %} · {{ marca.cidade }}{% endif %}</p>
           <h1 id="hero-title">Harmonização<br><em>facial.</em></h1>
           <p class="lede">O plano do rosto é desenhado na avaliação. A aplicação só começa depois que esse desenho existe.</p>
           <div class="hero__actions">
@@ -84,7 +89,7 @@
     <section class="block" id="procedimento" aria-labelledby="proc-title">
       <div class="wrap split">
         <header>
-          <p class="eyebrow">01 — O procedimento</p>
+          <p class="eyebrow">01 — O procedimento</p>{% include "portfolio/mockups/_exemplo.html" %}
           <h2 id="proc-title">Uma conversa vira um mapa. O mapa vira a aplicação.</h2>
         </header>
         <div class="split__copy">
@@ -97,7 +102,7 @@
     <section class="rail" id="etapas" aria-labelledby="steps-title">
       <div class="wrap">
         <header class="rail__head">
-          <p class="eyebrow">02 — Etapas</p>
+          <p class="eyebrow">02 — Etapas</p>{% include "portfolio/mockups/_exemplo.html" %}
           <h2 id="steps-title">O mesmo procedimento, em quatro tempos.</h2>
         </header>
         <ol class="stages">
@@ -128,7 +133,7 @@
     <section class="block" id="plano" aria-labelledby="plan-title">
       <div class="wrap">
         <header class="block__head">
-          <p class="eyebrow">03 — O plano</p>
+          <p class="eyebrow">03 — O plano</p>{% include "portfolio/mockups/_exemplo.html" %}
           <h2 id="plan-title">Quatro pontos. Um procedimento.</h2>
         </header>
         <dl class="points">
@@ -157,21 +162,10 @@
         <div>
           <p class="eyebrow">04 — Visita</p>
           <h2 id="visit-title">A avaliação desenha o plano. Não obriga a aplicação.</h2>
-          <a class="btn" href="https://wa.me/554734220188" rel="noopener">Chamar no WhatsApp</a>
+          <a class="btn" href="{{ marca.whatsapp_url }}" rel="noopener">Chamar no WhatsApp</a>
         </div>
         <dl class="facts">
-          <div>
-            <dt>Endereço</dt>
-            <dd>Rua Nove de Março, 140 — sala 5<br>Centro, Joinville — SC</dd>
-          </div>
-          <div>
-            <dt>Horário</dt>
-            <dd>Segunda a sexta, 9h–18h<br>Sábado e domingo, fechado</dd>
-          </div>
-          <div>
-            <dt>Telefone</dt>
-            <dd>(47) 3422-0188</dd>
-          </div>
+          {% include "portfolio/mockups/_fatos.html" with horario_1="Segunda a sexta, 9h–18h" horario_2="Sábado e domingo, fechado" %}
         </dl>
       </div>
     </section>
@@ -179,11 +173,12 @@
 
   <footer class="foot">
     <div class="wrap foot__row">
-      <p class="mark mark--foot"><span class="mark__name">Nara</span> <span>harmonização</span></p>
-      <p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>
+      <p class="mark mark--foot"><span class="mark__name">{{ marca.nome }}</span> <span>harmonização</span></p>
+      {% if marca.lead %}<p>Página de exemplo feita pela Rebel Tech. Textos marcados como exemplo são ilustrativos.</p>{% else %}<p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>{% endif %}
     </div>
   </footer>
 
+  {% include "portfolio/mockups/_lead_bar.html" %}
   <script src="{% static landing.js %}" defer></script>
 </body>
 </html>

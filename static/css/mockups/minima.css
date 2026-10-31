@@ -1,0 +1,48 @@
+:root {
+  --bg: #f0eee9;
+  --ink: #141414;
+  --muted: #6d6a64;
+  --line: rgba(20, 20, 20, 0.14);
+  --accent: #141414;
+  --accent-hover: #2d2d2d;
+  --accent-ink: #f0eee9;
+  --sans: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+}
+
+body { font-family: var(--sans); font-size: 1rem; line-height: 1.5; }
+
+.one {
+  display: grid; grid-template-rows: auto 1fr auto;
+  min-height: 100vh; min-height: 100svh; padding: 1.6rem clamp(1.2rem, 4vw, 3rem);
+}
+
+.one__top { display: flex; align-items: center; gap: .6rem; color: var(--muted); font-size: .85rem; letter-spacing: .04em; }
+.one__dot { font-size: .55rem; color: var(--ink); }
+
+.one__center { display: grid; align-content: center; justify-items: start; padding: 4rem 0; }
+.one__logo { max-height: 4rem !important; max-width: 12rem !important; margin-bottom: 2rem; }
+.one__name {
+  margin: 0 0 1.4rem; max-width: 100%;
+  font-size: clamp(4rem, 15vw, 13rem); font-weight: 500; line-height: .9; letter-spacing: -0.055em;
+  overflow-wrap: anywhere;
+}
+.one__name--medio { font-size: clamp(3.2rem, 10vw, 9rem); }
+.one__name--longo { font-size: clamp(2.6rem, 6.5vw, 6rem); line-height: .95; }
+.one__line { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .8rem; margin: 0 0 2.4rem; max-width: 34rem; color: var(--muted); font-size: clamp(1.2rem, 2vw, 1.5rem); font-weight: 300; }
+.one__line .exemplo { margin: 0; font-size: .62rem; }
+
+.btn { min-height: 3.4rem; padding: .8rem 1.4rem; border-radius: 0; font-weight: 500; font-size: 1rem; gap: 1.2rem; }
+.btn svg { transition: transform .2s ease; }
+.btn:hover svg { transform: translateX(3px); }
+
+.one__foot {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 1rem 2rem;
+  padding-top: 1.2rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem;
+}
+.one__foot > p { margin: 0; }
+.facts { display: flex; flex-wrap: wrap; gap: .4rem 2.4rem; }
+.facts div { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; }
+.facts dt { font-weight: 600; color: var(--ink); }
+.facts dd.exemplo { margin: 0; font-size: .58rem; padding: .1rem .4rem; }
+body[data-lead] .one { min-height: calc(100svh - 4.5rem); }
+@media (max-width: 720px) { body[data-lead] .one { min-height: calc(100svh - 7rem); } }

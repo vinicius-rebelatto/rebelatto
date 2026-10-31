@@ -488,3 +488,11 @@ h2 {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
+
+/* Refino: foco visível, transições e visita equilibrada */
+a, button { transition: color .18s ease, background-color .18s ease, border-color .18s ease, opacity .18s ease; }
+a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.visit__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 25rem); align-items: end; }
+.visit h2 { max-width: 19ch; }
+
+@media (max-width: 900px) { .visit__grid { grid-template-columns: 1fr; align-items: start; } }

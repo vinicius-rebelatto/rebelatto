@@ -4,26 +4,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ónix — estética em Balneário Camboriú</title>
+  <title>{{ marca.nome }} — estética{% if marca.cidade %} em {{ marca.cidade }}{% endif %}</title>
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="Ónix é um consultório privado de estética e harmonização facial em Balneário Camboriú. Hora marcada, sala reservada.">
+  <meta name="description" content="{% if marca.lead %}Página de exemplo para {{ marca.nome }}.{% else %}Ónix é um consultório privado de estética e harmonização facial em Balneário Camboriú. Hora marcada, sala reservada.{% endif %}">
   <meta name="theme-color" content="#100e0c">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static landing.css %}">
+  {% include "portfolio/mockups/_lead_head.html" %}
 </head>
-<body>
+<body{% if marca.lead %} data-lead{% endif %}>
   <a class="skip" href="#conteudo">Ir para o conteúdo</a>
 
   <header class="bar" data-bar>
     <div class="wrap bar__row">
-      <a class="mark" href="#topo" aria-label="Ónix — início">
-        <svg class="mark__seal" viewBox="0 0 32 32" aria-hidden="true">
+      <a class="mark" href="#topo" aria-label="{{ marca.nome }} — início">
+        {% if marca.logo_url %}
+        <img class="mark__logo" src="{{ marca.logo_url }}" alt="{{ marca.nome }}">
+        {% else %}
+        {% if not marca.lead %}<svg class="mark__seal" viewBox="0 0 32 32" aria-hidden="true">
           <circle cx="16" cy="16" r="12.5" fill="none" stroke="currentColor" stroke-width="0.7"/>
           <path d="M16 8.5v15" fill="none" stroke="currentColor" stroke-width="0.7"/>
-        </svg>
-        <span class="mark__name">Ónix</span>
+        </svg>{% endif %}
+        <span class="mark__name">{{ marca.nome }}</span>
+        {% endif %}
       </a>
 
       <nav class="nav" aria-label="Principal">
@@ -54,7 +59,7 @@
     <section class="hero" id="topo" aria-labelledby="hero-title">
       <div class="wrap hero__grid">
         <div>
-          <p class="eyebrow">Estética privada · Balneário Camboriú</p>
+          <p class="eyebrow">Estética privada{% if marca.cidade %} · {{ marca.cidade }}{% endif %}</p>
           <h1 id="hero-title">Poucas horas.<br><em>Muito critério.</em></h1>
           <p class="lede">Harmonização e pele em sala reservada. A visita inteira é sua, do começo ao fim.</p>
           <div class="hero__actions">
@@ -66,18 +71,23 @@
       </div>
     </section>
 
-    <section class="strip" aria-label="Como a Ónix recebe">
+    <section class="strip" aria-label="Como a {{ marca.nome }} recebe">
       <div class="wrap strip__row">
+        {% if marca.lead %}
+        <p>Hora marcada, sem sala de espera compartilhada. {% include "portfolio/mockups/_exemplo.html" %}</p>
+        <p>{{ marca.cidade|default:"Atendimento" }}{% if marca.endereco %}, {{ marca.endereco }}{% endif %}.</p>
+        {% else %}
         <p>Hora marcada, sem sala de espera compartilhada.</p>
         <p>Centro de Balneário Camboriú, em frente ao mar.</p>
         <p>Terça a sábado, das 10h às 19h.</p>
+        {% endif %}
       </div>
     </section>
 
-    <section class="block" id="procedimentos" aria-labelledby="proc-title">
+    <section class="block block--side" id="procedimentos" aria-labelledby="proc-title">
       <div class="wrap">
         <header class="block__head">
-          <p class="eyebrow">01 — Procedimentos</p>
+          <p class="eyebrow">01 — Procedimentos</p>{% include "portfolio/mockups/_exemplo.html" %}
           <h2 id="proc-title">Só o que a avaliação sustenta.</h2>
         </header>
         <ol class="list">
@@ -116,7 +126,7 @@
     <section class="block block--rule" id="criterio" aria-labelledby="rule-title">
       <div class="wrap">
         <header class="block__head">
-          <p class="eyebrow">02 — Critério</p>
+          <p class="eyebrow">02 — Critério</p>{% include "portfolio/mockups/_exemplo.html" %}
           <h2 id="rule-title">Três regras. Nenhuma é flexível.</h2>
         </header>
         <div class="rules">
@@ -143,7 +153,7 @@
       <div class="wrap">
         <header class="block__head block__head--split">
           <div>
-            <p class="eyebrow">03 — A sala</p>
+            <p class="eyebrow">03 — A sala</p>{% include "portfolio/mockups/_exemplo.html" %}
             <h2 id="room-title">O luxo, aqui, é o espaço.</h2>
           </div>
           <p class="aside">Poucos móveis, uma janela, silêncio. A fotografia da sala entra quando a clínica fechar o projeto.</p>
@@ -164,21 +174,10 @@
           <p class="eyebrow">04 — Visita</p>
           <h2 id="visit-title">A conversa é o primeiro horário.</h2>
           <p class="visit__note">A avaliação não compromete nenhum procedimento.</p>
-          <a class="btn" href="https://wa.me/554733630190" rel="noopener">Chamar no WhatsApp</a>
+          <a class="btn" href="{{ marca.whatsapp_url }}" rel="noopener">Chamar no WhatsApp</a>
         </div>
         <dl class="facts">
-          <div>
-            <dt>Endereço</dt>
-            <dd>Avenida Atlântica, 1500 — sala 12<br>Centro, Balneário Camboriú — SC</dd>
-          </div>
-          <div>
-            <dt>Horário</dt>
-            <dd>Terça a sábado, 10h–19h<br>Domingo e segunda, fechado</dd>
-          </div>
-          <div>
-            <dt>Telefone</dt>
-            <dd>(47) 3363-0190</dd>
-          </div>
+          {% include "portfolio/mockups/_fatos.html" with horario_1="Terça a sábado, 10h–19h" horario_2="Domingo e segunda, fechado" %}
         </dl>
       </div>
     </section>
@@ -186,11 +185,12 @@
 
   <footer class="foot">
     <div class="wrap foot__row">
-      <p class="mark mark--foot"><span class="mark__name">Ónix</span> <span>estética</span></p>
-      <p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>
+      <p class="mark mark--foot"><span class="mark__name">{{ marca.nome }}</span> <span>estética</span></p>
+      {% if marca.lead %}<p>Página de exemplo feita pela Rebel Tech. Textos marcados como exemplo são ilustrativos.</p>{% else %}<p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>{% endif %}
     </div>
   </footer>
 
+  {% include "portfolio/mockups/_lead_bar.html" %}
   <script src="{% static landing.js %}" defer></script>
 </body>
 </html>

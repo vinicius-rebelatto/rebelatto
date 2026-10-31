@@ -96,6 +96,28 @@
       <div class="erp-card__header">
         <h2 class="erp-heading">
           {% include "erp/partials/icon.html" with name="mockup" %}
+          <span>Página de exemplo</span>
+        </h2>
+      </div>
+      {% if cliente.recebe_mockup %}
+      <dl class="erp-dl">
+        <div class="erp-dl--full"><dt>Link do lead</dt><dd><a href="{{ cliente.mockup_path }}" target="_blank" rel="noopener">{{ request.scheme }}://{{ request.get_host }}{{ cliente.mockup_path }}</a></dd></div>
+        <div><dt>Identidade</dt><dd>{% if cliente.logo %}logo{% else %}sem logo{% endif %} · {% if cliente.cor_destaque %}<span style="display:inline-block;width:.9em;height:.9em;border-radius:50%;vertical-align:middle;background:{{ cliente.cor_destaque }}"></span> {{ cliente.cor_destaque }}{% else %}paleta do template{% endif %}</dd></div>
+        <div><dt>Visitas</dt><dd>{{ cliente.mockup_visitas }}{% if cliente.mockup_visto_em %} · última {{ cliente.mockup_visto_em|date:"d/m H:i" }}{% endif %}</dd></div>
+        {% if cliente.ultimo_template %}<div><dt>Último template</dt><dd>{{ cliente.ultimo_template }}</dd></div>{% endif %}
+      </dl>
+      <p class="erp-muted">Templates:
+        {% for t in templates_lead %}<a href="{% url 'portfolio:mockup_lead_template' cliente.slug t.slug %}" target="_blank" rel="noopener">{{ t.nome }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}
+      </p>
+      {% else %}
+      <p class="erp-muted">Só leads sem site, com site em rede social ou site fraco recebem a página de exemplo.</p>
+      {% endif %}
+    </article>
+
+    <article class="erp-card">
+      <div class="erp-card__header">
+        <h2 class="erp-heading">
+          {% include "erp/partials/icon.html" with name="mockup" %}
           <span>Mockups</span>
         </h2>
       </div>

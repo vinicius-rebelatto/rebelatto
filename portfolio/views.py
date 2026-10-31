@@ -1,18 +1,22 @@
 import csv
 import json
 import logging
+import re
 from pathlib import Path
 from urllib.parse import quote
 
 from django.conf import settings
-from django.http import HttpResponse, JsonResponse
+from django.db.models import F
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.utils.text import slugify
 from django.views.decorators.http import require_GET, require_POST
 
 from crm.models import Cliente, Mockup
 from portfolio import chatbot as chatbot_service
-from portfolio.mockup_landings import LANDINGS
+from portfolio.marca import link_rebel_tech, marca_demo, marca_do_lead
+from portfolio.mockup_landings import LANDINGS, biblioteca_do_nicho
 from portfolio.models import Project
 
 logger = logging.getLogger(__name__)
@@ -162,6 +166,7 @@ def mockup_public(request, slug):
                     "mockup": mockup,
                     "site": SITE,
                     "landing": landing,
+                    "marca": marca_demo(landing),
                 },
             )
 
@@ -170,6 +175,68 @@ def mockup_public(request, slug):
         "portfolio/mockup_public.html",
         {"mockup": mockup, "site": SITE},
     )
+
+
+ROBOS = re.compile(r"bot|crawl|spider|preview|facebookexternalhit|whatsapp|telegram|slack", re.I)
+
+
+def _registrar_visita(request, cliente, template_slug):
+    if request.user.is_authenticated and request.user.is_staff:
+        return
+    if ROBOS.search(request.META.get("HTTP_USER_AGENT", "")):
+        return
+    Cliente.objects.filter(pk=cliente.pk).update(
+        mockup_visitas=F("mockup_visitas") + 1,
+        mockup_visto_em=timezone.now(),
+        ultimo_template=template_slug,
+    )
+
+
+def mockup_lead(request, slug, template=None):
+    """Página de exemplo do lead: template do nicho com a identidade dele.
+
+    /p/<slug>/ abre sempre o primeiro template; /p/<slug>/<template>/ troca a
+    pele. Não chama modelo. Staff vê qualquer lead; o público só vê lead da
+    leva (sem site, rede social ou site fraco) que não foi rejeitado.
+    """
+    cliente = get_object_or_404(Cliente, slug=slug)
+    staff = request.user.is_authenticated and request.user.is_staff
+    if not cliente.recebe_mockup and not staff:
+        raise Http404
+
+    biblioteca = biblioteca_do_nicho()
+    if not biblioteca:
+        raise Http404
+    if template is None:
+        escolhido = biblioteca[0]
+    else:
+        escolhido = next((t for t in biblioteca if t["slug"] == template), None)
+        if escolhido is None:
+            raise Http404
+
+    posicao = biblioteca.index(escolhido)
+    anterior = biblioteca[posicao - 1]
+    proximo = biblioteca[(posicao + 1) % len(biblioteca)]
+
+    _registrar_visita(request, cliente, escolhido["slug"])
+    marca = marca_do_lead(cliente, escolhido)
+    response = render(
+        request,
+        escolhido["template"],
+        {
+            "site": SITE,
+            "landing": escolhido,
+            "marca": marca,
+            "cliente": cliente,
+            "biblioteca": biblioteca,
+            "posicao": posicao + 1,
+            "anterior": anterior,
+            "proximo": proximo,
+            "rebel_tech_url": link_rebel_tech(SITE, marca["nome"]),
+        },
+    )
+    response["X-Robots-Tag"] = "noindex, nofollow"
+    return response
 
 
 def mockup_public_legacy(request, slug):
@@ -185,6 +252,7 @@ def robots_txt(request):
         "Disallow: /admin/",
         "Disallow: /chat/",
         "Disallow: /leads/",
+        "Disallow: /p/",
         f"Sitemap: {settings.SITE_URL}/sitemap.xml",
         "",
     ]

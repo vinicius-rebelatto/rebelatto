@@ -1,4 +1,9 @@
-"""Registry of interactive landing mockups (template-driven demos)."""
+"""Registry of interactive landing mockups (template-driven demos).
+
+Cada template pertence a um nicho. O lead só passeia na biblioteca do nicho
+dele, na ordem de ``ordem``. A primeira posição é o template que o link
+enviado abre.
+"""
 
 LANDINGS = {
     "odontologia": {
@@ -6,23 +11,210 @@ LANDINGS = {
         "css": "css/mockups/odontologia.css",
         "js": "js/mockups/landing.js",
         "theme": "light",
+        "nicho": "odontologia",
+        "nome": "Odontologia",
+        "ordem": 1,
     },
     "consultorio": {
         "template": "portfolio/mockups/consultorio.html",
         "css": "css/mockups/consultorio.css",
         "js": "js/mockups/consultorio.js",
         "theme": "light",
+        "nicho": "estetica",
+        "nome": "Consultório",
+        "ordem": 1,
+        "fundo": "#f3eee6",
+        "demo": {
+            "nome": "Alva",
+            "cidade": "Itajaí",
+            "uf": "SC",
+            "endereco": "Rua Hercílio Luz, 240 — sala 3",
+            "bairro": "Centro",
+            "telefone": "(47) 3268-0140",
+            "whatsapp": "554732680140",
+        },
     },
     "luxo": {
         "template": "portfolio/mockups/luxo.html",
         "css": "css/mockups/luxo.css",
         "js": "js/mockups/luxo.js",
         "theme": "dark",
+        "nicho": "estetica",
+        "nome": "Luxo",
+        "ordem": 2,
+        "fundo": "#100e0c",
+        "demo": {
+            "nome": "Ónix",
+            "cidade": "Balneário Camboriú",
+            "uf": "SC",
+            "endereco": "Avenida Atlântica, 1500 — sala 12",
+            "bairro": "Centro",
+            "telefone": "(47) 3363-0190",
+            "whatsapp": "554733630190",
+        },
     },
     "harmonizacao": {
         "template": "portfolio/mockups/harmonizacao.html",
         "css": "css/mockups/harmonizacao.css",
         "js": "js/mockups/harmonizacao.js",
         "theme": "light",
+        "nicho": "estetica",
+        "nome": "Harmonização",
+        "ordem": 3,
+        "fundo": "#f3ece8",
+        "demo": {
+            "nome": "Nara",
+            "cidade": "Joinville",
+            "uf": "SC",
+            "endereco": "Rua Nove de Março, 140 — sala 5",
+            "bairro": "Centro",
+            "telefone": "(47) 3422-0188",
+            "whatsapp": "554734220188",
+        },
+    },
+    "agenda": {
+        "template": "portfolio/mockups/agenda.html",
+        "css": "css/mockups/agenda.css",
+        "js": "js/mockups/estetica.js",
+        "theme": "light",
+        "nicho": "estetica",
+        "nome": "Agenda",
+        "ordem": 4,
+        "fundo": "#f7f4ee",
+        "demo": {
+            "nome": "Lis",
+            "cidade": "Florianópolis",
+            "uf": "SC",
+            "endereco": "Rua Bocaiúva, 2125 — sala 204",
+            "bairro": "Centro",
+            "telefone": "(48) 3024-7716",
+            "whatsapp": "554830247716",
+        },
+    },
+    "cartao": {
+        "template": "portfolio/mockups/cartao.html",
+        "css": "css/mockups/cartao.css",
+        "js": "js/mockups/estetica.js",
+        "theme": "light",
+        "nicho": "estetica",
+        "nome": "Cartão",
+        "ordem": 5,
+        "fundo": "#ddd3c6",
+        "demo": {
+            "nome": "Íris",
+            "cidade": "Brusque",
+            "uf": "SC",
+            "endereco": "Rua Felipe Schmidt, 310 — sala 2",
+            "bairro": "Centro",
+            "telefone": "(47) 3351-0427",
+            "whatsapp": "554733510427",
+        },
+    },
+    "revista": {
+        "template": "portfolio/mockups/revista.html",
+        "css": "css/mockups/revista.css",
+        "js": "js/mockups/estetica.js",
+        "theme": "light",
+        "nicho": "estetica",
+        "nome": "Revista",
+        "ordem": 6,
+        "fundo": "#f5f2ec",
+        "demo": {
+            "nome": "Aurea",
+            "cidade": "Chapecó",
+            "uf": "SC",
+            "endereco": "Avenida Getúlio Vargas, 860 — sala 31",
+            "bairro": "Centro",
+            "telefone": "(49) 3322-1840",
+            "whatsapp": "554933221840",
+        },
+    },
+    "retrato": {
+        "template": "portfolio/mockups/retrato.html",
+        "css": "css/mockups/retrato.css",
+        "js": "js/mockups/estetica.js",
+        "theme": "dark",
+        "nicho": "estetica",
+        "nome": "Retrato",
+        "ordem": 7,
+        "fundo": "#1b1416",
+        "demo": {
+            "nome": "Vela",
+            "cidade": "Criciúma",
+            "uf": "SC",
+            "endereco": "Rua Henrique Lage, 455 — sala 7",
+            "bairro": "Centro",
+            "telefone": "(48) 3433-2091",
+            "whatsapp": "554834332091",
+        },
+    },
+    "minima": {
+        "template": "portfolio/mockups/minima.html",
+        "css": "css/mockups/minima.css",
+        "js": "js/mockups/estetica.js",
+        "theme": "light",
+        "nicho": "estetica",
+        "nome": "Mínima",
+        "ordem": 8,
+        "fundo": "#f0eee9",
+        "demo": {
+            "nome": "Lume",
+            "cidade": "Jaraguá do Sul",
+            "uf": "SC",
+            "endereco": "Rua Reinoldo Rau, 210 — sala 4",
+            "bairro": "Centro",
+            "telefone": "(47) 3371-5530",
+            "whatsapp": "554733715530",
+        },
+    },
+    "acolhedora": {
+        "template": "portfolio/mockups/acolhedora.html",
+        "css": "css/mockups/acolhedora.css",
+        "js": "js/mockups/estetica.js",
+        "theme": "light",
+        "nicho": "estetica",
+        "nome": "Acolhedora",
+        "ordem": 9,
+        "fundo": "#fbf2ea",
+        "demo": {
+            "nome": "Brisa",
+            "cidade": "Palhoça",
+            "uf": "SC",
+            "endereco": "Rua José Maria da Luz, 1180",
+            "bairro": "Centro",
+            "telefone": "(48) 3242-6618",
+            "whatsapp": "554832426618",
+        },
+    },
+    "clinica": {
+        "template": "portfolio/mockups/clinica.html",
+        "css": "css/mockups/clinica.css",
+        "js": "js/mockups/estetica.js",
+        "theme": "light",
+        "nicho": "estetica",
+        "nome": "Clínica",
+        "ordem": 10,
+        "fundo": "#ffffff",
+        "demo": {
+            "nome": "Clínica Vértice",
+            "cidade": "São José",
+            "uf": "SC",
+            "endereco": "Rua Koesa, 430 — 3º andar",
+            "bairro": "Kobrasol",
+            "telefone": "(48) 3259-4402",
+            "whatsapp": "554832594402",
+        },
     },
 }
+
+NICHO_PADRAO = "estetica"
+
+
+def biblioteca_do_nicho(nicho: str = NICHO_PADRAO) -> list[dict]:
+    """Templates do nicho, em ordem, com o slug dentro de cada item."""
+    itens = [
+        {"slug": slug, **dados}
+        for slug, dados in LANDINGS.items()
+        if dados.get("nicho") == nicho
+    ]
+    return sorted(itens, key=lambda item: item["ordem"])

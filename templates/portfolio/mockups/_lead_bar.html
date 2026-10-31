@@ -1,0 +1,38 @@
+{% if marca.lead %}
+  <aside class="rt-bar" aria-label="Página de exemplo da Rebel Tech">
+    <span class="rt-bar__txt">Exemplo feito pela <strong>Rebel Tech</strong> para {{ marca.nome }}</span>
+    <nav class="rt-bar__skins" aria-label="Outros estilos">
+      <a class="rt-bar__arrow" href="{% url 'portfolio:mockup_lead_template' cliente.slug anterior.slug %}" data-rt aria-label="Estilo anterior: {{ anterior.nome }}">&#8249;</a>
+      <details class="rt-bar__menu">
+        <summary data-rt>{{ landing.nome }} <span>{{ posicao }}/{{ biblioteca|length }}</span></summary>
+        <div class="rt-bar__list">
+          {% for t in biblioteca %}
+          <a href="{% url 'portfolio:mockup_lead_template' cliente.slug t.slug %}" data-rt{% if t.slug == landing.slug %} aria-current="page"{% endif %}>{{ forloop.counter }}. {{ t.nome }}</a>
+          {% endfor %}
+        </div>
+      </details>
+      <a class="rt-bar__arrow" href="{% url 'portfolio:mockup_lead_template' cliente.slug proximo.slug %}" data-rt aria-label="Próximo estilo: {{ proximo.nome }}">&#8250;</a>
+    </nav>
+    <a class="rt-bar__cta" href="{{ rebel_tech_url }}" target="_blank" rel="noopener" data-rt>Quero esta página</a>
+  </aside>
+  <div class="rt-toast" role="status" aria-live="polite" data-rt-toast></div>
+  <script>
+    (function () {
+      var toast = document.querySelector("[data-rt-toast]");
+      var timer;
+      document.addEventListener("click", function (event) {
+        var menu = document.querySelector(".rt-bar__menu");
+        if (menu && menu.open && !event.target.closest(".rt-bar__menu")) menu.open = false;
+        var link = event.target.closest("a");
+        if (!link || link.hasAttribute("data-rt")) return;
+        var href = link.getAttribute("href") || "";
+        if (href.charAt(0) === "#") return;
+        event.preventDefault();
+        toast.textContent = "Demonstração: na página real, este botão abre o contato de {{ marca.nome|escapejs }}.";
+        toast.setAttribute("data-on", "");
+        clearTimeout(timer);
+        timer = setTimeout(function () { toast.removeAttribute("data-on"); }, 3200);
+      });
+    })();
+  </script>
+{% endif %}

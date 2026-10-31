@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ marca.nome }} — estética{% if marca.cidade %} em {{ marca.cidade }}{% endif %}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="{% if marca.lead %}Página de exemplo para {{ marca.nome }}.{% else %}Lume é uma clínica de estética em Jaraguá do Sul.{% endif %}">
+  <meta name="theme-color" content="#f0eee9">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/mockups/_base.css' %}">
+  <link rel="stylesheet" href="{% static landing.css %}">
+  {% include "portfolio/mockups/_lead_head.html" %}
+</head>
+<body{% if marca.lead %} data-lead{% endif %}>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+
+  <main id="conteudo" class="one">
+    <header class="one__top">
+      <span class="one__dot rt-detalhe" aria-hidden="true">●</span>
+      <span>Estética{% if marca.cidade %} — {{ marca.cidade }}{% endif %}</span>
+    </header>
+
+    <section class="one__center" aria-labelledby="hero-title">
+      {% if marca.logo_url %}
+      <img class="mark__logo one__logo" src="{{ marca.logo_url }}" alt="">
+      {% endif %}
+      <h1 id="hero-title" class="mark__name one__name{% if marca.nome|length > 22 %} one__name--longo{% elif marca.nome|length > 10 %} one__name--medio{% endif %}">{{ marca.nome }}</h1>
+      <p class="one__line">Pele e rosto cuidados com calma. {% include "portfolio/mockups/_exemplo.html" %}</p>
+      <a class="btn" href="{{ marca.whatsapp_url }}" rel="noopener">
+        <span>Agendar uma conversa</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+      </a>
+    </section>
+
+    <footer class="one__foot">
+      <dl class="facts">
+        {% include "portfolio/mockups/_fatos.html" with horario_1="Seg a sex, 9h–18h" %}
+      </dl>
+      {% if marca.lead %}<p>Exemplo da Rebel Tech. Textos marcados são ilustrativos.</p>{% else %}<p>Demonstração. Dados fictícios.</p>{% endif %}
+    </footer>
+  </main>
+
+  {% include "portfolio/mockups/_lead_bar.html" %}
+  <script src="{% static landing.js %}" defer></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{% if marca.endereco or marca.cidade %}
+          <div>
+            <dt>Endereço</dt>
+            <dd>{% if marca.endereco %}{{ marca.endereco }}<br>{% endif %}{% if marca.bairro %}{{ marca.bairro }}, {% endif %}{{ marca.cidade }}{% if marca.uf %} — {{ marca.uf }}{% endif %}</dd>
+          </div>
+{% endif %}
+          <div>
+            <dt>Horário</dt>
+            {% if marca.lead %}<dd class="exemplo">exemplo</dd>{% endif %}
+            <dd>{{ horario_1 }}{% if horario_2 %}<br>{{ horario_2 }}{% endif %}</dd>
+          </div>
+{% if marca.telefone %}
+          <div>
+            <dt>Telefone</dt>
+            <dd>{{ marca.telefone }}</dd>
+          </div>
+{% endif %}

@@ -18,6 +18,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 from crm.importacao import dados_novos, linha_apify, qualificar_linhas, recalcular_importados
 from crm.models import Cliente, Mockup, PerfilNicho
 from crm.qualificacao import FORA, LEVA
+from portfolio.mockup_landings import biblioteca_do_nicho
 from portfolio.models import Project
 
 from .forms import (
@@ -155,7 +156,7 @@ def cliente_list(request: HttpRequest) -> HttpResponse:
 @staff_required
 @require_http_methods(["GET", "POST"])
 def cliente_create(request: HttpRequest) -> HttpResponse:
-    form = ClienteForm(request.POST or None, initial={"origem": Cliente.Origem.MANUAL})
+    form = ClienteForm(request.POST or None, request.FILES or None, initial={"origem": Cliente.Origem.MANUAL})
     if request.method == "POST" and form.is_valid():
         cliente = form.save(commit=False)
         if cliente.status == Cliente.Status.REJEITADO:
@@ -185,6 +186,7 @@ def cliente_detail(request: HttpRequest, pk: int) -> HttpResponse:
             "cliente": cliente,
             "reject_form": RejectForm(),
             "mockups": cliente.mockups.all(),
+            "templates_lead": biblioteca_do_nicho("estetica"),
             "projetos": cliente.projetos.all(),
             "unidades": unidades,
         },
@@ -196,7 +198,7 @@ def cliente_detail(request: HttpRequest, pk: int) -> HttpResponse:
 def cliente_edit(request: HttpRequest, pk: int) -> HttpResponse:
     cliente = get_object_or_404(Cliente, pk=pk)
     previous_status = cliente.status
-    form = ClienteForm(request.POST or None, instance=cliente)
+    form = ClienteForm(request.POST or None, request.FILES or None, instance=cliente)
     if request.method == "POST" and form.is_valid():
         updated = form.save(commit=False)
         if (
