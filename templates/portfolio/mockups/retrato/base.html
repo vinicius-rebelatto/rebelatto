@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block titulo %}{{ marca.nome }} — estética{% if marca.cidade %} em {{ marca.cidade }}{% endif %}{% endblock %}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="{% if marca.lead %}Página de exemplo para {{ marca.nome }}.{% else %}Vela é um estúdio de estética em Criciúma. Uma página pensada para abrir no celular.{% endif %}">
+  <meta name="theme-color" content="#1b1416">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Karla:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/mockups/_base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/mockups/_paginas.css' %}">
+  <link rel="stylesheet" href="{% static landing.css %}">
+  {% include "portfolio/mockups/_lead_head.html" %}
+</head>
+<body{% if marca.lead %} data-lead{% endif %}>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+
+  <div class="stage">
+    <aside class="portrait" aria-label="{{ marca.nome }}">
+      <a class="portrait__link" href="{{ base_url }}" aria-label="Início"></a>
+      <div class="portrait__frame">
+        <span class="portrait__glow" aria-hidden="true"></span>
+        <span class="portrait__initial" aria-hidden="true">{{ marca.nome|slice:":1" }}</span>
+        <div class="portrait__mark">
+          {% if marca.logo_url %}
+          <img class="mark__logo" src="{{ marca.logo_url }}" alt="{{ marca.nome }}">
+          {% else %}
+          <p class="mark__name">{{ marca.nome }}</p>
+          {% endif %}
+          <p class="portrait__role">Estética{% if marca.cidade %} · {{ marca.cidade }}{% endif %}</p>
+        </div>
+      </div>
+    </aside>
+
+    <main id="conteudo" class="feed{% if pagina != 'inicio' %} feed--pagina{% endif %}">
+      <header class="bar" data-bar>
+        <div class="bar__row">
+          <a class="mark" href="{{ base_url }}" aria-label="{{ marca.nome }} — início">
+            <span class="mark__name">{{ marca.nome }}</span>
+          </a>
+          <nav class="feed__nav" aria-label="Principal">
+            {% include "portfolio/mockups/_nav_links.html" %}
+          </nav>
+        </div>
+      </header>
+
+{% block conteudo %}{% endblock %}
+
+      <footer class="foot">
+        {% if marca.lead %}<p>Página de exemplo feita pela Rebel Tech. Textos marcados como exemplo são ilustrativos.</p>{% else %}<p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>{% endif %}
+      </footer>
+
+      <div class="dock">
+        <a class="btn btn--wide" href="{{ marca.whatsapp_url }}" rel="noopener">
+          {% include "portfolio/mockups/_whatsapp_icon.html" %}
+          <span>Agendar</span>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  {% include "portfolio/mockups/_lead_bar.html" %}
+  <script src="{% static landing.js %}" defer></script>
+</body>
+</html>

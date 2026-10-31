@@ -1,0 +1,69 @@
+{% extends base_template %}
+{% block titulo %}{{ servico.nome }} — {{ marca.nome }}{% endblock %}
+{% block conteudo %}
+<div class="pg">
+  <header class="pg-head">
+    <div class="pg-wrap">
+      <nav class="pg-trilha" aria-label="Você está em"><a href="{{ base_url }}">Início</a><span>/</span><a href="{{ base_url }}servicos/">Serviços</a><span>/</span>{{ servico.nome }}</nav>
+      <p class="pg-eyebrow rt-detalhe">{{ servico.categoria }}</p>
+      <h1>{{ servico.nome }}</h1>
+      <p class="pg-lede">{{ servico.resumo }}</p>
+      {% include "portfolio/mockups/_paginas/_aviso.html" %}
+    </div>
+  </header>
+
+  <div class="pg-wrap pg-detalhe">
+    <article class="pg-detalhe__corpo">
+      <section>
+        <h2>Sobre o tratamento</h2>
+        {% for p in servico.descricao %}<p>{{ p }}</p>{% endfor %}
+      </section>
+      <section>
+        <h2>Para quem é indicado</h2>
+        <ul class="pg-check">{% for item in servico.indicado %}<li>{{ item }}</li>{% endfor %}</ul>
+      </section>
+      <section>
+        <h2>Como funciona</h2>
+        <ol class="pg-steps">
+          {% for titulo, texto in servico.etapas %}
+          <li><span class="pg-steps__n">{{ forloop.counter }}</span><div><h3>{{ titulo }}</h3><p>{{ texto }}</p></div></li>
+          {% endfor %}
+        </ol>
+      </section>
+      <section>
+        <h2>Cuidados</h2>
+        <ul class="pg-check">{% for item in servico.cuidados %}<li>{{ item }}</li>{% endfor %}</ul>
+      </section>
+      <section>
+        <h2>Dúvidas frequentes</h2>
+        <div class="pg-faq">
+          {% for pergunta, resposta in servico.duvidas %}
+          <details{% if forloop.first %} open{% endif %}><summary>{{ pergunta }}</summary><p>{{ resposta }}</p></details>
+          {% endfor %}
+        </div>
+      </section>
+    </article>
+
+    <aside class="pg-detalhe__lado" aria-label="Resumo">
+      <div class="pg-box">
+        <dl class="pg-resumo">
+          <div><dt>Duração</dt><dd>{{ servico.duracao }}</dd></div>
+          <div><dt>Retorno</dt><dd>{{ servico.retorno }}</dd></div>
+          <div><dt>Primeiro passo</dt><dd>Avaliação sem compromisso</dd></div>
+        </dl>
+        <a class="btn pg-box__btn" href="{{ marca.whatsapp_url }}" rel="noopener">
+          {% include "portfolio/mockups/_whatsapp_icon.html" %}
+          <span>Agendar avaliação</span>
+        </a>
+      </div>
+      <nav class="pg-box pg-outros" aria-label="Outros serviços">
+        <p class="pg-eyebrow">Outros serviços</p>
+        <ul>{% for s in outros_servicos %}<li><a href="{{ base_url }}servicos/{{ s.slug }}/">{{ s.nome }} <span aria-hidden="true">→</span></a></li>{% endfor %}</ul>
+        <a class="pg-outros__todos" href="{{ base_url }}servicos/">Ver todos</a>
+      </nav>
+    </aside>
+  </div>
+
+  {% include "portfolio/mockups/_paginas/_cta.html" %}
+</div>
+{% endblock %}

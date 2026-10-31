@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{{ marca.nome }} — estética{% if marca.cidade %} em {{ marca.cidade }}{% endif %}{% endblock %}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="{% if marca.lead %}Página de exemplo para {{ marca.nome }}.{% else %}Clínica Vértice, estética facial em São José. Sobre, procedimentos e contato.{% endif %}">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/mockups/_base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/mockups/_paginas.css' %}">
+  <link rel="stylesheet" href="{% static landing.css %}">
+  {% include "portfolio/mockups/_lead_head.html" %}
+</head>
+<body{% if marca.lead %} data-lead{% endif %}>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+
+  <div class="topline">
+    <div class="wrap topline__row">
+      {% if marca.endereco or marca.cidade %}<span>{% if marca.endereco %}{{ marca.endereco }}{% else %}{{ marca.cidade }}{% endif %}{% if marca.endereco and marca.cidade %} · {{ marca.cidade }}{% endif %}</span>{% endif %}
+      {% if marca.telefone %}<span>{{ marca.telefone }}</span>{% endif %}
+    </div>
+  </div>
+
+  <header class="bar" data-bar>
+    <div class="wrap bar__row">
+      <a class="mark" href="{{ base_url }}" aria-label="{{ marca.nome }} — início">
+        {% if marca.logo_url %}
+        <img class="mark__logo" src="{{ marca.logo_url }}" alt="{{ marca.nome }}">
+        {% else %}
+        {% if not marca.lead %}
+        <svg class="mark__seal" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="8" fill="#0f6e7a"/><path d="M9 10l7 13 7-13" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>
+        {% endif %}
+        <span class="mark__name">{{ marca.nome }}</span>
+        {% endif %}
+      </a>
+      <nav class="nav" aria-label="Principal">
+        {% include "portfolio/mockups/_nav_links.html" %}
+      </nav>
+      <a class="btn btn--small" href="{{ marca.whatsapp_url }}" rel="noopener">Agendar avaliação</a>
+      <button class="menu" type="button" data-menu aria-expanded="false" aria-controls="drawer" aria-label="Abrir menu">
+        <span></span><span></span>
+      </button>
+    </div>
+    <div class="drawer" id="drawer" data-drawer hidden>
+      <nav aria-label="Menu">
+        {% include "portfolio/mockups/_nav_links.html" %}
+        <a class="btn" href="{{ marca.whatsapp_url }}" rel="noopener">Agendar avaliação</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+{% block conteudo %}{% endblock %}
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot__row">
+      <p class="mark mark--foot"><span class="mark__name">{{ marca.nome }}</span></p>
+      {% if marca.lead %}<p>Página de exemplo feita pela Rebel Tech. Textos marcados como exemplo são ilustrativos.</p>{% else %}<p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>{% endif %}
+    </div>
+  </footer>
+
+  {% include "portfolio/mockups/_lead_bar.html" %}
+  <script src="{% static landing.js %}" defer></script>
+</body>
+</html>

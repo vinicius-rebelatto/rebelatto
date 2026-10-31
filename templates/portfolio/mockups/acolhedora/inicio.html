@@ -1,0 +1,86 @@
+{% extends base_template %}
+{% block conteudo %}
+    <section class="hero" id="topo" aria-labelledby="hero-title">
+      <div class="wrap hero__grid">
+        <div>
+          <p class="pill">Estética{% if marca.cidade %} em {{ marca.cidade }}{% endif %}</p>
+          <h1 id="hero-title">Um lugar para cuidar de você <em class="rt-detalhe">sem pressa</em>.</h1>
+          <p class="lede">A gente começa ouvindo. A avaliação vem antes de qualquer procedimento, e você sai sabendo exatamente o que faz sentido.</p>
+          <div class="hero__actions">
+            <a class="btn btn--big" href="{{ marca.whatsapp_url }}" rel="noopener">
+              {% include "portfolio/mockups/_whatsapp_icon.html" %}
+              <span>Conversar pelo WhatsApp</span>
+            </a>
+            <a class="textlink" href="#visita">Como é a primeira visita</a>
+          </div>
+        </div>
+        <figure class="blobs" aria-hidden="true">
+          <span class="blob blob--a"></span>
+          <span class="blob blob--b"></span>
+          <span class="blob blob--c"></span>
+          <span class="blobs__word">{{ marca.nome|slice:":1" }}</span>
+        </figure>
+      </div>
+    </section>
+
+    <section class="block" id="cuidados" aria-labelledby="care-title">
+      <div class="wrap">
+        <header class="block__head">
+          <h2 id="care-title">Cuidados</h2>
+          {% include "portfolio/mockups/_exemplo.html" %}
+        </header>
+        <ul class="care list">
+          {% for s in servicos|slice:"1:5" %}
+          <li class="care__item care__item--{% cycle 'peach' 'sage' 'sand' 'rose' %}"><a class="care__link" href="{{ base_url }}servicos/{{ s.slug }}/"><span class="care__icon list__n" aria-hidden="true">{% cycle '✿' '◡' '❀' '◌' %}</span><h3>{{ s.nome }}</h3><p>{{ s.resumo }}</p><span class="care__mais">Saiba mais →</span></a></li>
+          {% endfor %}
+        </ul>
+        <p class="care__todos"><a class="textlink" href="{{ base_url }}servicos/">Ver todos os cuidados →</a></p>
+      </div>
+    </section>
+
+    <section class="block block--soft" id="visita" aria-labelledby="visit-title">
+      <div class="wrap">
+        <header class="block__head">
+          <h2 id="visit-title">Como é a primeira visita</h2>
+          {% include "portfolio/mockups/_exemplo.html" %}
+        </header>
+        <ol class="journey list">
+          <li><span>1</span><h3>Um café e uma conversa</h3><p>Você conta o que gostaria de mudar, e o que não quer mudar.</p></li>
+          <li><span>2</span><h3>Avaliação com calma</h3><p>Olhamos pele e rosto juntos, em luz natural.</p></li>
+          <li><span>3</span><h3>Um plano só seu</h3><p>Você leva para casa o que faz sentido agora e o que pode esperar.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="block" id="duvidas" aria-labelledby="faq-title">
+      <div class="wrap faq__grid">
+        <header class="block__head">
+          <h2 id="faq-title">Dúvidas comuns</h2>
+          {% include "portfolio/mockups/_exemplo.html" %}
+        </header>
+        <div class="faq">
+          {% for pergunta, resposta in duvidas_gerais %}
+          <details{% if forloop.first %} open{% endif %}><summary>{{ pergunta }}</summary><p>{{ resposta }}</p></details>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="contact" id="contato" aria-labelledby="contact-title">
+      <div class="wrap">
+        <div class="contact__card">
+          <div>
+            <h2 id="contact-title">Vamos conversar?</h2>
+            <p class="lede">Mande uma mensagem e a gente encontra um horário que funcione para você.</p>
+            <a class="btn btn--big" href="{{ marca.whatsapp_url }}" rel="noopener">
+              {% include "portfolio/mockups/_whatsapp_icon.html" %}
+              <span>Chamar no WhatsApp</span>
+            </a>
+          </div>
+          <dl class="facts">
+            {% include "portfolio/mockups/_fatos.html" with horario_1="Segunda a sexta, 9h–19h" horario_2="Sábado, 9h–13h" %}
+          </dl>
+        </div>
+      </div>
+    </section>
+  {% endblock %}

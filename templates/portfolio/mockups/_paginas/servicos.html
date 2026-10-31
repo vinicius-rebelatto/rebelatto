@@ -1,0 +1,48 @@
+{% extends base_template %}
+{% block titulo %}Serviços — {{ marca.nome }}{% endblock %}
+{% block conteudo %}
+<div class="pg">
+  <header class="pg-head">
+    <div class="pg-wrap">
+      <nav class="pg-trilha" aria-label="Você está em"><a href="{{ base_url }}">Início</a><span>/</span>Serviços</nav>
+      <h1>Serviços</h1>
+      <p class="pg-lede">Todo tratamento começa por uma avaliação. É nela que se define o que faz sentido para você, em que ordem e com qual intervalo.</p>
+      {% include "portfolio/mockups/_paginas/_aviso.html" %}
+    </div>
+  </header>
+
+  <section class="pg-sec" aria-label="Lista de serviços">
+    <div class="pg-wrap">
+      <ul class="pg-cards">
+        {% for s in servicos %}
+        <li class="pg-card">
+          <a href="{{ base_url }}servicos/{{ s.slug }}/">
+            <span class="pg-card__cat rt-detalhe">{{ s.categoria }}</span>
+            <h2>{{ s.nome }}</h2>
+            <p>{{ s.resumo }}</p>
+            <span class="pg-card__meta">{{ s.duracao }}</span>
+            <span class="pg-card__mais">Ver detalhes <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+
+  <section class="pg-sec pg-sec--alt" aria-labelledby="pv-title">
+    <div class="pg-wrap pg-split">
+      <div>
+        <p class="pg-eyebrow">Como funciona</p>
+        <h2 id="pv-title">A primeira visita</h2>
+      </div>
+      <ol class="pg-steps">
+        {% for titulo, texto in primeira_visita %}
+        <li><span class="pg-steps__n">{{ forloop.counter }}</span><div><h3>{{ titulo }}</h3><p>{{ texto }}</p></div></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </section>
+
+  {% include "portfolio/mockups/_paginas/_cta.html" %}
+</div>
+{% endblock %}

@@ -203,3 +203,69 @@ class BibliotecaEsteticaTests(TestCase):
         response = self.client.get(f"/p/{self.cliente.slug}/clinica/")
         self.assertContains(response, f"/p/{self.cliente.slug}/consultorio/")
         self.assertContains(response, "10/10")
+
+
+class PaginasDosSitesTests(TestCase):
+    def setUp(self):
+        from crm.models import Cliente
+
+        self.cliente = Cliente.objects.create(
+            empresa="Espaço Páginas",
+            cidade="Itajaí",
+            telefone="(47) 99111-2222",
+            categoria_lead=Cliente.CategoriaLead.SEM_SITE,
+        )
+
+    def test_cada_tipo_tem_as_paginas_certas(self):
+        from portfolio.mockup_landings import LANDINGS, paginas_do_tipo
+
+        for slug, dados in LANDINGS.items():
+            if dados.get("nicho") != "estetica":
+                continue
+            paginas = [p for p in paginas_do_tipo(dados["tipo"]) if p != "servico"]
+            with self.subTest(slug=slug):
+                for pagina in paginas:
+                    self.assertEqual(self.client.get(f"/mockups/{slug}/{pagina}/").status_code, 200)
+                    self.assertEqual(self.client.get(f"/p/{self.cliente.slug}/{slug}/{pagina}/").status_code, 200)
+                if dados["tipo"] != "institucional":
+                    self.assertEqual(self.client.get(f"/mockups/{slug}/sobre/").status_code, 404)
+                if dados["tipo"] == "landing":
+                    self.assertEqual(self.client.get(f"/mockups/{slug}/servicos/").status_code, 404)
+
+    def test_menu_leva_a_paginas_reais(self):
+        response = self.client.get(f"/p/{self.cliente.slug}/consultorio/")
+        base = f"/p/{self.cliente.slug}/consultorio/"
+        for destino in ("sobre/", "servicos/", "contato/"):
+            self.assertContains(response, f'href="{base}{destino}"')
+
+    def test_pagina_de_servico_mostra_o_conteudo_e_marca_exemplo(self):
+        from portfolio.conteudo_estetica import SERVICOS
+
+        for item in SERVICOS:
+            response = self.client.get(f"/p/{self.cliente.slug}/clinica/servicos/{item['slug']}/")
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, item["nome"])
+            self.assertContains(response, item["etapas"][0][0])
+            self.assertContains(response, "ilustrativos")
+        self.assertEqual(self.client.get(f"/p/{self.cliente.slug}/clinica/servicos/nao-existe/").status_code, 404)
+
+    def test_demo_de_servico_nao_mostra_aviso_de_exemplo(self):
+        response = self.client.get("/mockups/luxo/servicos/peeling/")
+        self.assertContains(response, "Peeling")
+        self.assertContains(response, "Ónix")
+        self.assertNotContains(response, "ilustrativos")
+
+    def test_landing_mostra_tratamentos_completos_na_propria_pagina(self):
+        from portfolio.conteudo_estetica import SERVICOS
+
+        for slug in ("harmonizacao", "agenda", "cartao"):
+            response = self.client.get(f"/mockups/{slug}/")
+            with self.subTest(slug=slug):
+                for item in SERVICOS:
+                    self.assertContains(response, item["nome"])
+                self.assertContains(response, 'id="duvidas"')
+                self.assertNotContains(response, f"/mockups/{slug}/contato/")
+
+    def test_links_internos_nao_sao_bloqueados_no_modo_lead(self):
+        response = self.client.get(f"/p/{self.cliente.slug}/consultorio/")
+        self.assertContains(response, 'href.charAt(0) === "/"')

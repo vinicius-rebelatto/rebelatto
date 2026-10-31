@@ -102,3 +102,20 @@ h3 { margin-bottom: .35rem; font-size: 1.12rem; font-weight: 600; letter-spacing
   .block__head { display: block; }
   .foot__row { display: grid; }
 }
+
+/* Páginas internas e cards com link */
+:root {
+  --pg-display: var(--sans); --pg-body: var(--sans); --pg-ink: var(--ink); --pg-muted: var(--muted);
+  --pg-line: var(--line); --pg-surface: #fff; --pg-alt: var(--grey); --pg-accent: var(--accent);
+  --pg-radius: .9rem; --pg-h-weight: 700; --pg-wrap: var(--wrap);
+  --pg-foto: linear-gradient(160deg, var(--tint), #b9d7da);
+}
+.grid li { padding: 0; }
+.grid__link { display: flex; flex-direction: column; height: 100%; padding: 1.5rem; color: inherit; text-decoration: none; border-radius: .9rem; }
+.grid li:hover { border-color: var(--accent); }
+.grid__link p { flex: 1; margin-bottom: 1rem !important; }
+.grid__mais { color: var(--accent); font-weight: 600; font-size: .92rem; }
+.grid__todos { margin: 1.6rem 0 0; }
+.about__mais { margin-top: 1.4rem; }
+.nav a[aria-current="page"] { color: var(--accent); }
+.pg h1 { letter-spacing: -0.03em; }

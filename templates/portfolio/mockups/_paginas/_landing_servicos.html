@@ -1,0 +1,42 @@
+<section class="pg pg-sec" id="{{ ancora|default:'tratamentos' }}" aria-labelledby="ls-title">
+  <div class="pg-wrap">
+    <div class="pg-ls__head">
+      <div>
+        <p class="pg-eyebrow">{{ eyebrow|default:"Tratamentos" }}</p>
+        <h2 id="ls-title">{{ titulo|default:"Conheça cada tratamento" }}</h2>
+      </div>
+      <p class="pg-muted">Toque em um tratamento para ver para quem é indicado, como funciona e os cuidados. {% include "portfolio/mockups/_exemplo.html" %}</p>
+    </div>
+    <div class="pg-exp">
+      {% for s in servicos %}
+      <details class="pg-exp__item"{% if forloop.first %} open{% endif %}>
+        <summary>
+          <span class="pg-exp__cat rt-detalhe">{{ s.categoria }}</span>
+          <span class="pg-exp__nome">{{ s.nome }}</span>
+          <span class="pg-exp__resumo">{{ s.resumo }}</span>
+        </summary>
+        <div class="pg-exp__corpo">
+          <div>
+            {% for p in s.descricao %}<p>{{ p }}</p>{% endfor %}
+            <h3>Como funciona</h3>
+            <ol class="pg-steps">
+              {% for t, x in s.etapas %}<li><span class="pg-steps__n">{{ forloop.counter }}</span><div><h4>{{ t }}</h4><p>{{ x }}</p></div></li>{% endfor %}
+            </ol>
+          </div>
+          <div>
+            <h3>Indicado para</h3>
+            <ul class="pg-check">{% for i in s.indicado %}<li>{{ i }}</li>{% endfor %}</ul>
+            <h3>Cuidados</h3>
+            <ul class="pg-check">{% for i in s.cuidados %}<li>{{ i }}</li>{% endfor %}</ul>
+            <dl class="pg-resumo pg-exp__resumo-dl">
+              <div><dt>Duração</dt><dd>{{ s.duracao }}</dd></div>
+              <div><dt>Retorno</dt><dd>{{ s.retorno }}</dd></div>
+            </dl>
+            <a class="btn" href="{{ marca.whatsapp_url }}" rel="noopener">{% include "portfolio/mockups/_whatsapp_icon.html" %}<span>Agendar avaliação</span></a>
+          </div>
+        </div>
+      </details>
+      {% endfor %}
+    </div>
+  </div>
+</section>

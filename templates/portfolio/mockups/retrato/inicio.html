@@ -1,0 +1,59 @@
+{% extends base_template %}
+{% block conteudo %}
+      <section class="intro" id="topo" aria-labelledby="hero-title">
+        <p class="eyebrow rt-detalhe">Estética{% if marca.cidade %} · {{ marca.cidade }}{% endif %}</p>
+        <h1 id="hero-title">Cuidado de pele e rosto, <em>no seu tempo</em>.</h1>
+        <p class="lede">Uma avaliação sem pressa para entender o que faz sentido para você, antes de qualquer procedimento.</p>
+        <a class="btn btn--wide" href="{{ marca.whatsapp_url }}" rel="noopener">
+          {% include "portfolio/mockups/_whatsapp_icon.html" %}
+          <span>Agendar pelo WhatsApp</span>
+        </a>
+      </section>
+
+      <section class="cards" id="procedimentos" aria-labelledby="proc-title">
+        <div class="section__head">
+          <h2 id="proc-title">Procedimentos</h2>
+          {% include "portfolio/mockups/_exemplo.html" %}
+          <p class="hint" aria-hidden="true">deslize →</p>
+        </div>
+        <ol class="cards__track list">
+          {% for s in servicos|slice:"1:" %}
+          <li class="pcard"><a href="{{ base_url }}servicos/{{ s.slug }}/"><span class="list__n">{{ forloop.counter|stringformat:"02d" }}</span><h3>{{ s.nome }}</h3><p>{{ s.resumo }}</p><span class="pcard__mais">Ver detalhes →</span></a></li>
+          {% endfor %}
+        </ol>
+        <p class="cards__todos"><a class="textlink" href="{{ base_url }}servicos/">Todos os serviços</a></p>
+      </section>
+
+      <section class="steps" aria-labelledby="steps-title">
+        <div class="section__head">
+          <h2 id="steps-title">A primeira visita</h2>
+          {% include "portfolio/mockups/_exemplo.html" %}
+        </div>
+        <ol class="timeline list">
+          <li><h3>Conversa</h3><p>Você conta o que incomoda. A avaliação olha o rosto em luz natural.</p></li>
+          <li><h3>Plano</h3><p>O que entra agora, o que espera e o intervalo entre um e outro.</p></li>
+          <li><h3>Retorno</h3><p>Uma revisão marcada para ver como a pele se acomodou.</p></li>
+        </ol>
+      </section>
+
+      <section class="faqs" aria-labelledby="faqs-title">
+        <div class="section__head">
+          <h2 id="faqs-title">Dúvidas</h2>
+          {% include "portfolio/mockups/_exemplo.html" %}
+        </div>
+        <div class="pg pg-faq">
+          {% for pergunta, resposta in duvidas_gerais|slice:":4" %}
+          <details{% if forloop.first %} open{% endif %}><summary>{{ pergunta }}</summary><p>{{ resposta }}</p></details>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="contact" id="contato" aria-labelledby="contact-title">
+        <h2 id="contact-title">Contato</h2>
+        <p class="lede"><a class="textlink" href="{{ base_url }}contato/">Endereço, horário e dúvidas →</a></p>
+        <dl class="facts">
+          {% include "portfolio/mockups/_fatos.html" with horario_1="Segunda a sexta, 10h–19h" horario_2="Sábado, 9h–14h" %}
+        </dl>
+      </section>
+
+{% endblock %}

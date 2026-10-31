@@ -1,0 +1,4 @@
+<a href="{{ base_url }}"{% if pagina == "inicio" %} aria-current="page"{% endif %}>Início</a>
+{% if "sobre" in paginas %}<a href="{{ base_url }}sobre/"{% if pagina == "sobre" %} aria-current="page"{% endif %}>Sobre</a>{% endif %}
+<a href="{{ base_url }}servicos/"{% if pagina == "servicos" or pagina == "servico" %} aria-current="page"{% endif %}>Serviços</a>
+<a href="{{ base_url }}contato/"{% if pagina == "contato" %} aria-current="page"{% endif %}>Contato</a>

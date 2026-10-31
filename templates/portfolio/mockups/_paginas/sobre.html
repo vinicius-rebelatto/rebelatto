@@ -1,0 +1,49 @@
+{% extends base_template %}
+{% block titulo %}Sobre — {{ marca.nome }}{% endblock %}
+{% block conteudo %}
+<div class="pg">
+  <header class="pg-head">
+    <div class="pg-wrap">
+      <nav class="pg-trilha" aria-label="Você está em"><a href="{{ base_url }}">Início</a><span>/</span>Sobre</nav>
+      <h1>Sobre {{ marca.nome }}</h1>
+      <p class="pg-lede">Estética{% if marca.cidade %} em {{ marca.cidade }}{% endif %}, com atendimento individual e hora marcada.</p>
+      {% include "portfolio/mockups/_paginas/_aviso.html" %}
+    </div>
+  </header>
+
+  <section class="pg-sec">
+    <div class="pg-wrap pg-split">
+      <div>
+        <p class="pg-eyebrow">Quem somos</p>
+        <h2>Cuidado que começa pela conversa</h2>
+      </div>
+      <div class="pg-texto">{% for p in sobre %}<p>{{ p }}</p>{% endfor %}</div>
+    </div>
+  </section>
+
+  <section class="pg-sec pg-sec--alt" aria-labelledby="dif-title">
+    <div class="pg-wrap">
+      <p class="pg-eyebrow">Como trabalhamos</p>
+      <h2 id="dif-title">O que você pode esperar</h2>
+      <ul class="pg-valores">
+        {% for titulo, texto in diferenciais %}
+        <li><span class="pg-valores__n rt-detalhe">0{{ forloop.counter }}</span><h3>{{ titulo }}</h3><p>{{ texto }}</p></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+
+  <section class="pg-sec">
+    <div class="pg-wrap pg-split">
+      <div>
+        <p class="pg-eyebrow">O espaço</p>
+        <h2>Um ambiente pensado para a calma</h2>
+        <p class="pg-muted">As fotografias do espaço entram no site real, depois do contrato. Aqui, uma ilustração.</p>
+      </div>
+      <figure class="pg-foto" aria-hidden="true"><span></span></figure>
+    </div>
+  </section>
+
+  {% include "portfolio/mockups/_paginas/_cta.html" %}
+</div>
+{% endblock %}

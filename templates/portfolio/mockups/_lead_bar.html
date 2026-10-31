@@ -26,7 +26,7 @@
         var link = event.target.closest("a");
         if (!link || link.hasAttribute("data-rt")) return;
         var href = link.getAttribute("href") || "";
-        if (href.charAt(0) === "#") return;
+        if (href.charAt(0) === "#" || (href.charAt(0) === "/" && href.charAt(1) !== "/")) return;
         event.preventDefault();
         toast.textContent = "Demonstração: na página real, este botão abre o contato de {{ marca.nome|escapejs }}.";
         toast.setAttribute("data-on", "");

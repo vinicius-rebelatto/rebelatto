@@ -109,3 +109,38 @@ h3 { margin-bottom: .3rem; font-family: var(--sans); font-size: 1.05rem; font-we
   body[data-lead] .dock { display: none; }
   body[data-lead] .feed { padding-bottom: 2rem; }
 }
+
+/* Navegação e páginas internas */
+.portrait { position: sticky; }
+.portrait__link { position: absolute; inset: 1.2rem; z-index: 1; border-radius: 14rem 14rem 1.2rem 1.2rem; }
+.bar .mark { visibility: visible; }
+.feed:not(.feed--pagina) .bar:not(.is-scrolled) .mark { visibility: hidden; }
+.feed__nav { display: flex; gap: 1.1rem; font-size: .9rem; }
+.feed__nav a { color: var(--muted); text-decoration: none; }
+.feed__nav a:hover, .feed__nav a[aria-current="page"] { color: var(--ink); }
+.feed__nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: .4em; text-decoration-color: var(--accent); }
+.pcard { padding: 0; }
+.pcard a { display: flex; flex-direction: column; height: 100%; min-height: 15rem; padding: 1.4rem; color: inherit; text-decoration: none; }
+.pcard a p { margin-bottom: 1rem; }
+.pcard__mais { color: var(--accent); font-size: .85rem; font-weight: 600; }
+.cards__todos { margin: 1.2rem 0 0; }
+.textlink { color: var(--ink); }
+.faqs { padding: 3rem 0; border-bottom: 1px solid var(--line); }
+
+:root {
+  --pg-display: var(--serif); --pg-body: var(--sans); --pg-h3-font: var(--sans); --pg-ink: var(--ink); --pg-muted: var(--muted);
+  --pg-line: var(--line); --pg-surface: var(--surface); --pg-alt: #201719; --pg-accent: var(--accent);
+  --pg-radius: 1.1rem; --pg-wrap: 100%;
+  --pg-foto: radial-gradient(120% 70% at 50% 18%, #6b4a46 0%, #3a2a2c 45%, #1f1719 80%);
+}
+.feed .pg-wrap { width: 100%; }
+.feed .pg-split, .feed .pg-detalhe, .feed .pg-contato { grid-template-columns: 1fr; }
+.feed .pg-detalhe__lado { position: static; }
+.feed .pg-head h1 { font-size: clamp(2.2rem, 3.4vw, 3rem); }
+.feed .pg h3 { font-weight: 600; font-size: 1.05rem; }
+.feed .pg-sec--alt { margin-inline: -2.2rem; padding-inline: 2.2rem; }
+.feed .pg-cta__box { flex-direction: column; align-items: stretch; }
+@media (max-width: 900px) {
+  .feed .pg-sec--alt { margin-inline: -1.2rem; padding-inline: 1.2rem; }
+  .portrait__link { inset: .8rem .8rem 0; }
+}

@@ -1,0 +1,11 @@
+<section class="pg pg-sec pg-sec--alt" id="{{ ancora|default:'diferenciais' }}" aria-labelledby="ld-title">
+  <div class="pg-wrap">
+    <p class="pg-eyebrow">Por que começar pela avaliação</p>
+    <h2 id="ld-title">{{ titulo|default:"O que você pode esperar" }} {% include "portfolio/mockups/_exemplo.html" %}</h2>
+    <ul class="pg-valores">
+      {% for t, x in diferenciais %}
+      <li><span class="pg-valores__n rt-detalhe">0{{ forloop.counter }}</span><h3>{{ t }}</h3><p>{{ x }}</p></li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>

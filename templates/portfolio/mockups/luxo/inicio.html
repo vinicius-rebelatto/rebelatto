@@ -1,0 +1,112 @@
+{% extends base_template %}
+{% block conteudo %}
+    <section class="hero" id="topo" aria-labelledby="hero-title">
+      <div class="wrap hero__grid">
+        <div>
+          <p class="eyebrow">Estética privada{% if marca.cidade %} · {{ marca.cidade }}{% endif %}</p>
+          <h1 id="hero-title">Poucas horas.<br><em>Muito critério.</em></h1>
+          <p class="lede">Harmonização e pele em sala reservada. A visita inteira é sua, do começo ao fim.</p>
+          <div class="hero__actions">
+            <a class="btn" href="#visita">Marcar conversa</a>
+            <a class="textlink" href="{{ base_url }}servicos/">Ver serviços</a>
+          </div>
+        </div>
+        <p class="hero__aside">Um horário · uma sala</p>
+      </div>
+    </section>
+
+    <section class="strip" aria-label="Como a {{ marca.nome }} recebe">
+      <div class="wrap strip__row">
+        {% if marca.lead %}
+        <p>Hora marcada, sem sala de espera compartilhada. {% include "portfolio/mockups/_exemplo.html" %}</p>
+        <p>{{ marca.cidade|default:"Atendimento" }}{% if marca.endereco %}, {{ marca.endereco }}{% endif %}.</p>
+        {% else %}
+        <p>Hora marcada, sem sala de espera compartilhada.</p>
+        <p>Centro de Balneário Camboriú, em frente ao mar.</p>
+        <p>Terça a sábado, das 10h às 19h.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="block block--side" id="procedimentos" aria-labelledby="proc-title">
+      <div class="wrap">
+        <header class="block__head">
+          <p class="eyebrow">01 — Procedimentos</p>{% include "portfolio/mockups/_exemplo.html" %}
+          <h2 id="proc-title">Só o que a avaliação sustenta.</h2>
+        </header>
+        <ol class="list">
+          {% for s in servicos|slice:"1:5" %}
+          <li>
+            <span class="list__n">0{{ forloop.counter }}</span>
+            <div>
+              <h3><a class="list__link" href="{{ base_url }}servicos/{{ s.slug }}/">{{ s.nome }}</a></h3>
+              <p>{{ s.resumo }}</p>
+            </div>
+          </li>
+          {% endfor %}
+        </ol>
+        <p class="list__todos"><a class="textlink" href="{{ base_url }}servicos/">Ver todos os serviços <span aria-hidden="true">→</span></a></p>
+      </div>
+    </section>
+
+    <section class="block block--rule" id="criterio" aria-labelledby="rule-title">
+      <div class="wrap">
+        <header class="block__head">
+          <p class="eyebrow">02 — Critério</p>{% include "portfolio/mockups/_exemplo.html" %}
+          <h2 id="rule-title">Três regras. Nenhuma é flexível.</h2>
+        </header>
+        <div class="rules">
+          <article>
+            <span>I</span>
+            <h3>A sala é sua</h3>
+            <p>Durante a hora marcada, não há outro paciente no corredor.</p>
+          </article>
+          <article>
+            <span>II</span>
+            <h3>Luz natural</h3>
+            <p>Nada é proposto antes de olhar o rosto na janela, sem flash.</p>
+          </article>
+          <article>
+            <span>III</span>
+            <h3>Plano curto</h3>
+            <p>O que será feito cabe em uma página. O resto espera.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="sala" aria-labelledby="room-title">
+      <div class="wrap">
+        <header class="block__head block__head--split">
+          <div>
+            <p class="eyebrow">03 — A sala</p>{% include "portfolio/mockups/_exemplo.html" %}
+            <h2 id="room-title">O luxo, aqui, é o espaço.</h2>
+          </div>
+          <p class="aside">Poucos móveis, uma janela, silêncio. A fotografia da sala entra quando a clínica fechar o projeto. <a class="textlink" href="{{ base_url }}sobre/">Conheça a clínica</a></p>
+        </header>
+        <figure class="void">
+          <div class="void__ring" aria-hidden="true"></div>
+          <figcaption>
+            <span>Sala reservada</span>
+            <span>Luz da tarde</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    {% include "portfolio/mockups/_paginas/_home_faq.html" %}
+
+    <section class="visit" id="visita" aria-labelledby="visit-title">
+      <div class="wrap visit__grid">
+        <div>
+          <p class="eyebrow">04 — Visita</p>
+          <h2 id="visit-title">A conversa é o primeiro horário.</h2>
+          <p class="visit__note">A avaliação não compromete nenhum procedimento.</p>
+          <a class="btn" href="{{ marca.whatsapp_url }}" rel="noopener">Chamar no WhatsApp</a>
+        </div>
+        <dl class="facts">
+          {% include "portfolio/mockups/_fatos.html" with horario_1="Terça a sábado, 10h–19h" horario_2="Domingo e segunda, fechado" %}
+        </dl>
+      </div>
+    </section>
+  {% endblock %}

@@ -1,0 +1,39 @@
+{% extends base_template %}
+{% block conteudo %}
+      <section class="one__center" aria-labelledby="hero-title">
+        {% if marca.logo_url %}
+        <img class="mark__logo one__logo" src="{{ marca.logo_url }}" alt="">
+        {% endif %}
+        <h1 id="hero-title" class="mark__name one__name{% if marca.nome|length > 22 %} one__name--longo{% elif marca.nome|length > 10 %} one__name--medio{% endif %}">{{ marca.nome }}</h1>
+        <p class="one__line">Pele e rosto cuidados com calma. {% include "portfolio/mockups/_exemplo.html" %}</p>
+        <a class="btn" href="{{ marca.whatsapp_url }}" rel="noopener">
+          <span>Agendar uma conversa</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </a>
+      </section>
+
+      <section class="index" aria-labelledby="index-title">
+        <div class="index__head">
+          <h2 id="index-title">Serviços</h2>
+          {% include "portfolio/mockups/_exemplo.html" %}
+        </div>
+        <ol class="index__list list">
+          {% for s in servicos %}
+          <li>
+            <a href="{{ base_url }}servicos/{{ s.slug }}/">
+              <span class="index__n">{{ forloop.counter|stringformat:"02d" }}</span>
+              <span class="index__nome">{{ s.nome }}</span>
+              <span class="index__resumo">{{ s.resumo }}</span>
+              <span class="index__seta" aria-hidden="true">→</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ol>
+      </section>
+
+      <section class="manifesto" aria-label="Como trabalhamos">
+        {% for titulo, texto in diferenciais %}
+        <div><h3>{{ titulo }}</h3><p>{{ texto }}</p></div>
+        {% endfor %}
+      </section>
+{% endblock %}

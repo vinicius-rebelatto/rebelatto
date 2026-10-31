@@ -16,7 +16,9 @@ LANDINGS = {
         "ordem": 1,
     },
     "consultorio": {
-        "template": "portfolio/mockups/consultorio.html",
+        "template": "portfolio/mockups/consultorio/inicio.html",
+        "base": "portfolio/mockups/consultorio/base.html",
+        "tipo": "institucional",
         "css": "css/mockups/consultorio.css",
         "js": "js/mockups/consultorio.js",
         "theme": "light",
@@ -35,7 +37,9 @@ LANDINGS = {
         },
     },
     "luxo": {
-        "template": "portfolio/mockups/luxo.html",
+        "template": "portfolio/mockups/luxo/inicio.html",
+        "base": "portfolio/mockups/luxo/base.html",
+        "tipo": "institucional",
         "css": "css/mockups/luxo.css",
         "js": "js/mockups/luxo.js",
         "theme": "dark",
@@ -55,6 +59,7 @@ LANDINGS = {
     },
     "harmonizacao": {
         "template": "portfolio/mockups/harmonizacao.html",
+        "tipo": "landing",
         "css": "css/mockups/harmonizacao.css",
         "js": "js/mockups/harmonizacao.js",
         "theme": "light",
@@ -74,6 +79,7 @@ LANDINGS = {
     },
     "agenda": {
         "template": "portfolio/mockups/agenda.html",
+        "tipo": "landing",
         "css": "css/mockups/agenda.css",
         "js": "js/mockups/estetica.js",
         "theme": "light",
@@ -93,6 +99,7 @@ LANDINGS = {
     },
     "cartao": {
         "template": "portfolio/mockups/cartao.html",
+        "tipo": "landing",
         "css": "css/mockups/cartao.css",
         "js": "js/mockups/estetica.js",
         "theme": "light",
@@ -111,7 +118,9 @@ LANDINGS = {
         },
     },
     "revista": {
-        "template": "portfolio/mockups/revista.html",
+        "template": "portfolio/mockups/revista/inicio.html",
+        "base": "portfolio/mockups/revista/base.html",
+        "tipo": "institucional",
         "css": "css/mockups/revista.css",
         "js": "js/mockups/estetica.js",
         "theme": "light",
@@ -130,7 +139,9 @@ LANDINGS = {
         },
     },
     "retrato": {
-        "template": "portfolio/mockups/retrato.html",
+        "template": "portfolio/mockups/retrato/inicio.html",
+        "base": "portfolio/mockups/retrato/base.html",
+        "tipo": "simples",
         "css": "css/mockups/retrato.css",
         "js": "js/mockups/estetica.js",
         "theme": "dark",
@@ -149,7 +160,9 @@ LANDINGS = {
         },
     },
     "minima": {
-        "template": "portfolio/mockups/minima.html",
+        "template": "portfolio/mockups/minima/inicio.html",
+        "base": "portfolio/mockups/minima/base.html",
+        "tipo": "simples",
         "css": "css/mockups/minima.css",
         "js": "js/mockups/estetica.js",
         "theme": "light",
@@ -168,7 +181,9 @@ LANDINGS = {
         },
     },
     "acolhedora": {
-        "template": "portfolio/mockups/acolhedora.html",
+        "template": "portfolio/mockups/acolhedora/inicio.html",
+        "base": "portfolio/mockups/acolhedora/base.html",
+        "tipo": "simples",
         "css": "css/mockups/acolhedora.css",
         "js": "js/mockups/estetica.js",
         "theme": "light",
@@ -187,7 +202,9 @@ LANDINGS = {
         },
     },
     "clinica": {
-        "template": "portfolio/mockups/clinica.html",
+        "template": "portfolio/mockups/clinica/inicio.html",
+        "base": "portfolio/mockups/clinica/base.html",
+        "tipo": "institucional",
         "css": "css/mockups/clinica.css",
         "js": "js/mockups/estetica.js",
         "theme": "light",
@@ -208,6 +225,16 @@ LANDINGS = {
 }
 
 NICHO_PADRAO = "estetica"
+
+PAGINAS = {
+    "institucional": ("sobre", "servicos", "servico", "contato"),
+    "simples": ("servicos", "servico", "contato"),
+    "landing": (),
+}
+
+
+def paginas_do_tipo(tipo: str | None) -> tuple:
+    return PAGINAS.get(tipo or "landing", ())
 
 
 def biblioteca_do_nicho(nicho: str = NICHO_PADRAO) -> list[dict]:

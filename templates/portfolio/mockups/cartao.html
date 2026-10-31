@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/mockups/_base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/mockups/_paginas.css' %}">
   <link rel="stylesheet" href="{% static landing.css %}">
   {% include "portfolio/mockups/_lead_head.html" %}
 </head>
@@ -56,10 +57,26 @@
       </article>
     </div>
 
-    <section class="proc" id="procedimentos" aria-labelledby="proc-title">
-      <h2 id="proc-title">Procedimentos {% include "portfolio/mockups/_exemplo.html" %}</h2>
-      <p>Avaliação facial <span>·</span> Harmonização <span>·</span> Limpeza de pele <span>·</span> Peeling <span>·</span> Lábios <span>·</span> Skinbooster</p>
+    <nav class="table__nav" aria-label="Nesta página">
+      <a href="#procedimentos">Tratamentos</a><span aria-hidden="true">·</span><a href="#primeira-visita">Primeira visita</a><span aria-hidden="true">·</span><a href="#duvidas">Dúvidas</a>
+    </nav>
+
+    {% include "portfolio/mockups/_paginas/_landing_servicos.html" with ancora="procedimentos" eyebrow="Procedimentos" titulo="O que fazemos" %}
+
+    <section class="pg pg-sec pg-sec--alt" id="primeira-visita" aria-labelledby="pv-title">
+      <div class="pg-wrap pg-split">
+        <div>
+          <p class="pg-eyebrow">Primeira visita</p>
+          <h2 id="pv-title">Como funciona</h2>
+          {% include "portfolio/mockups/_exemplo.html" %}
+        </div>
+        <ol class="pg-steps">
+          {% for t, x in primeira_visita %}<li><span class="pg-steps__n">{{ forloop.counter }}</span><div><h3>{{ t }}</h3><p>{{ x }}</p></div></li>{% endfor %}
+        </ol>
+      </div>
     </section>
+
+    {% include "portfolio/mockups/_paginas/_home_faq.html" %}
 
     <footer class="foot">
       {% if marca.lead %}<p>Página de exemplo feita pela Rebel Tech. Textos marcados como exemplo são ilustrativos.</p>{% else %}<p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>{% endif %}

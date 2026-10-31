@@ -553,3 +553,16 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
   .block--side .list li:first-child { padding-top: 1.45rem; border-top: 1px solid var(--line); }
   .visit__grid { grid-template-columns: 1fr; align-items: start; }
 }
+
+/* Páginas internas e links da lista */
+:root {
+  --pg-display: var(--serif); --pg-body: var(--sans); --pg-ink: var(--ink); --pg-muted: var(--muted);
+  --pg-line: var(--line); --pg-surface: var(--cream); --pg-alt: rgba(255, 252, 247, .5); --pg-accent: var(--sage);
+  --pg-radius: 1.2rem; --pg-h-weight: 460; --pg-wrap: var(--wrap);
+  --pg-foto: radial-gradient(circle at 38% 24%, #f7f1e4 0%, #d9c7b2 46%, #7f8d79 100%);
+}
+.list__link { text-decoration: none; }
+.list__link:hover { text-decoration: underline; text-underline-offset: .2em; text-decoration-thickness: 1px; }
+.list__todos { margin: 1.6rem 0 0; }
+.nav a[aria-current="page"], .drawer a[aria-current="page"] { color: var(--ink); text-decoration: underline; text-underline-offset: .4em; text-decoration-thickness: 1px; }
+.pg .btn { border-radius: 999px; }

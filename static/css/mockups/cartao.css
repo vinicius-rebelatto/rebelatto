@@ -94,3 +94,20 @@ body {
   .proc p { font-size: 1.1rem; }
 }
 body[data-lead] .table { min-height: calc(100vh - 4.5rem); }
+
+/* Seções de conteúdo da landing */
+:root {
+  --pg-display: var(--serif); --pg-body: var(--sans); --pg-h3-font: var(--sans); --pg-ink: var(--ink); --pg-muted: var(--muted);
+  --pg-line: var(--line); --pg-surface: var(--paper); --pg-alt: rgba(248, 244, 236, .55); --pg-accent: var(--accent);
+  --pg-radius: .35rem; --pg-wrap: 62rem;
+}
+.table { padding-bottom: 0; }
+.table > .pg { justify-self: stretch; width: calc(100% + 3rem); margin-inline: -1.5rem; }
+.table__nav { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem .9rem; color: var(--muted); font-size: .78rem; letter-spacing: .24em; text-transform: uppercase; }
+.table__nav a { text-decoration: none; }
+.table__nav a:hover { color: var(--accent); }
+.pg h3, .pg h4 { font-weight: 500; letter-spacing: .01em; }
+.pg-exp__nome { font-style: italic; }
+.foot { padding-bottom: 2rem; }
+@media (max-width: 480px) { .table > .pg { width: calc(100% + 2rem); margin-inline: -1rem; } }
+.table > .pg + .pg { margin-top: -3rem; }

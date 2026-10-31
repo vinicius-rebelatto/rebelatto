@@ -9,6 +9,7 @@ from django.conf import settings
 from django.db.models import F
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.views.decorators.http import require_GET, require_POST
@@ -16,7 +17,8 @@ from django.views.decorators.http import require_GET, require_POST
 from crm.models import Cliente, Mockup
 from portfolio import chatbot as chatbot_service
 from portfolio.marca import link_rebel_tech, marca_demo, marca_do_lead
-from portfolio.mockup_landings import LANDINGS, biblioteca_do_nicho
+from portfolio import conteudo_estetica
+from portfolio.mockup_landings import LANDINGS, biblioteca_do_nicho, paginas_do_tipo
 from portfolio.models import Project
 
 logger = logging.getLogger(__name__)
@@ -149,7 +151,41 @@ def create_lead(request):
     return JsonResponse({"ok": True, "message": "Recebi seu contato. Em breve retorno!"})
 
 
-def mockup_public(request, slug):
+def _pagina_do_template(landing, pagina, servico_slug):
+    """Escolhe o arquivo e o contexto da página pedida dentro do template.
+
+    Landing tem uma página só. Site simples tem serviços e contato.
+    Institucional tem ainda a página sobre. Página que o tipo não tem é 404.
+    """
+    if pagina is None:
+        return landing["template"], {}
+    if pagina not in paginas_do_tipo(landing.get("tipo")):
+        raise Http404
+    extra = {}
+    if pagina == "servico":
+        item = conteudo_estetica.servico(servico_slug or "")
+        if item is None:
+            raise Http404
+        extra["servico"] = item
+        extra["outros_servicos"] = [s for s in conteudo_estetica.SERVICOS if s["slug"] != item["slug"]][:4]
+    return f"portfolio/mockups/_paginas/{pagina}.html", extra
+
+
+def _contexto_mockup(landing, slug, marca, base_url, pagina, extra):
+    return {
+        "site": SITE,
+        "landing": {"slug": slug, **landing},
+        "marca": marca,
+        "base_url": base_url,
+        "base_template": landing.get("base", landing["template"]),
+        "pagina": pagina or "inicio",
+        "paginas": paginas_do_tipo(landing.get("tipo")),
+        **conteudo_estetica.contexto(marca["nome"]),
+        **extra,
+    }
+
+
+def mockup_public(request, slug, pagina=None, servico=None):
     mockup = get_object_or_404(
         Mockup.objects.select_related("cliente").prefetch_related("imagens"),
         slug=slug,
@@ -159,17 +195,20 @@ def mockup_public(request, slug):
     if mockup.tipo == Mockup.Tipo.LANDING:
         landing = LANDINGS.get(mockup.slug)
         if landing:
-            return render(
-                request,
-                landing["template"],
-                {
-                    "mockup": mockup,
-                    "site": SITE,
-                    "landing": landing,
-                    "marca": marca_demo(landing),
-                },
+            arquivo, extra = _pagina_do_template(landing, pagina, servico)
+            contexto = _contexto_mockup(
+                landing,
+                mockup.slug,
+                marca_demo(landing),
+                reverse("portfolio:mockup_public", kwargs={"slug": mockup.slug}),
+                pagina,
+                extra,
             )
+            contexto["mockup"] = mockup
+            return render(request, arquivo, contexto)
 
+    if pagina is not None:
+        raise Http404
     return render(
         request,
         "portfolio/mockup_public.html",
@@ -192,12 +231,13 @@ def _registrar_visita(request, cliente, template_slug):
     )
 
 
-def mockup_lead(request, slug, template=None):
+def mockup_lead(request, slug, template=None, pagina=None, servico=None):
     """Página de exemplo do lead: template do nicho com a identidade dele.
 
     /p/<slug>/ abre sempre o primeiro template; /p/<slug>/<template>/ troca a
-    pele. Não chama modelo. Staff vê qualquer lead; o público só vê lead da
-    leva (sem site, rede social ou site fraco) que não foi rejeitado.
+    pele; /p/<slug>/<template>/<pagina>/ abre as páginas internas. Não chama
+    modelo. Staff vê qualquer lead; o público só vê lead da leva (sem site,
+    rede social ou site fraco) que não foi rejeitado.
     """
     cliente = get_object_or_404(Cliente, slug=slug)
     staff = request.user.is_authenticated and request.user.is_staff
@@ -214,27 +254,32 @@ def mockup_lead(request, slug, template=None):
         if escolhido is None:
             raise Http404
 
+    arquivo, extra = _pagina_do_template(escolhido, pagina, servico)
     posicao = biblioteca.index(escolhido)
     anterior = biblioteca[posicao - 1]
     proximo = biblioteca[(posicao + 1) % len(biblioteca)]
 
     _registrar_visita(request, cliente, escolhido["slug"])
     marca = marca_do_lead(cliente, escolhido)
-    response = render(
-        request,
-        escolhido["template"],
+    contexto = _contexto_mockup(
+        escolhido,
+        escolhido["slug"],
+        marca,
+        reverse("portfolio:mockup_lead_template", kwargs={"slug": cliente.slug, "template": escolhido["slug"]}),
+        pagina,
+        extra,
+    )
+    contexto.update(
         {
-            "site": SITE,
-            "landing": escolhido,
-            "marca": marca,
             "cliente": cliente,
             "biblioteca": biblioteca,
             "posicao": posicao + 1,
             "anterior": anterior,
             "proximo": proximo,
             "rebel_tech_url": link_rebel_tech(SITE, marca["nome"]),
-        },
+        }
     )
+    response = render(request, arquivo, contexto)
     response["X-Robots-Tag"] = "noindex, nofollow"
     return response
 

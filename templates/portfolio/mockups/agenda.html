@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gloock&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/mockups/_base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/mockups/_paginas.css' %}">
   <link rel="stylesheet" href="{% static landing.css %}">
   {% include "portfolio/mockups/_lead_head.html" %}
 </head>
@@ -19,7 +20,7 @@
   <a class="skip" href="#conteudo">Ir para o conteúdo</a>
 
   <header class="bar" data-bar>
-    <div class="wrap bar__row bar__row--short">
+    <div class="wrap bar__row">
       <a class="mark" href="#topo" aria-label="{{ marca.nome }} — início">
         {% if marca.logo_url %}
         <img class="mark__logo" src="{{ marca.logo_url }}" alt="{{ marca.nome }}">
@@ -28,6 +29,12 @@
         <span class="mark__name">{{ marca.nome }}</span>
         {% endif %}
       </a>
+      <nav class="nav" aria-label="Principal">
+        <a href="#tratamentos">Tratamentos</a>
+        <a href="#como-agendar">Como agendar</a>
+        <a href="#duvidas">Dúvidas</a>
+        <a href="#visita">Contato</a>
+      </nav>
       <a class="btn btn--small btn--bar" href="{{ marca.whatsapp_url }}" rel="noopener">
         {% include "portfolio/mockups/_whatsapp_icon.html" %}
         <span>Agendar</span>
@@ -70,7 +77,7 @@
       </div>
     </section>
 
-    <section class="steps" aria-labelledby="steps-title">
+    <section class="steps" id="como-agendar" aria-labelledby="steps-title">
       <div class="wrap">
         <h2 id="steps-title" class="visually-hidden">Como agendar</h2>
         <ol class="steps__row">
@@ -81,27 +88,11 @@
       </div>
     </section>
 
-    <section class="block" id="procedimentos" aria-labelledby="proc-title">
-      <div class="wrap block__grid">
-        <header>
-          <p class="eyebrow">Procedimentos</p>
-          {% include "portfolio/mockups/_exemplo.html" %}
-          <h2 id="proc-title">O que dá para agendar.</h2>
-          <p class="muted">Cada procedimento começa pela avaliação. É nela que se decide o que faz sentido para você.</p>
-        </header>
-        <ul class="tags list">
-          <li>Avaliação facial</li>
-          <li>Harmonização facial</li>
-          <li>Limpeza de pele</li>
-          <li>Peeling</li>
-          <li>Preenchimento labial</li>
-          <li>Toxina botulínica</li>
-          <li>Bioestimuladores</li>
-          <li>Skinbooster</li>
-          <li>Retorno e manutenção</li>
-        </ul>
-      </div>
-    </section>
+    {% include "portfolio/mockups/_paginas/_landing_servicos.html" with titulo="O que dá para agendar" %}
+
+    {% include "portfolio/mockups/_paginas/_landing_diferenciais.html" %}
+
+    {% include "portfolio/mockups/_paginas/_home_faq.html" %}
 
     <section class="visit" id="visita" aria-labelledby="visit-title">
       <div class="wrap visit__card">

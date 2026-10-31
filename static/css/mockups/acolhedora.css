@@ -102,3 +102,20 @@ h3 { margin-bottom: .3rem; font-family: var(--sans); font-size: 1.15rem; font-we
   .block--soft { border-radius: 2rem; }
   .foot__row { display: grid; }
 }
+
+/* Páginas internas e cards com link */
+:root {
+  --pg-display: var(--serif); --pg-body: var(--sans); --pg-h3-font: var(--sans); --pg-ink: var(--ink); --pg-muted: var(--muted);
+  --pg-line: var(--line); --pg-surface: var(--surface); --pg-alt: #f8e9de; --pg-accent: var(--accent);
+  --pg-radius: 1.8rem; --pg-wrap: var(--wrap); --pg-cta-bg: var(--peach);
+  --pg-foto: radial-gradient(circle at 30% 30%, var(--sand), var(--peach) 55%, var(--sage));
+}
+.care__item { padding: 0; }
+.care__link { display: flex; flex-direction: column; height: 100%; padding: 1.6rem 1.4rem 1.5rem; color: inherit; text-decoration: none; border-radius: 2rem; transition: transform .2s ease; }
+.care__link:hover { transform: translateY(-3px); }
+.care__link p { flex: 1; margin-bottom: 1rem !important; }
+.care__mais { font-weight: 700; font-size: .92rem; color: var(--accent); }
+.care__todos { margin: 1.6rem 0 0; }
+.nav a[aria-current="page"] { color: var(--accent); }
+.pg h3 { font-weight: 700; letter-spacing: 0; }
+.pg-steps__n { background: var(--accent); color: var(--accent-ink); border: 0; }

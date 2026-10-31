@@ -1,0 +1,48 @@
+{% extends base_template %}
+{% block titulo %}Contato — {{ marca.nome }}{% endblock %}
+{% block conteudo %}
+<div class="pg">
+  <header class="pg-head">
+    <div class="pg-wrap">
+      <nav class="pg-trilha" aria-label="Você está em"><a href="{{ base_url }}">Início</a><span>/</span>Contato</nav>
+      <h1>Contato</h1>
+      <p class="pg-lede">O agendamento é feito pelo WhatsApp. Respondemos com os horários disponíveis da semana.</p>
+    </div>
+  </header>
+
+  <section class="pg-sec">
+    <div class="pg-wrap pg-contato">
+      <div class="pg-box">
+        <dl class="facts pg-fatos">
+          {% include "portfolio/mockups/_fatos.html" with horario_1="Segunda a sexta, 9h–18h" horario_2="Sábado, com hora marcada" %}
+        </dl>
+        <a class="btn pg-box__btn" href="{{ marca.whatsapp_url }}" rel="noopener">
+          {% include "portfolio/mockups/_whatsapp_icon.html" %}
+          <span>Chamar no WhatsApp</span>
+        </a>
+      </div>
+      <figure class="pg-mapa" aria-hidden="true">
+        <span class="pg-mapa__rua pg-mapa__rua--h"></span>
+        <span class="pg-mapa__rua pg-mapa__rua--v"></span>
+        <span class="pg-mapa__pino"></span>
+        {% if marca.endereco or marca.cidade %}<figcaption>{% if marca.endereco %}{{ marca.endereco }}{% endif %}{% if marca.endereco and marca.cidade %} · {% endif %}{{ marca.cidade }}</figcaption>{% endif %}
+      </figure>
+    </div>
+  </section>
+
+  <section class="pg-sec pg-sec--alt" aria-labelledby="faq-title">
+    <div class="pg-wrap pg-split">
+      <div>
+        <p class="pg-eyebrow">Antes de vir</p>
+        <h2 id="faq-title">Dúvidas comuns</h2>
+        {% if marca.lead %}<span class="exemplo">Texto de exemplo</span>{% endif %}
+      </div>
+      <div class="pg-faq">
+        {% for pergunta, resposta in duvidas_gerais %}
+        <details{% if forloop.first %} open{% endif %}><summary>{{ pergunta }}</summary><p>{{ resposta }}</p></details>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

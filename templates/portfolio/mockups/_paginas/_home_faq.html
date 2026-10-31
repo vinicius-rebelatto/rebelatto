@@ -1,0 +1,15 @@
+<section class="pg pg-sec pg-sec--alt pg-home-faq" id="{{ ancora|default:'duvidas' }}" aria-labelledby="hfaq-title">
+  <div class="pg-wrap pg-split">
+    <div>
+      <p class="pg-eyebrow">Dúvidas</p>
+      <h2 id="hfaq-title">Perguntas frequentes</h2>
+      {% include "portfolio/mockups/_exemplo.html" %}
+      {% if "contato" in paginas %}<p class="pg-muted"><a href="{{ base_url }}contato/">Ver contato e endereço →</a></p>{% endif %}
+    </div>
+    <div class="pg-faq">
+      {% for pergunta, resposta in duvidas_gerais|slice:":4" %}
+      <details{% if forloop.first %} open{% endif %}><summary>{{ pergunta }}</summary><p>{{ resposta }}</p></details>
+      {% endfor %}
+    </div>
+  </div>
+</section>

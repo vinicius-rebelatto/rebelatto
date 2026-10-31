@@ -1,0 +1,86 @@
+{% extends base_template %}
+{% block conteudo %}
+    <section class="hero" id="topo" aria-labelledby="hero-title">
+      <div class="wrap hero__grid">
+        <div>
+          <p class="eyebrow rt-detalhe">Estética facial{% if marca.cidade %} · {{ marca.cidade }}{% endif %}</p>
+          <h1 id="hero-title">Avaliação completa antes de qualquer procedimento.</h1>
+          <p class="lede">Atendimento com hora marcada, plano por escrito e retorno agendado. Tudo explicado antes de começar.</p>
+          <div class="hero__actions">
+            <a class="btn" href="{{ marca.whatsapp_url }}" rel="noopener">
+              {% include "portfolio/mockups/_whatsapp_icon.html" %}
+              <span>Agendar avaliação</span>
+            </a>
+            <a class="btn btn--ghost" href="{{ base_url }}servicos/">Ver serviços</a>
+          </div>
+        </div>
+        <aside class="info" aria-label="Informações rápidas">
+          <p class="info__title">Atendimento</p>
+          <dl class="facts">
+            {% include "portfolio/mockups/_fatos.html" with horario_1="Segunda a sexta, 8h–18h" horario_2="Sábado, 8h–12h" %}
+          </dl>
+          <a class="info__cta rt-detalhe" href="{{ marca.whatsapp_url }}" rel="noopener">Falar com a recepção →</a>
+        </aside>
+      </div>
+    </section>
+
+    <section class="block" id="sobre" aria-labelledby="about-title">
+      <div class="wrap about">
+        <div>
+          <p class="label">Sobre</p>
+          <h2 id="about-title">{{ marca.nome }}</h2>
+        </div>
+        <div>
+          {% include "portfolio/mockups/_exemplo.html" %}
+          <p class="about__text">Uma clínica de estética facial com foco em avaliação cuidadosa e indicação responsável. Cada paciente recebe um plano escrito, com as etapas, os intervalos e os cuidados de cada procedimento.</p>
+          <ul class="checks list">
+            <li>Avaliação individual, com hora marcada</li>
+            <li>Plano de tratamento por escrito</li>
+            <li>Retorno agendado após o procedimento</li>
+          </ul>
+          <p class="about__mais"><a class="info__cta" href="{{ base_url }}sobre/">Conheça a clínica →</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block block--grey" id="procedimentos" aria-labelledby="proc-title">
+      <div class="wrap">
+        <header class="block__head">
+          <div>
+            <p class="label">Procedimentos</p>
+            <h2 id="proc-title">O que a clínica oferece</h2>
+          </div>
+          {% include "portfolio/mockups/_exemplo.html" %}
+        </header>
+        <ul class="grid list">
+          {% for s in servicos|slice:":6" %}
+          <li><a class="grid__link" href="{{ base_url }}servicos/{{ s.slug }}/"><span class="list__n">{{ forloop.counter|stringformat:"02d" }}</span><h3>{{ s.nome }}</h3><p>{{ s.resumo }}</p><span class="grid__mais">Saiba mais →</span></a></li>
+          {% endfor %}
+        </ul>
+        <p class="grid__todos"><a class="btn btn--ghost" href="{{ base_url }}servicos/">Ver todos os serviços</a></p>
+      </div>
+    </section>
+
+    {% include "portfolio/mockups/_paginas/_home_faq.html" %}
+
+    <section class="block" id="contato" aria-labelledby="contact-title">
+      <div class="wrap contact">
+        <div>
+          <p class="label">Contato</p>
+          <h2 id="contact-title">Agende sua avaliação</h2>
+          <p class="lede">A recepção responde pelo WhatsApp em horário de atendimento.</p>
+          <a class="btn" href="{{ marca.whatsapp_url }}" rel="noopener">
+            {% include "portfolio/mockups/_whatsapp_icon.html" %}
+            <span>Chamar no WhatsApp</span>
+          </a>
+        </div>
+        <figure class="map" aria-hidden="true">
+          <span class="map__road map__road--h"></span>
+          <span class="map__road map__road--v"></span>
+          <span class="map__road map__road--d"></span>
+          <span class="map__pin"></span>
+          <figcaption>{% if marca.endereco %}{{ marca.endereco }}{% endif %}{% if marca.cidade %}{% if marca.endereco %} · {% endif %}{{ marca.cidade }}{% endif %}</figcaption>
+        </figure>
+      </div>
+    </section>
+  {% endblock %}

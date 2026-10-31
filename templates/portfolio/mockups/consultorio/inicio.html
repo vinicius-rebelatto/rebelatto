@@ -1,62 +1,5 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ marca.nome }} — estética{% if marca.cidade %} em {{ marca.cidade }}{% endif %}</title>
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="{% if marca.lead %}Página de exemplo para {{ marca.nome }}.{% else %}Alva é um consultório de estética e harmonização facial em Itajaí. Avaliação com calma, um paciente por vez.{% endif %}">
-  <meta name="theme-color" content="#f3eee6">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,460;0,9..144,560;1,9..144,460&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static landing.css %}">
-  {% include "portfolio/mockups/_lead_head.html" %}
-</head>
-<body{% if marca.lead %} data-lead{% endif %}>
-  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
-
-  <header class="bar" data-bar>
-    <div class="wrap bar__row">
-      <a class="mark" href="#topo" aria-label="{{ marca.nome }} — início">
-        {% if marca.logo_url %}
-        <img class="mark__logo" src="{{ marca.logo_url }}" alt="{{ marca.nome }}">
-        {% else %}
-        {% if not marca.lead %}<svg class="mark__seal" viewBox="0 0 48 48" aria-hidden="true">
-          <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-width="0.8"/>
-          <path d="M13 31.5c3.2-7.4 7.2-11 11-11s7.8 3.6 11 11" fill="none" stroke="currentColor" stroke-width="0.8"/>
-          <circle cx="24" cy="16.5" r="2.1"/>
-        </svg>{% endif %}
-        <span class="mark__name">{{ marca.nome }}</span>
-        {% endif %}
-      </a>
-
-      <nav class="nav" aria-label="Principal">
-        <a href="#procedimentos">Procedimentos</a>
-        <a href="#metodo">Método</a>
-        <a href="#sala">A sala</a>
-        <a href="#visita">Visita</a>
-      </nav>
-
-      <a class="btn btn--small" href="#visita">Agendar conversa</a>
-
-      <button class="menu" type="button" data-menu aria-expanded="false" aria-controls="drawer" aria-label="Abrir menu">
-        <span></span><span></span>
-      </button>
-    </div>
-    <div class="drawer" id="drawer" data-drawer hidden>
-      <nav aria-label="Menu">
-        <a href="#procedimentos">Procedimentos</a>
-        <a href="#metodo">Método</a>
-        <a href="#sala">A sala</a>
-        <a href="#visita">Visita</a>
-        <a class="btn" href="#visita">Agendar conversa</a>
-      </nav>
-    </div>
-  </header>
-
-  <main id="conteudo">
+{% extends base_template %}
+{% block conteudo %}
     <section class="hero" id="topo" aria-labelledby="hero-title">
       <div class="wrap hero__grid">
         <div class="hero__copy">
@@ -65,7 +8,7 @@
           <p class="lede">Harmonização facial e cuidado de pele. A visita começa por uma conversa, antes de qualquer procedimento.</p>
           <div class="hero__actions">
             <a class="btn" href="#visita">Agendar conversa</a>
-            <a class="textlink" href="#procedimentos">Ver procedimentos</a>
+            <a class="textlink" href="{{ base_url }}servicos/">Ver serviços</a>
           </div>
         </div>
 
@@ -100,35 +43,17 @@
           <h2 id="proc-title">O que se faz aqui, sempre depois da avaliação.</h2>
         </header>
         <ol class="list">
+          {% for s in servicos|slice:"1:5" %}
           <li>
-            <span class="list__n">01</span>
+            <span class="list__n">0{{ forloop.counter }}</span>
             <div>
-              <h3>Harmonização facial</h3>
-              <p>Plano desenhado para o seu rosto, em etapas. Nada é decidido no corredor.</p>
+              <h3><a class="list__link" href="{{ base_url }}servicos/{{ s.slug }}/">{{ s.nome }}</a></h3>
+              <p>{{ s.resumo }}</p>
             </div>
           </li>
-          <li>
-            <span class="list__n">02</span>
-            <div>
-              <h3>Qualidade de pele</h3>
-              <p>Textura, viço e manchas. Protocolos leves, com intervalo para a pele responder.</p>
-            </div>
-          </li>
-          <li>
-            <span class="list__n">03</span>
-            <div>
-              <h3>Lábios e contorno</h3>
-              <p>Volume contido e contorno definido. O objetivo é parecer descansada, não outra pessoa.</p>
-            </div>
-          </li>
-          <li>
-            <span class="list__n">04</span>
-            <div>
-              <h3>Manutenção</h3>
-              <p>Retornos curtos para ajustar o que o tempo pede. O plano fica registrado com você.</p>
-            </div>
-          </li>
+          {% endfor %}
         </ol>
+        <p class="list__todos"><a class="textlink" href="{{ base_url }}servicos/">Ver todos os serviços <span aria-hidden="true">→</span></a></p>
       </div>
     </section>
 
@@ -165,7 +90,7 @@
             <p class="eyebrow">03 — A sala</p>{% include "portfolio/mockups/_exemplo.html" %}
             <h2 id="room-title">Pouca coisa na parede. Muita luz.</h2>
           </div>
-          <p class="aside">O espaço foi pensado para a conversa durar o tempo que precisar. As fotos reais entram quando a clínica fechar o projeto.</p>
+          <p class="aside">O espaço foi pensado para a conversa durar o tempo que precisar. As fotos reais entram quando a clínica fechar o projeto. <a class="textlink" href="{{ base_url }}sobre/">Conheça a clínica</a></p>
         </header>
         <figure class="window">
           <div class="window__glass">
@@ -177,6 +102,8 @@
         </figure>
       </div>
     </section>
+
+    {% include "portfolio/mockups/_paginas/_home_faq.html" %}
 
     <section class="visit" id="visita" aria-labelledby="visit-title">
       <div class="wrap visit__grid">
@@ -190,16 +117,4 @@
         </dl>
       </div>
     </section>
-  </main>
-
-  <footer class="foot">
-    <div class="wrap foot__row">
-      <p class="mark mark--foot"><span class="mark__name">{{ marca.nome }}</span> <span>estética</span></p>
-      {% if marca.lead %}<p>Página de exemplo feita pela Rebel Tech. Textos marcados como exemplo são ilustrativos.</p>{% else %}<p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>{% endif %}
-    </div>
-  </footer>
-
-  {% include "portfolio/mockups/_lead_bar.html" %}
-  <script src="{% static landing.js %}" defer></script>
-</body>
-</html>
+  {% endblock %}

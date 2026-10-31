@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{{ marca.nome }} — estética{% if marca.cidade %} em {{ marca.cidade }}{% endif %}{% endblock %}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="{% if marca.lead %}Página de exemplo para {{ marca.nome }}.{% else %}Alva é um consultório de estética e harmonização facial em Itajaí. Avaliação com calma, um paciente por vez.{% endif %}">
+  <meta name="theme-color" content="#f3eee6">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,460;0,9..144,560;1,9..144,460&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/mockups/_paginas.css' %}">
+  <link rel="stylesheet" href="{% static landing.css %}">
+  {% include "portfolio/mockups/_lead_head.html" %}
+</head>
+<body{% if marca.lead %} data-lead{% endif %}>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+
+  <header class="bar" data-bar>
+    <div class="wrap bar__row">
+      <a class="mark" href="{{ base_url }}" aria-label="{{ marca.nome }} — início">
+        {% if marca.logo_url %}
+        <img class="mark__logo" src="{{ marca.logo_url }}" alt="{{ marca.nome }}">
+        {% else %}
+        {% if not marca.lead %}<svg class="mark__seal" viewBox="0 0 48 48" aria-hidden="true">
+          <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-width="0.8"/>
+          <path d="M13 31.5c3.2-7.4 7.2-11 11-11s7.8 3.6 11 11" fill="none" stroke="currentColor" stroke-width="0.8"/>
+          <circle cx="24" cy="16.5" r="2.1"/>
+        </svg>{% endif %}
+        <span class="mark__name">{{ marca.nome }}</span>
+        {% endif %}
+      </a>
+
+      <nav class="nav" aria-label="Principal">
+        {% include "portfolio/mockups/_nav_links.html" %}
+      </nav>
+
+      <a class="btn btn--small" href="{{ base_url }}contato/">Agendar conversa</a>
+
+      <button class="menu" type="button" data-menu aria-expanded="false" aria-controls="drawer" aria-label="Abrir menu">
+        <span></span><span></span>
+      </button>
+    </div>
+    <div class="drawer" id="drawer" data-drawer hidden>
+      <nav aria-label="Menu">
+        {% include "portfolio/mockups/_nav_links.html" %}
+        <a class="btn" href="{{ base_url }}contato/">Agendar conversa</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+{% block conteudo %}{% endblock %}
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot__row">
+      <p class="mark mark--foot"><span class="mark__name">{{ marca.nome }}</span> <span>estética</span></p>
+      {% if marca.lead %}<p>Página de exemplo feita pela Rebel Tech. Textos marcados como exemplo são ilustrativos.</p>{% else %}<p>Página de demonstração. Textos, endereço e telefone são fictícios.</p>{% endif %}
+    </div>
+  </footer>
+
+  {% include "portfolio/mockups/_lead_bar.html" %}
+  <script src="{% static landing.js %}" defer></script>
+</body>
+</html>

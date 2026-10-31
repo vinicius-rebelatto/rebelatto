@@ -120,3 +120,13 @@ h3 { font-family: var(--sans); font-weight: 600; font-size: 1.1rem; letter-spaci
   .block { padding: 4rem 0; }
   .btn--big { width: 100%; }
 }
+
+/* Seções de conteúdo da landing */
+:root {
+  --pg-display: var(--serif); --pg-body: var(--sans); --pg-h3-font: var(--sans); --pg-ink: var(--ink); --pg-muted: var(--muted);
+  --pg-line: var(--line); --pg-surface: var(--surface); --pg-alt: var(--mint); --pg-accent: var(--accent);
+  --pg-radius: 1.2rem; --pg-wrap: var(--wrap);
+}
+.pg h3, .pg h4 { font-weight: 600; letter-spacing: 0; }
+.nav a { font-weight: 500; font-size: .95rem; }
+.pg-home-faq { border-block: 0; background: transparent; }
