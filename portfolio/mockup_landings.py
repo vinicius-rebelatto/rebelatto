@@ -19,4 +19,10 @@ LANDINGS = {
         "js": "js/mockups/luxo.js",
         "theme": "dark",
     },
+    "harmonizacao": {
+        "template": "portfolio/mockups/harmonizacao.html",
+        "css": "css/mockups/harmonizacao.css",
+        "js": "js/mockups/harmonizacao.js",
+        "theme": "light",
+    },
 }

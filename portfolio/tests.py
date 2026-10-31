@@ -22,3 +22,16 @@ class LuxoTemplateTests(TestCase):
         self.assertNotContains(response, "Protótipo Rebel Tech")
         self.assertNotContains(response, "chatbot.js")
         self.assertNotContains(response, "Fraunces")
+
+
+class HarmonizacaoTemplateTests(TestCase):
+    def test_pagina_abre_com_a_identidade_da_nara(self):
+        response = self.client.get("/mockups/harmonizacao/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Nara")
+        self.assertContains(response, "Harmonização")
+        self.assertContains(response, "mockups/harmonizacao.css")
+        self.assertNotContains(response, "Protótipo Rebel Tech")
+        self.assertNotContains(response, "chatbot.js")
+        self.assertNotContains(response, "Fraunces")
+        self.assertNotContains(response, "Cormorant")
