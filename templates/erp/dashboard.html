@@ -74,11 +74,38 @@
 <section class="erp-card">
   <div class="erp-card__header">
     <h2 class="erp-heading">
+      {% include "erp/partials/icon.html" with name="check" %}
+      <span>Próximas tarefas</span>
+    </h2>
+    <a class="btn btn-outline btn-sm" href="{% url 'erp:tarefa_list' %}">Ver todas ({{ tarefas_abertas }})</a>
+  </div>
+  {% if tarefas_proximas %}
+  <ul class="erp-simple-list erp-tarefas-resumo">
+    {% for t in tarefas_proximas %}
+    <li>
+      <a href="{% url 'erp:tarefa_edit' t.pk %}">{{ t.titulo }}</a>
+      <span class="erp-tag">{{ t.get_frente_display }}</span>
+      {% if t.prazo %}<span class="erp-tarefa__prazo{% if t.atrasada %} is-late{% elif t.vence_hoje %} is-today{% endif %}">{{ t.prazo|date:"d/m" }}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="erp-muted">Nenhuma tarefa aberta.</p>
+  {% endif %}
+</section>
+
+<section class="erp-card">
+  <div class="erp-card__header">
+    <h2 class="erp-heading">
       {% include "erp/partials/icon.html" with name="zap" %}
       <span>Atalhos</span>
     </h2>
   </div>
   <div class="erp-actions-row">
+    <a class="btn btn-outline" href="{% url 'erp:cliente_busca_create' %}">
+      {% include "erp/partials/icon.html" with name="search" %}
+      <span>Buscar leads no Maps</span>
+    </a>
     <a class="btn btn-outline" href="{% url 'erp:cliente_filtragem' %}">
       {% include "erp/partials/icon.html" with name="filter" %}
       <span>Qualificação de leads</span>

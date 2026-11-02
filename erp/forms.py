@@ -1,9 +1,11 @@
 from django import forms
 from django.forms import inlineformset_factory
 
-from crm.models import Cliente, Mockup, MockupImagem, PerfilNicho
+from crm.models import BuscaLeads, Cliente, Mockup, MockupImagem, PerfilNicho
 from crm.qualificacao import termos as termos_do_nicho
 from portfolio.models import Project
+
+from .models import Tarefa
 
 
 class ClienteForm(forms.ModelForm):
@@ -169,3 +171,78 @@ class ProjectForm(forms.ModelForm):
         widgets = {
             "resumo": forms.Textarea(attrs={"rows": 3}),
         }
+
+
+class TarefaForm(forms.ModelForm):
+    class Meta:
+        model = Tarefa
+        fields = ["titulo", "descricao", "status", "prioridade", "frente", "prazo"]
+        widgets = {
+            "descricao": forms.Textarea(attrs={"rows": 4}),
+            "prazo": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+        }
+
+
+class TarefaRapidaForm(forms.ModelForm):
+    class Meta:
+        model = Tarefa
+        fields = ["titulo", "frente", "prioridade", "prazo"]
+        widgets = {
+            "titulo": forms.TextInput(
+                attrs={"placeholder": "Nova tarefa…", "autocomplete": "off", "class": "erp-search"}
+            ),
+            "prazo": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+        }
+
+
+class JSONOpcional(forms.JSONField):
+    def prepare_value(self, value):
+        if value in (None, "", {}):
+            return ""
+        return super().prepare_value(value)
+
+
+class BuscaLeadsForm(forms.ModelForm):
+    LIMITE_TOTAL = 500
+
+    entrada_extra = JSONOpcional(
+        label="Opções extras do actor",
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 3, "placeholder": '{"scrapeContacts": true}'}),
+        help_text="Opcional. JSON somado à entrada do Apify. Alguns extras são cobrados à parte.",
+    )
+
+    class Meta:
+        model = BuscaLeads
+        fields = ["nome", "termos", "local", "max_por_termo", "pular_fechados", "entrada_extra"]
+        widgets = {
+            "termos": forms.Textarea(attrs={"rows": 4, "placeholder": "clínica de estética\nharmonização facial"}),
+            "local": forms.TextInput(attrs={"placeholder": "Itajaí, SC, Brasil"}),
+        }
+
+    def clean_max_por_termo(self):
+        valor = self.cleaned_data["max_por_termo"]
+        if valor < 1 or valor > 200:
+            raise forms.ValidationError("Use de 1 a 200 lugares por termo.")
+        return valor
+
+    def clean_entrada_extra(self):
+        valor = self.cleaned_data.get("entrada_extra")
+        if valor in (None, ""):
+            return {}
+        if not isinstance(valor, dict):
+            raise forms.ValidationError("Use um objeto JSON, como {\"scrapeContacts\": true}.")
+        return valor
+
+    def clean(self):
+        dados = super().clean()
+        termos = [t.strip() for t in (dados.get("termos") or "").splitlines() if t.strip()]
+        if "termos" in dados and not termos:
+            self.add_error("termos", "Informe pelo menos um termo.")
+        maximo = dados.get("max_por_termo")
+        if termos and maximo and len(termos) * maximo > self.LIMITE_TOTAL:
+            self.add_error(
+                "max_por_termo",
+                f"Até {self.LIMITE_TOTAL} lugares por busca: {len(termos)} termo(s) × {maximo} passa disso.",
+            )
+        return dados

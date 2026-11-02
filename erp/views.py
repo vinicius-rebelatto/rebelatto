@@ -1,6 +1,6 @@
 import csv
 import io
-import re
+import json
 from collections import Counter
 from functools import wraps
 
@@ -8,20 +8,30 @@ from django.contrib import messages
 from django.db import transaction
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.text import slugify
+from django.utils import timezone
 from django.views.decorators.http import require_http_methods, require_POST
 
-from crm.importacao import dados_novos, linha_apify, qualificar_linhas, recalcular_importados
-from crm.models import Cliente, Mockup, PerfilNicho
+from crm.importacao import (
+    dados_novos,
+    duplicatas_no_lote as _duplicatas_no_arquivo,
+    e_duplicata as _e_duplicata,
+    linha_apify,
+    qualificar_linhas,
+    recalcular_importados,
+    unique_cliente_slug as _unique_cliente_slug,
+)
+from crm import apify, buscas
+from crm.models import BuscaLeads, Cliente, Mockup, PerfilNicho
 from crm.qualificacao import FORA, LEVA
 from portfolio.mockup_landings import biblioteca_do_nicho
 from portfolio.models import Project
 
 from .forms import (
+    BuscaLeadsForm,
     ClienteForm,
     CsvImportForm,
     MockupForm,
@@ -29,8 +39,11 @@ from .forms import (
     MockupImagemFormSet,
     ProjectForm,
     RejectForm,
+    TarefaForm,
+    TarefaRapidaForm,
 )
 from .mixins import ListingMixin
+from .models import Tarefa
 
 
 def staff_required(view_func):
@@ -100,6 +113,8 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         "em_prospeccao": status_counts.get(Cliente.Status.EM_PROSPECCAO, 0),
         "convertidos": status_counts.get(Cliente.Status.CONVERTIDO, 0),
         "rejeitados": status_counts.get(Cliente.Status.REJEITADO, 0),
+        "tarefas_proximas": list(Tarefa.objects.exclude(status=Tarefa.Status.FEITA)[:6]),
+        "tarefas_abertas": Tarefa.objects.exclude(status=Tarefa.Status.FEITA).count(),
     }
     return render(request, "erp/dashboard.html", context)
 
@@ -189,6 +204,9 @@ def cliente_detail(request: HttpRequest, pk: int) -> HttpResponse:
             "templates_lead": biblioteca_do_nicho("estetica"),
             "projetos": cliente.projetos.all(),
             "unidades": unidades,
+            "dados_maps_json": json.dumps(cliente.dados_maps, ensure_ascii=False, indent=2)
+            if cliente.dados_maps
+            else "",
         },
     )
 
@@ -389,53 +407,6 @@ def _detect_csv_delimiter(text: str) -> str:
     if first_line.count(";") >= first_line.count(","):
         return ";"
     return ","
-
-
-def _normalize_phone(phone: str) -> str:
-    return re.sub(r"\D+", "", phone or "")
-
-
-def _unique_cliente_slug(base: str) -> str:
-    slug_base = slugify(base)[:180] or "cliente"
-    candidate = slug_base
-    index = 2
-    while Cliente.objects.filter(slug=candidate).exists():
-        candidate = f"{slug_base}-{index}"
-        index += 1
-    return candidate
-
-
-def _e_duplicata(empresa: str, telefone: str, cidade: str) -> bool:
-    phone_norm = _normalize_phone(telefone)
-    if phone_norm and len(phone_norm) >= 8:
-        return Cliente.objects.filter(telefone__icontains=phone_norm[-8:]).exists()
-    return Cliente.objects.filter(empresa__iexact=empresa, cidade__iexact=cidade).exists()
-
-
-def _duplicatas_no_arquivo(linhas: list[dict]) -> int:
-    """Mesmo telefone repete. Mesmo nome em outra unidade, com outro telefone, continua lead."""
-    extras = 0
-    telefones: set[str] = set()
-    sem_telefone: set[tuple[str, str]] = set()
-    for linha in linhas:
-        if linha.get("duplicate"):
-            continue
-        phone_norm = _normalize_phone(linha.get("telefone") or "")
-        if len(phone_norm) >= 8:
-            chave = phone_norm[-8:]
-            if chave in telefones:
-                linha["duplicate"] = True
-                extras += 1
-                continue
-            telefones.add(chave)
-            continue
-        par = ((linha.get("empresa") or "").casefold(), (linha.get("cidade") or "").casefold())
-        if par in sem_telefone:
-            linha["duplicate"] = True
-            extras += 1
-            continue
-        sem_telefone.add(par)
-    return extras
 
 
 @staff_required
@@ -760,3 +731,230 @@ def project_reorder(request: HttpRequest) -> HttpResponse:
 
     messages.success(request, "Ordem da vitrine atualizada.")
     return redirect("erp:project_list")
+
+
+# --- Buscas no Apify -------------------------------------------------------
+
+
+@staff_required
+def cliente_busca_list(request: HttpRequest) -> HttpResponse:
+    return render(
+        request,
+        "erp/clientes/buscas.html",
+        {
+            "page_title": "Buscas de leads",
+            "buscas": BuscaLeads.objects.all()[:100],
+            "apify_configurado": apify.configurado(),
+        },
+    )
+
+
+@staff_required
+@require_http_methods(["GET", "POST"])
+def cliente_busca_create(request: HttpRequest) -> HttpResponse:
+    origem = None
+    if request.GET.get("copiar"):
+        origem = BuscaLeads.objects.filter(pk=request.GET["copiar"]).first()
+    if request.method == "POST":
+        form = BuscaLeadsForm(request.POST)
+        if form.is_valid():
+            busca = form.save()
+            if request.POST.get("iniciar") == "1":
+                return _iniciar_busca(request, busca)
+            messages.success(request, "Busca salva. Confira e clique em Iniciar.")
+            return redirect("erp:cliente_busca_detail", pk=busca.pk)
+    else:
+        inicial = {}
+        if origem is not None:
+            inicial = {
+                "nome": f"{origem.nome} (cópia)",
+                "termos": origem.termos,
+                "local": origem.local,
+                "max_por_termo": origem.max_por_termo,
+                "pular_fechados": origem.pular_fechados,
+                "entrada_extra": origem.entrada_extra or None,
+            }
+        form = BuscaLeadsForm(initial=inicial)
+    return render(
+        request,
+        "erp/clientes/busca_form.html",
+        {
+            "page_title": "Nova busca de leads",
+            "form": form,
+            "apify_configurado": apify.configurado(),
+        },
+    )
+
+
+def _iniciar_busca(request: HttpRequest, busca: BuscaLeads) -> HttpResponse:
+    try:
+        buscas.iniciar(busca)
+    except apify.ApifyError as exc:
+        busca.status = BuscaLeads.Status.ERRO
+        busca.erro = str(exc)
+        busca.save(update_fields=["status", "erro", "updated_at"])
+        messages.error(request, f"Não foi possível iniciar: {exc}")
+    else:
+        messages.success(request, "Busca iniciada no Apify. Esta página se atualiza sozinha até terminar.")
+    return redirect("erp:cliente_busca_detail", pk=busca.pk)
+
+
+@staff_required
+def cliente_busca_detail(request: HttpRequest, pk: int) -> HttpResponse:
+    busca = get_object_or_404(BuscaLeads, pk=pk)
+    if buscas.precisa_verificar(busca):
+        try:
+            busca = buscas.atualizar(busca.pk)
+        except apify.ApifyError as exc:
+            messages.error(request, f"Não consegui consultar o Apify agora: {exc}")
+    leads = busca.leads.order_by("ordem_fila", "-nota", "empresa")
+    categorias = (
+        leads.values("categoria_lead").annotate(total=Count("id")).order_by("-total")
+    )
+    rotulos = dict(Cliente.CategoriaLead.choices)
+    return render(
+        request,
+        "erp/clientes/busca_detail.html",
+        {
+            "page_title": busca.nome,
+            "busca": busca,
+            "leads": leads[:300],
+            "categorias": [
+                {"valor": c["categoria_lead"], "rotulo": rotulos.get(c["categoria_lead"], "Sem categoria"), "total": c["total"]}
+                for c in categorias
+            ],
+            "entrada": json.dumps(busca.entrada(), ensure_ascii=False, indent=2),
+        },
+    )
+
+
+@staff_required
+@require_POST
+def cliente_busca_iniciar(request: HttpRequest, pk: int) -> HttpResponse:
+    busca = get_object_or_404(BuscaLeads, pk=pk)
+    if not busca.pode_iniciar:
+        messages.warning(request, "Esta busca já foi iniciada.")
+        return redirect("erp:cliente_busca_detail", pk=busca.pk)
+    return _iniciar_busca(request, busca)
+
+
+@staff_required
+@require_POST
+def cliente_busca_delete(request: HttpRequest, pk: int) -> HttpResponse:
+    busca = get_object_or_404(BuscaLeads, pk=pk)
+    if busca.status == BuscaLeads.Status.RODANDO:
+        messages.error(request, "Espere a busca terminar antes de excluir.")
+        return redirect("erp:cliente_busca_detail", pk=busca.pk)
+    busca.delete()
+    messages.success(request, "Busca excluída. Os leads importados continuam em Clientes.")
+    return redirect("erp:cliente_busca_list")
+
+
+# --- Tarefas ----------------------------------------------------------------
+
+
+def _filtrar_tarefas(request: HttpRequest, queryset):
+    filtros = {}
+    q = (request.GET.get("q") or "").strip()
+    if q:
+        queryset = queryset.filter(Q(titulo__icontains=q) | Q(descricao__icontains=q))
+    frente = request.GET.get("frente") or ""
+    if frente in Tarefa.Frente.values:
+        queryset = queryset.filter(frente=frente)
+        filtros["frente"] = frente
+    prioridade = request.GET.get("prioridade") or ""
+    if prioridade.isdigit() and int(prioridade) in Tarefa.Prioridade.values:
+        queryset = queryset.filter(prioridade=int(prioridade))
+        filtros["prioridade"] = prioridade
+    return queryset, q, filtros
+
+
+@staff_required
+@require_http_methods(["GET", "POST"])
+def tarefa_list(request: HttpRequest) -> HttpResponse:
+    if request.method == "POST":
+        rapida = TarefaRapidaForm(request.POST)
+        if rapida.is_valid():
+            rapida.save()
+            messages.success(request, "Tarefa criada.")
+            return redirect(request.get_full_path())
+    else:
+        rapida = TarefaRapidaForm()
+    tarefas, q, filtros = _filtrar_tarefas(request, Tarefa.objects.all())
+    abertas = tarefas.exclude(status=Tarefa.Status.FEITA)
+    feitas = tarefas.filter(status=Tarefa.Status.FEITA).order_by("-concluida_em")
+    colunas = [
+        {"status": valor, "rotulo": rotulo, "tarefas": [t for t in abertas if t.status == valor]}
+        for valor, rotulo in Tarefa.Status.choices
+        if valor != Tarefa.Status.FEITA
+    ]
+    colunas.append(
+        {"status": Tarefa.Status.FEITA, "rotulo": "Feitas", "tarefas": list(feitas[:20]), "total": feitas.count()}
+    )
+    hoje = timezone.localdate()
+    return render(
+        request,
+        "erp/tarefas/list.html",
+        {
+            "page_title": "Tarefas",
+            "colunas": colunas,
+            "rapida": rapida,
+            "q": q,
+            "filtros": filtros,
+            "frentes": Tarefa.Frente.choices,
+            "prioridades": Tarefa.Prioridade.choices,
+            "atrasadas": abertas.filter(prazo__lt=hoje).count(),
+            "hoje": abertas.filter(prazo=hoje).count(),
+            "total_abertas": abertas.count(),
+        },
+    )
+
+
+@staff_required
+@require_http_methods(["GET", "POST"])
+def tarefa_create(request: HttpRequest) -> HttpResponse:
+    form = TarefaForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Tarefa criada.")
+        return redirect("erp:tarefa_list")
+    return render(request, "erp/tarefas/form.html", {"page_title": "Nova tarefa", "form": form})
+
+
+@staff_required
+@require_http_methods(["GET", "POST"])
+def tarefa_edit(request: HttpRequest, pk: int) -> HttpResponse:
+    tarefa = get_object_or_404(Tarefa, pk=pk)
+    form = TarefaForm(request.POST or None, instance=tarefa)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Tarefa salva.")
+        return redirect("erp:tarefa_list")
+    return render(
+        request,
+        "erp/tarefas/form.html",
+        {"page_title": "Editar tarefa", "form": form, "tarefa": tarefa},
+    )
+
+
+@staff_required
+@require_POST
+def tarefa_status(request: HttpRequest, pk: int) -> HttpResponse:
+    tarefa = get_object_or_404(Tarefa, pk=pk)
+    status = request.POST.get("status") or ""
+    if status in Tarefa.Status.values:
+        tarefa.status = status
+        tarefa.save()
+    destino = request.POST.get("next") or ""
+    if destino.startswith("/") and not destino.startswith("//"):
+        return redirect(destino)
+    return redirect("erp:tarefa_list")
+
+
+@staff_required
+@require_POST
+def tarefa_delete(request: HttpRequest, pk: int) -> HttpResponse:
+    tarefa = get_object_or_404(Tarefa, pk=pk)
+    tarefa.delete()
+    messages.success(request, "Tarefa excluída.")
+    return redirect("erp:tarefa_list")

@@ -1,0 +1,40 @@
+{% extends "erp/base.html" %}
+
+{% block page_actions %}
+<a class="btn btn-primary btn-sm" href="{% url 'erp:cliente_busca_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Nova busca</span>
+</a>
+{% endblock %}
+
+{% block content %}
+{% if not apify_configurado %}
+<div class="erp-alert erp-alert--warning"><div class="erp-alert__body">Defina <code>APIFY_TOKEN</code> no <code>.env</code> do servidor para iniciar buscas. Você já pode montar e salvar as buscas.</div></div>
+{% endif %}
+<section class="erp-card">
+  <p class="erp-muted">Cada busca roda o Google Maps Scraper no Apify. Quando termina, os lugares entram como leads importados, já qualificados, e aparecem na Filtragem.</p>
+  <div class="erp-table-wrap">
+    <table class="erp-table">
+      <thead>
+        <tr><th>Busca</th><th>Local</th><th>Status</th><th class="erp-num">Lugares</th><th class="erp-num">Novos</th><th class="erp-num">Primeira leva</th><th class="erp-num">Custo</th><th>Criada</th></tr>
+      </thead>
+      <tbody>
+        {% for b in buscas %}
+        <tr>
+          <td><a href="{% url 'erp:cliente_busca_detail' b.pk %}">{{ b.nome }}</a></td>
+          <td>{{ b.local }}</td>
+          <td><span class="erp-badge erp-badge--{{ b.status }}">{{ b.get_status_display }}</span></td>
+          <td class="erp-num">{{ b.lugares }}</td>
+          <td class="erp-num">{{ b.novos }}</td>
+          <td class="erp-num">{{ b.na_leva }}</td>
+          <td class="erp-num">{% if b.custo_usd is not None %}US$ {{ b.custo_usd|floatformat:2 }}{% else %}—{% endif %}</td>
+          <td>{{ b.created_at|date:"d/m/Y H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="erp-empty">Nenhuma busca ainda. Comece com um termo, uma cidade e uns 20 lugares para testar.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

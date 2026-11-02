@@ -29,6 +29,10 @@
           {% include "erp/partials/icon.html" with name="dashboard" %}
           <span>Dashboard</span>
         </a>
+        <a class="erp-nav__link{% if 'tarefa' in request.resolver_match.url_name %} is-active{% endif %}" href="{% url 'erp:tarefa_list' %}">
+          {% include "erp/partials/icon.html" with name="check" %}
+          <span>Tarefas</span>
+        </a>
         <a class="erp-nav__link{% if 'cliente' in request.resolver_match.url_name %} is-active{% endif %}" href="{% url 'erp:cliente_list' %}">
           {% include "erp/partials/icon.html" with name="users" %}
           <span>Clientes</span>
@@ -76,6 +80,10 @@
                   {% include "erp/partials/icon.html" with name="filter" %}
                 {% elif n == "cliente_import" %}
                   {% include "erp/partials/icon.html" with name="upload" %}
+                {% elif "tarefa" in n %}
+                  {% include "erp/partials/icon.html" with name="check" %}
+                {% elif "busca" in n %}
+                  {% include "erp/partials/icon.html" with name="search" %}
                 {% elif "cliente" in n %}
                   {% include "erp/partials/icon.html" with name="users" %}
                 {% elif "mockup" in n %}

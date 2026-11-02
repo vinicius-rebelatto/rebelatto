@@ -1,0 +1,93 @@
+{% extends "erp/base.html" %}
+
+{% block extra_head %}
+{% if busca.status == 'rodando' %}<meta http-equiv="refresh" content="15">{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'erp:cliente_busca_create' %}?copiar={{ busca.pk }}">
+  {% include "erp/partials/icon.html" with name="refresh" %}
+  <span>Repetir com ajustes</span>
+</a>
+{% if busca.pode_iniciar %}
+<form method="post" action="{% url 'erp:cliente_busca_iniciar' busca.pk %}">
+  {% csrf_token %}
+  <button class="btn btn-primary btn-sm" type="submit">
+    {% include "erp/partials/icon.html" with name="search" %}
+    <span>{% if busca.status == 'erro' %}Tentar de novo{% else %}Iniciar{% endif %}</span>
+  </button>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if busca.status == 'rodando' %}
+<div class="erp-alert erp-alert--warning"><div class="erp-alert__body">Rodando no Apify ({{ busca.status_apify|default:"iniciando" }}). A página se atualiza a cada 15 segundos e importa os leads quando a busca terminar.</div></div>
+{% elif busca.status == 'erro' %}
+<div class="erp-alert erp-alert--danger"><div class="erp-alert__body">{{ busca.erro }}</div></div>
+{% endif %}
+
+<section class="erp-metrics">
+  <article class="erp-metric"><span class="erp-metric__label">{% include "erp/partials/icon.html" with name="search" %}<span>Lugares encontrados</span></span><strong class="erp-metric__value">{{ busca.lugares }} <small>/ {{ busca.limite_lugares }}</small></strong></article>
+  <article class="erp-metric"><span class="erp-metric__label">{% include "erp/partials/icon.html" with name="inbox" %}<span>Leads novos</span></span><strong class="erp-metric__value">{{ busca.novos }}</strong></article>
+  <article class="erp-metric"><span class="erp-metric__label">{% include "erp/partials/icon.html" with name="target" %}<span>Primeira leva</span></span><strong class="erp-metric__value">{{ busca.na_leva }}</strong></article>
+  <article class="erp-metric"><span class="erp-metric__label">{% include "erp/partials/icon.html" with name="trending" %}<span>Custo no Apify</span></span><strong class="erp-metric__value">{% if busca.custo_usd is not None %}US$ {{ busca.custo_usd|floatformat:3 }}{% else %}—{% endif %}</strong></article>
+</section>
+
+<section class="erp-grid-2">
+  <article class="erp-card">
+    <div class="erp-card__header">
+      <h2 class="erp-heading">{% include "erp/partials/icon.html" with name="users" %}<span>Leads desta busca</span></h2>
+      {% if busca.novos %}<a class="btn btn-outline btn-sm" href="{% url 'erp:cliente_filtragem' %}">Ir para a Filtragem</a>{% endif %}
+    </div>
+    {% if categorias %}
+    <p>{% for c in categorias %}<span class="erp-badge erp-badge--{{ c.valor }}">{{ c.rotulo }} · {{ c.total }}</span> {% endfor %}</p>
+    {% endif %}
+    <div class="erp-table-wrap">
+      <table class="erp-table erp-table--compact">
+        <thead><tr><th>Empresa</th><th>Categoria</th><th class="erp-num">Nota</th><th>Telefone</th><th>Cidade</th><th class="erp-num">Avaliações</th></tr></thead>
+        <tbody>
+          {% for c in leads %}
+          <tr>
+            <td><a href="{% url 'erp:cliente_detail' c.pk %}">{{ c.display_name }}</a></td>
+            <td>{% if c.categoria_lead %}<span class="erp-badge erp-badge--{{ c.categoria_lead }}">{{ c.get_categoria_lead_display }}</span>{% else %}—{% endif %}</td>
+            <td class="erp-num">{{ c.nota }}</td>
+            <td class="erp-nowrap">{{ c.telefone|default:"—" }}</td>
+            <td>{{ c.cidade|default:"—" }}</td>
+            <td class="erp-num">{{ c.avaliacoes|default:"—" }}{% if c.nota_maps %} · {{ c.nota_maps }}{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="erp-empty">{% if busca.status == 'concluida' %}Nenhum lead novo: todos já estavam no sistema.{% else %}Os leads aparecem aqui quando a busca terminar.{% endif %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="erp-card">
+    <div class="erp-card__header">
+      <h2 class="erp-heading">{% include "erp/partials/icon.html" with name="file" %}<span>Configuração</span></h2>
+      <span class="erp-badge erp-badge--{{ busca.status }}">{{ busca.get_status_display }}</span>
+    </div>
+    <dl class="erp-dl erp-dl--stack">
+      <div><dt>Termos</dt><dd>{% for t in busca.termos_lista %}<span class="erp-tag">{{ t }}</span>{% endfor %}</dd></div>
+      <div><dt>Local</dt><dd>{{ busca.local }}</dd></div>
+      <div><dt>Máximo por termo</dt><dd>{{ busca.max_por_termo }}</dd></div>
+      <div><dt>Duplicados ignorados</dt><dd>{{ busca.duplicados }}</dd></div>
+      {% if busca.iniciada_em %}<div><dt>Iniciada</dt><dd>{{ busca.iniciada_em|date:"d/m/Y H:i" }}</dd></div>{% endif %}
+      {% if busca.concluida_em %}<div><dt>Terminou</dt><dd>{{ busca.concluida_em|date:"d/m/Y H:i" }}</dd></div>{% endif %}
+      {% if busca.run_id %}<div><dt>Execução no Apify</dt><dd><a href="https://console.apify.com/actors/runs/{{ busca.run_id }}" target="_blank" rel="noopener"><code>{{ busca.run_id }}</code></a></dd></div>{% endif %}
+      <div><dt>Entrada enviada</dt><dd><details><summary>Ver JSON</summary><pre class="erp-pre">{{ entrada }}</pre></details></dd></div>
+    </dl>
+    {% if busca.status != 'rodando' %}
+    <form method="post" action="{% url 'erp:cliente_busca_delete' busca.pk %}" onsubmit="return confirm('Excluir esta busca? Os leads continuam em Clientes.');" class="erp-danger-zone">
+      {% csrf_token %}
+      <button class="btn btn-danger btn-sm" type="submit">
+        {% include "erp/partials/icon.html" with name="trash" %}
+        <span>Excluir busca</span>
+      </button>
+    </form>
+    {% endif %}
+  </article>
+</section>
+{% endblock %}

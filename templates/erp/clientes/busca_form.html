@@ -1,0 +1,59 @@
+{% extends "erp/base.html" %}
+
+{% block content %}
+{% if not apify_configurado %}
+<div class="erp-alert erp-alert--warning"><div class="erp-alert__body">O <code>APIFY_TOKEN</code> ainda não está no servidor. Dá para salvar a busca, mas não para iniciar.</div></div>
+{% endif %}
+<section class="erp-card">
+  <form method="post" class="erp-form erp-form--grid" data-busca-form>
+    {% csrf_token %}
+    {% for field in form %}
+    <label class="erp-field {% if field.name == 'termos' or field.name == 'entrada_extra' or field.name == 'nome' %}erp-field--full{% endif %}{% if field.name == 'pular_fechados' %} erp-field--check{% endif %}">
+      <span>{{ field.label }}</span>
+      {{ field }}
+      {% if field.help_text %}<small class="erp-muted">{{ field.help_text }}</small>{% endif %}
+      {% if field.errors %}<span class="erp-error">{{ field.errors|striptags }}</span>{% endif %}
+    </label>
+    {% endfor %}
+    {% if form.non_field_errors %}<p class="erp-error erp-field--full">{{ form.non_field_errors|striptags }}</p>{% endif %}
+    <p class="erp-muted erp-field--full" data-busca-estimativa></p>
+    <div class="erp-form__actions erp-field--full">
+      {% if apify_configurado %}
+      <button class="btn btn-primary" type="submit" name="iniciar" value="1">
+        {% include "erp/partials/icon.html" with name="search" %}
+        <span>Salvar e iniciar</span>
+      </button>
+      {% endif %}
+      <button class="btn btn-outline" type="submit">
+        {% include "erp/partials/icon.html" with name="save" %}
+        <span>Só salvar</span>
+      </button>
+      <a class="btn btn-outline" href="{% url 'erp:cliente_busca_list' %}">
+        {% include "erp/partials/icon.html" with name="back" %}
+        <span>Voltar</span>
+      </a>
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var form = document.querySelector("[data-busca-form]");
+  if (!form) return;
+  var termos = form.querySelector("[name=termos]");
+  var maximo = form.querySelector("[name=max_por_termo]");
+  var saida = form.querySelector("[data-busca-estimativa]");
+  function calcular() {
+    var n = termos.value.split("\n").map(function (t) { return t.trim(); }).filter(Boolean).length;
+    var total = n * (parseInt(maximo.value, 10) || 0);
+    var custo = (total / 1000) * 4;
+    saida.textContent = n ? "Até " + total + " lugares (" + n + " termo(s) × " + (maximo.value || 0) + "). No plano grátis, cerca de US$ " + custo.toFixed(2).replace(".", ",") + "." : "";
+  }
+  termos.addEventListener("input", calcular);
+  maximo.addEventListener("input", calcular);
+  calcular();
+})();
+</script>
+{% endblock %}

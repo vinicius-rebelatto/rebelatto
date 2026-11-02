@@ -2246,3 +2246,150 @@
 .erp-badge--sem_telefone {
   --badge-color: var(--erp-danger);
 }
+
+/* ---------- Buscas de leads ---------- */
+
+.erp-badge--rodando {
+  --badge-color: var(--erp-info);
+}
+
+.erp-badge--concluida {
+  --badge-color: var(--erp-success);
+}
+
+/* ---------- Tarefas ---------- */
+
+.erp-tarefa-rapida input[name="titulo"] {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.erp-quadro {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.erp-quadro__coluna {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--erp-border);
+  border-radius: var(--erp-radius);
+  background: var(--erp-surface-2);
+  min-width: 0;
+}
+
+.erp-quadro__titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--erp-text-muted);
+}
+
+.erp-quadro__total {
+  min-width: 1.6rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: var(--erp-surface);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.erp-quadro__vazio {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.erp-tarefa {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--erp-border);
+  border-radius: var(--erp-radius-sm);
+  background: var(--erp-surface);
+  box-shadow: var(--erp-shadow-sm);
+}
+
+.erp-tarefa.is-late {
+  border-color: color-mix(in srgb, var(--erp-danger) 45%, var(--erp-border));
+}
+
+.erp-quadro__coluna--feita .erp-tarefa {
+  opacity: 0.75;
+}
+
+.erp-quadro__coluna--feita .erp-tarefa__titulo {
+  text-decoration: line-through;
+}
+
+.erp-tarefa__titulo {
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+  color: var(--erp-text) !important;
+}
+
+.erp-tarefa__desc {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--erp-text-muted);
+}
+
+.erp-tarefa__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+}
+
+.erp-tarefa__meta .erp-tag {
+  margin: 0;
+}
+
+.erp-tarefa__prazo {
+  color: var(--erp-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.erp-tarefa__prazo.is-late {
+  color: var(--erp-danger);
+  font-weight: 600;
+}
+
+.erp-tarefa__prazo.is-today {
+  color: var(--erp-warning);
+  font-weight: 600;
+}
+
+.erp-tarefa__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.erp-tarefas-resumo li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 1100px) {
+  .erp-quadro {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .erp-quadro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

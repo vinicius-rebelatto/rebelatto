@@ -10,6 +10,7 @@ from decimal import Decimal
 
 from django.db import transaction
 from django.utils import timezone
+from django.utils.text import slugify
 
 from crm.models import Cliente
 from crm.presenca import classificar_por_url, visitar_varios
@@ -280,3 +281,52 @@ def recalcular_importados(perfil) -> tuple[int, int]:
         with transaction.atomic():
             Cliente.objects.bulk_update(leads, CAMPOS_SALVAR, batch_size=100)
     return len(leads), len(pendentes)
+
+
+def normalizar_telefone(telefone: str) -> str:
+    return re.sub(r"\D+", "", telefone or "")
+
+
+def unique_cliente_slug(base: str) -> str:
+    slug_base = slugify(base)[:180] or "cliente"
+    candidate = slug_base
+    index = 2
+    while Cliente.objects.filter(slug=candidate).exists():
+        candidate = f"{slug_base}-{index}"
+        index += 1
+    return candidate
+
+
+def e_duplicata(empresa: str, telefone: str, cidade: str, place_id: str = "") -> bool:
+    if place_id and Cliente.objects.filter(place_id=place_id).exists():
+        return True
+    phone_norm = normalizar_telefone(telefone)
+    if phone_norm and len(phone_norm) >= 8:
+        return Cliente.objects.filter(telefone__icontains=phone_norm[-8:]).exists()
+    return Cliente.objects.filter(empresa__iexact=empresa, cidade__iexact=cidade).exists()
+
+
+def duplicatas_no_lote(linhas: list[dict]) -> int:
+    """Mesmo telefone repete. Mesmo nome em outra unidade, com outro telefone, continua lead."""
+    extras = 0
+    telefones: set[str] = set()
+    sem_telefone: set[tuple[str, str]] = set()
+    for linha in linhas:
+        if linha.get("duplicate"):
+            continue
+        phone_norm = normalizar_telefone(linha.get("telefone") or "")
+        if len(phone_norm) >= 8:
+            chave = phone_norm[-8:]
+            if chave in telefones:
+                linha["duplicate"] = True
+                extras += 1
+                continue
+            telefones.add(chave)
+            continue
+        par = ((linha.get("empresa") or "").casefold(), (linha.get("cidade") or "").casefold())
+        if par in sem_telefone:
+            linha["duplicate"] = True
+            extras += 1
+            continue
+        sem_telefone.add(par)
+    return extras

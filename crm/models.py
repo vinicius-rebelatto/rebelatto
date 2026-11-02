@@ -13,6 +13,7 @@ class Cliente(models.Model):
     class Origem(models.TextChoices):
         CONTATO = "contato", "Seção Contato"
         CSV = "csv", "Importação CSV"
+        APIFY = "apify", "Busca no Apify"
         MANUAL = "manual", "Manual"
 
     class EtapaRejeicao(models.TextChoices):
@@ -104,6 +105,32 @@ class Cliente(models.Model):
     mockup_visto_em = models.DateTimeField("Mockup visto em", null=True, blank=True)
     mockup_visitas = models.PositiveIntegerField("Visitas ao mockup", default=0)
 
+    busca = models.ForeignKey(
+        "BuscaLeads",
+        verbose_name="Busca de origem",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="leads",
+    )
+    place_id = models.CharField("ID do lugar no Google", max_length=128, blank=True, db_index=True)
+    bairro = models.CharField("Bairro", max_length=120, blank=True)
+    cep = models.CharField("CEP", max_length=20, blank=True)
+    latitude = models.DecimalField("Latitude", max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField("Longitude", max_digits=9, decimal_places=6, null=True, blank=True)
+    descricao_maps = models.TextField("Descrição no Maps", blank=True)
+    faixa_preco = models.CharField("Faixa de preço", max_length=40, blank=True)
+    horarios = models.JSONField("Horário de funcionamento", default=list, blank=True)
+    instagram = models.CharField("Instagram", max_length=300, blank=True)
+    facebook = models.CharField("Facebook", max_length=300, blank=True)
+    anuncio = models.BooleanField("Apareceu como anúncio", default=False)
+    dados_maps = models.JSONField(
+        "Dados completos do Maps",
+        default=dict,
+        blank=True,
+        help_text="Tudo o que o Apify devolveu para este lugar.",
+    )
+
     created_at = models.DateTimeField("Criado em", auto_now_add=True)
     updated_at = models.DateTimeField("Atualizado em", auto_now=True)
 
@@ -194,6 +221,105 @@ class Cliente(models.Model):
         if self.status != self.Status.REJEITADO:
             self.etapa_rejeicao = None
         super().save(*args, **kwargs)
+
+
+class BuscaLeads(models.Model):
+    """Uma busca no Google Maps pelo Apify. Os lugares viram leads importados."""
+
+    class Status(models.TextChoices):
+        RASCUNHO = "rascunho", "Rascunho"
+        RODANDO = "rodando", "Rodando"
+        CONCLUIDA = "concluida", "Concluída"
+        ERRO = "erro", "Erro"
+
+    nome = models.CharField("Nome", max_length=120)
+    termos = models.TextField(
+        "Termos de busca",
+        help_text="Um termo por linha, como você digitaria no Google Maps.",
+    )
+    local = models.CharField(
+        "Local",
+        max_length=200,
+        help_text="Cidade, estado e país. Ex.: Itajaí, SC, Brasil",
+    )
+    max_por_termo = models.PositiveSmallIntegerField(
+        "Máximo de lugares por termo",
+        default=20,
+        help_text="Cada lugar custa. No plano grátis, conte cerca de US$ 4 por mil lugares.",
+    )
+    idioma = models.CharField("Idioma", max_length=10, default="pt-BR")
+    pular_fechados = models.BooleanField(
+        "Pular lugares fechados",
+        default=True,
+        help_text="Economiza créditos. Lugares fechados não viram leads.",
+    )
+    entrada_extra = models.JSONField(
+        "Opções extras do actor",
+        default=dict,
+        blank=True,
+        help_text='JSON somado à entrada do Apify. Ex.: {"scrapeContacts": true}. Alguns extras são cobrados à parte.',
+    )
+
+    status = models.CharField(
+        "Status", max_length=20, choices=Status.choices, default=Status.RASCUNHO
+    )
+    status_apify = models.CharField("Status no Apify", max_length=30, blank=True)
+    run_id = models.CharField("ID da execução", max_length=40, blank=True)
+    dataset_id = models.CharField("ID do dataset", max_length=40, blank=True)
+    iniciada_em = models.DateTimeField("Iniciada em", null=True, blank=True)
+    verificada_em = models.DateTimeField("Verificada em", null=True, blank=True)
+    concluida_em = models.DateTimeField("Concluída em", null=True, blank=True)
+    lugares = models.PositiveIntegerField("Lugares encontrados", default=0)
+    novos = models.PositiveIntegerField("Leads novos", default=0)
+    duplicados = models.PositiveIntegerField("Duplicados", default=0)
+    na_leva = models.PositiveIntegerField("Na primeira leva", default=0)
+    custo_usd = models.DecimalField(
+        "Custo (US$)", max_digits=10, decimal_places=4, null=True, blank=True
+    )
+    erro = models.TextField("Erro", blank=True)
+    created_at = models.DateTimeField("Criada em", auto_now_add=True)
+    updated_at = models.DateTimeField("Atualizada em", auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Busca de leads"
+        verbose_name_plural = "Buscas de leads"
+
+    def __str__(self) -> str:
+        return self.nome
+
+    @property
+    def termos_lista(self) -> list[str]:
+        vistos: list[str] = []
+        for linha in self.termos.splitlines():
+            termo = linha.strip()
+            if termo and termo not in vistos:
+                vistos.append(termo)
+        return vistos
+
+    @property
+    def limite_lugares(self) -> int:
+        return len(self.termos_lista) * self.max_por_termo
+
+    @property
+    def pode_iniciar(self) -> bool:
+        return self.status in {self.Status.RASCUNHO, self.Status.ERRO}
+
+    def entrada(self) -> dict:
+        dados = {
+            "searchStringsArray": self.termos_lista,
+            "locationQuery": self.local.strip(),
+            "maxCrawledPlacesPerSearch": self.max_por_termo,
+            "language": self.idioma or "pt-BR",
+            "skipClosedPlaces": self.pular_fechados,
+            "maxImages": 0,
+            "maxReviews": 0,
+            "scrapeContacts": False,
+            "scrapeReviewsPersonalData": False,
+        }
+        if isinstance(self.entrada_extra, dict):
+            dados.update(self.entrada_extra)
+        return dados
 
 
 class PerfilNicho(models.Model):

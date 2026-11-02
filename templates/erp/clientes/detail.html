@@ -53,6 +53,30 @@
       {% if cliente.maps_url %}
       <div><dt>Maps</dt><dd><a href="{{ cliente.maps_url }}" target="_blank" rel="noopener">Abrir</a></dd></div>
       {% endif %}
+      {% if cliente.bairro or cliente.cep %}
+      <div><dt>Bairro e CEP</dt><dd>{{ cliente.bairro|default:"—" }}{% if cliente.cep %} · {{ cliente.cep }}{% endif %}</dd></div>
+      {% endif %}
+      {% if cliente.instagram %}
+      <div><dt>Instagram</dt><dd><a href="{{ cliente.instagram }}" target="_blank" rel="noopener">{{ cliente.instagram }}</a></dd></div>
+      {% endif %}
+      {% if cliente.facebook %}
+      <div><dt>Facebook</dt><dd><a href="{{ cliente.facebook }}" target="_blank" rel="noopener">{{ cliente.facebook }}</a></dd></div>
+      {% endif %}
+      {% if cliente.faixa_preco %}
+      <div><dt>Faixa de preço</dt><dd>{{ cliente.faixa_preco }}</dd></div>
+      {% endif %}
+      {% if cliente.busca %}
+      <div><dt>Busca de origem</dt><dd><a href="{% url 'erp:cliente_busca_detail' cliente.busca_id %}">{{ cliente.busca.nome }}</a>{% if cliente.anuncio %} · apareceu como anúncio{% endif %}</dd></div>
+      {% endif %}
+      {% if cliente.horarios %}
+      <div class="erp-dl--full"><dt>Horário</dt><dd>{% for h in cliente.horarios %}{{ h.day }}: {{ h.hours }}{% if not forloop.last %} · {% endif %}{% endfor %}</dd></div>
+      {% endif %}
+      {% if cliente.descricao_maps %}
+      <div class="erp-dl--full"><dt>Descrição no Maps</dt><dd>{{ cliente.descricao_maps }}</dd></div>
+      {% endif %}
+      {% if cliente.dados_maps %}
+      <div class="erp-dl--full"><dt>Dados completos do Maps</dt><dd><details><summary>Ver todos os campos ({{ cliente.dados_maps|length }})</summary><pre class="erp-pre">{{ dados_maps_json }}</pre></details></dd></div>
+      {% endif %}
       {% if cliente.status == 'rejeitado' %}
       <div><dt>Etapa rejeição</dt><dd>{{ cliente.get_etapa_rejeicao_display|default:"—" }}</dd></div>
       <div><dt>Motivo</dt><dd>{{ cliente.motivo_rejeicao|default:"—" }}</dd></div>

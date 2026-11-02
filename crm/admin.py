@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Cliente, Mockup, MockupImagem
+from .models import BuscaLeads, Cliente, Mockup, MockupImagem
 
 
 class MockupImagemInline(admin.TabularInline):
@@ -35,3 +35,11 @@ class MockupAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("titulo",)}
     inlines = [MockupImagemInline]
     readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(BuscaLeads)
+class BuscaLeadsAdmin(admin.ModelAdmin):
+    list_display = ("nome", "local", "status", "lugares", "novos", "custo_usd", "created_at")
+    list_filter = ("status",)
+    search_fields = ("nome", "termos", "local")
+    readonly_fields = ("created_at", "updated_at", "run_id", "dataset_id")

@@ -1,0 +1,100 @@
+{% extends "erp/base.html" %}
+
+{% block page_actions %}
+<a class="btn btn-primary btn-sm" href="{% url 'erp:tarefa_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Nova tarefa</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<section class="erp-metrics">
+  <article class="erp-metric">
+    <span class="erp-metric__label">{% include "erp/partials/icon.html" with name="check" %}<span>Abertas</span></span>
+    <strong class="erp-metric__value">{{ total_abertas }}</strong>
+  </article>
+  <article class="erp-metric">
+    <span class="erp-metric__label">{% include "erp/partials/icon.html" with name="alert" %}<span>Atrasadas</span></span>
+    <strong class="erp-metric__value">{{ atrasadas }}</strong>
+  </article>
+  <article class="erp-metric">
+    <span class="erp-metric__label">{% include "erp/partials/icon.html" with name="target" %}<span>Vencem hoje</span></span>
+    <strong class="erp-metric__value">{{ hoje }}</strong>
+  </article>
+</section>
+
+<section class="erp-card">
+  <form method="post" class="erp-toolbar erp-tarefa-rapida">
+    {% csrf_token %}
+    {{ rapida.titulo }}
+    {{ rapida.frente }}
+    {{ rapida.prioridade }}
+    {{ rapida.prazo }}
+    <button class="btn btn-primary btn-sm" type="submit">
+      {% include "erp/partials/icon.html" with name="plus" %}
+      <span>Adicionar</span>
+    </button>
+    {% if rapida.errors %}<span class="erp-error">{{ rapida.errors.titulo|striptags }}</span>{% endif %}
+  </form>
+
+  <form method="get" class="erp-toolbar">
+    <input class="erp-search" type="search" name="q" value="{{ q }}" placeholder="Buscar tarefa…">
+    <select name="frente">
+      <option value="">Frente</option>
+      {% for value, label in frentes %}
+      <option value="{{ value }}" {% if filtros.frente == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="prioridade">
+      <option value="">Prioridade</option>
+      {% for value, label in prioridades %}
+      <option value="{{ value }}" {% if filtros.prioridade == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-outline btn-sm" type="submit">
+      {% include "erp/partials/icon.html" with name="search" %}
+      <span>Filtrar</span>
+    </button>
+  </form>
+</section>
+
+<section class="erp-quadro" aria-label="Quadro de tarefas">
+  {% for coluna in colunas %}
+  <div class="erp-quadro__coluna erp-quadro__coluna--{{ coluna.status }}">
+    <header class="erp-quadro__titulo">
+      <span>{{ coluna.rotulo }}</span>
+      <span class="erp-quadro__total">{% if coluna.total is not None %}{{ coluna.total }}{% else %}{{ coluna.tarefas|length }}{% endif %}</span>
+    </header>
+    {% for t in coluna.tarefas %}
+    <article class="erp-tarefa{% if t.atrasada %} is-late{% endif %}">
+      <a class="erp-tarefa__titulo" href="{% url 'erp:tarefa_edit' t.pk %}">{{ t.titulo }}</a>
+      {% if t.descricao %}<p class="erp-tarefa__desc">{{ t.descricao|truncatechars:140 }}</p>{% endif %}
+      <div class="erp-tarefa__meta">
+        <span class="erp-tag">{{ t.get_frente_display }}</span>
+        {% if t.prioridade == 1 %}<span class="erp-tag erp-tag--warning">Alta</span>{% elif t.prioridade == 3 %}<span class="erp-tag">Baixa</span>{% endif %}
+        {% if t.prazo %}<span class="erp-tarefa__prazo{% if t.atrasada %} is-late{% elif t.vence_hoje %} is-today{% endif %}">{% if t.status == 'feita' %}feita {{ t.concluida_em|date:"d/m" }}{% else %}{{ t.prazo|date:"d/m" }}{% endif %}</span>{% elif t.status == 'feita' and t.concluida_em %}<span class="erp-tarefa__prazo">feita {{ t.concluida_em|date:"d/m" }}</span>{% endif %}
+      </div>
+      <form method="post" action="{% url 'erp:tarefa_status' t.pk %}" class="erp-tarefa__acoes">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        {% if t.status == 'a_fazer' %}
+        <button class="btn btn-outline btn-sm" name="status" value="fazendo">Começar</button>
+        <button class="btn btn-primary btn-sm" name="status" value="feita">Concluir</button>
+        {% elif t.status == 'fazendo' %}
+        <button class="btn btn-outline btn-sm" name="status" value="aguardando">Aguardar</button>
+        <button class="btn btn-primary btn-sm" name="status" value="feita">Concluir</button>
+        {% elif t.status == 'aguardando' %}
+        <button class="btn btn-outline btn-sm" name="status" value="fazendo">Retomar</button>
+        <button class="btn btn-primary btn-sm" name="status" value="feita">Concluir</button>
+        {% else %}
+        <button class="btn btn-outline btn-sm" name="status" value="a_fazer">Reabrir</button>
+        {% endif %}
+      </form>
+    </article>
+    {% empty %}
+    <p class="erp-muted erp-quadro__vazio">Nada aqui.</p>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

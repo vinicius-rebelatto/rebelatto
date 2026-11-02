@@ -24,5 +24,6 @@ workers="${WEB_CONCURRENCY:-3}"
 exec gunicorn setup.wsgi:application \
   --bind 0.0.0.0:8000 \
   --workers "$workers" \
+  --timeout "${GUNICORN_TIMEOUT:-120}" \
   --access-logfile - \
   --error-logfile -
