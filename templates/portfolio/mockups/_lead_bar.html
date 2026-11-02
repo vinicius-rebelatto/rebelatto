@@ -2,16 +2,16 @@
   <aside class="rt-bar" aria-label="Página de exemplo da Rebel Tech">
     <span class="rt-bar__txt">Exemplo feito pela <strong>Rebel Tech</strong> para {{ marca.nome }}</span>
     <nav class="rt-bar__skins" aria-label="Outros estilos">
-      <a class="rt-bar__arrow" href="{% url 'portfolio:mockup_lead_template' cliente.slug anterior.slug %}" data-rt aria-label="Estilo anterior: {{ anterior.nome }}">&#8249;</a>
+      <a class="rt-bar__arrow" href="{% url 'portfolio:mockup_lead_template' cliente.slug anterior.slug %}" data-rt data-vt-go="prev" data-vt-nome="{{ anterior.nome }}" data-vt-fundo="{{ anterior.fundo }}" data-vt-tema="{{ anterior.theme }}" aria-label="Estilo anterior: {{ anterior.nome }}">&#8249;</a>
       <details class="rt-bar__menu">
         <summary data-rt>{{ landing.nome }} <span>{{ posicao }}/{{ biblioteca|length }}</span></summary>
         <div class="rt-bar__list">
           {% for t in biblioteca %}
-          <a href="{% url 'portfolio:mockup_lead_template' cliente.slug t.slug %}" data-rt{% if t.slug == landing.slug %} aria-current="page"{% endif %}>{{ forloop.counter }}. {{ t.nome }}</a>
+          <a href="{% url 'portfolio:mockup_lead_template' cliente.slug t.slug %}" data-rt data-vt-go="next" data-vt-nome="{{ t.nome }}" data-vt-fundo="{{ t.fundo }}" data-vt-tema="{{ t.theme }}"{% if t.slug == landing.slug %} aria-current="page"{% endif %}>{{ forloop.counter }}. {{ t.nome }}</a>
           {% endfor %}
         </div>
       </details>
-      <a class="rt-bar__arrow" href="{% url 'portfolio:mockup_lead_template' cliente.slug proximo.slug %}" data-rt aria-label="Próximo estilo: {{ proximo.nome }}">&#8250;</a>
+      <a class="rt-bar__arrow" href="{% url 'portfolio:mockup_lead_template' cliente.slug proximo.slug %}" data-rt data-vt-go="next" data-vt-nome="{{ proximo.nome }}" data-vt-fundo="{{ proximo.fundo }}" data-vt-tema="{{ proximo.theme }}" aria-label="Próximo estilo: {{ proximo.nome }}">&#8250;</a>
     </nav>
     <a class="rt-bar__cta" href="{{ rebel_tech_url }}" target="_blank" rel="noopener" data-rt>Quero esta página</a>
   </aside>
@@ -35,4 +35,6 @@
       });
     })();
   </script>
+{% elif vitrine %}
+{% include "portfolio/mockups/_vitrine_bar.html" %}
 {% endif %}

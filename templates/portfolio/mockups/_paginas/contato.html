@@ -21,11 +21,11 @@
           <span>Chamar no WhatsApp</span>
         </a>
       </div>
-      <figure class="pg-mapa" aria-hidden="true">
-        <span class="pg-mapa__rua pg-mapa__rua--h"></span>
-        <span class="pg-mapa__rua pg-mapa__rua--v"></span>
-        <span class="pg-mapa__pino"></span>
-        {% if marca.endereco or marca.cidade %}<figcaption>{% if marca.endereco %}{{ marca.endereco }}{% endif %}{% if marca.endereco and marca.cidade %} · {% endif %}{{ marca.cidade }}</figcaption>{% endif %}
+      <figure class="pg-mapa mk-mapa{% if marca.mapa %} mk-mapa--real{% endif %}">
+        <span class="pg-mapa__rua pg-mapa__rua--h" aria-hidden="true"></span>
+        <span class="pg-mapa__rua pg-mapa__rua--v" aria-hidden="true"></span>
+        <span class="pg-mapa__pino" aria-hidden="true"></span>
+{% include "portfolio/mockups/_mapa.html" %}
       </figure>
     </div>
   </section>

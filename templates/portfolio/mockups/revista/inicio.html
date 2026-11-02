@@ -20,12 +20,13 @@
         </article>
         <figure class="cover__art" aria-hidden="true">
           <div class="art">
+            {% if fotos.capa %}{% include "portfolio/mockups/_foto.html" with foto=fotos.capa loading="eager" decorativa=True %}{% endif %}
             <span class="art__sun"></span>
             <span class="art__line art__line--a"></span>
             <span class="art__line art__line--b"></span>
             <span class="art__type">{{ marca.nome|slice:":1" }}</span>
           </div>
-          <figcaption>Ilustração. A fotografia entra depois do contrato.</figcaption>
+          <figcaption>{% if fotos.capa %}Foto: {{ fotos.capa.autor }} / Unsplash{% else %}Ilustração. A fotografia entra depois do contrato.{% endif %}</figcaption>
         </figure>
         <aside class="index" aria-label="Nesta edição">
           <p class="index__title">Nesta edição</p>

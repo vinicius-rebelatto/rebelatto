@@ -269,3 +269,78 @@ class PaginasDosSitesTests(TestCase):
     def test_links_internos_nao_sao_bloqueados_no_modo_lead(self):
         response = self.client.get(f"/p/{self.cliente.slug}/consultorio/")
         self.assertContains(response, 'href.charAt(0) === "/"')
+
+
+class VitrineTests(TestCase):
+    ORDEM = BibliotecaEsteticaTests.ORDEM
+
+    def test_home_mostra_a_vitrine_com_os_estilos_publicados(self):
+        response = self.client.get("/")
+        self.assertContains(response, 'id="vitrine"')
+        self.assertContains(response, "Veja seu site antes de ele existir")
+        self.assertContains(response, 'href="#vitrine"')
+        self.assertEqual(response.content.decode().count("data-vt-item"), len(self.ORDEM))
+        for slug in self.ORDEM:
+            self.assertContains(response, f'data-url="/mockups/{slug}/"')
+            self.assertContains(response, f"img/vitrine/{slug}-desktop.webp")
+
+    def test_estilo_arquivado_sai_da_vitrine_e_das_setas(self):
+        from crm.models import Mockup
+
+        Mockup.objects.filter(slug="luxo").update(status=Mockup.Status.ARQUIVADO)
+        home = self.client.get("/").content.decode()
+        self.assertNotIn('data-slug="luxo"', home)
+        response = self.client.get("/mockups/consultorio/")
+        self.assertContains(response, 'href="/mockups/harmonizacao/" data-rt data-vt-go="next"')
+
+    def test_setas_do_provador_dao_a_volta_na_biblioteca(self):
+        primeiro = self.client.get(f"/mockups/{self.ORDEM[0]}/")
+        self.assertContains(primeiro, 'class="vt-bar"')
+        self.assertContains(primeiro, f'href="/mockups/{self.ORDEM[-1]}/" data-rt data-vt-go="prev"')
+        self.assertContains(primeiro, f'href="/mockups/{self.ORDEM[1]}/" data-rt data-vt-go="next"')
+        self.assertContains(primeiro, f"1/{len(self.ORDEM)}")
+
+        ultimo = self.client.get(f"/mockups/{self.ORDEM[-1]}/sobre/")
+        self.assertContains(ultimo, f'href="/mockups/{self.ORDEM[0]}/" data-rt data-vt-go="next"')
+
+    def test_demo_fora_da_biblioteca_nao_ganha_barra(self):
+        response = self.client.get("/mockups/odontologia/")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'class="vt-bar"')
+
+
+class FotosEMapaTests(TestCase):
+    def test_espacos_de_foto_usam_unsplash_com_credito(self):
+        casos = {
+            "/mockups/consultorio/": 2,
+            "/mockups/luxo/": 1,
+            "/mockups/revista/": 1,
+            "/mockups/retrato/": 1,
+            "/mockups/acolhedora/": 1,
+            "/mockups/clinica/sobre/": 1,
+        }
+        for url, quantas in casos.items():
+            with self.subTest(url=url):
+                html = self.client.get(url).content.decode()
+                self.assertEqual(html.count('class="mk-foto'), quantas)
+                self.assertIn("images.unsplash.com/photo-", html)
+                self.assertNotIn("A fotografia entra depois do contrato", html)
+        self.assertContains(self.client.get("/mockups/revista/"), "Foto: Alexander Aguero / Unsplash")
+
+    def test_mapa_mostra_o_endereco_do_demo(self):
+        response = self.client.get("/mockups/clinica/")
+        self.assertContains(response, 'class="mk-mapa__frame"')
+        self.assertContains(response, "maps.google.com/maps?q=Rua%20Koesa%2C%20430%2C%20Kobrasol%2C%20S%C3%A3o%20Jos%C3%A9%20-%20SC%2C%20Brasil")
+        self.assertContains(response, "Como chegar")
+        contato = self.client.get("/mockups/luxo/contato/")
+        self.assertContains(contato, "Avenida%20Atl%C3%A2ntica%2C%201500")
+
+    def test_mapa_do_endereco_sem_complemento_e_sem_endereco(self):
+        from portfolio.marca import mapa_do_endereco
+
+        mapa = mapa_do_endereco("Rua Bocaiúva, 2125 — sala 204", "Centro", "Florianópolis", "SC")
+        self.assertEqual(mapa["busca"], "Rua Bocaiúva, 2125, Centro, Florianópolis - SC, Brasil")
+        self.assertEqual(mapa["texto"], "Rua Bocaiúva, 2125 — sala 204, Centro")
+        so_cidade = mapa_do_endereco("", "", "Lages", "SC")
+        self.assertIn("z=13", so_cidade["embed"])
+        self.assertIsNone(mapa_do_endereco("", "", "", ""))

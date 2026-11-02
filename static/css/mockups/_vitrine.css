@@ -1,0 +1,112 @@
+/* Provador: barra flutuante para trocar de estilo e a cortina entre um site e outro.
+   Vale para a vitrine pública (/mockups/<slug>/) e para as setas da página do lead. */
+
+/* ---------- Cortina de troca de estilo ---------- */
+.vt-curtain,
+html[data-vt-enter]::before {
+  position: fixed; inset: 0; z-index: 2000;
+  display: grid; place-items: center; align-content: center; gap: .6rem;
+  background: var(--vt-fundo, #111); color: var(--vt-tinta, #fff);
+  font: 400 clamp(2.6rem, 9vw, 7rem)/1 "Iowan Old Style", Palatino, Georgia, serif;
+  letter-spacing: -.02em; pointer-events: none;
+}
+.vt-curtain small {
+  font: 500 .72rem/1.2 system-ui, -apple-system, "Segoe UI", sans-serif;
+  letter-spacing: .22em; text-transform: uppercase; opacity: .6;
+}
+.vt-curtain span { animation: vt-name .5s cubic-bezier(.22, 1, .36, 1) .12s both; }
+@keyframes vt-name { from { opacity: 0; translate: 0 .3em; } }
+.vt-curtain[data-dir="next"] { animation: vt-in-next .55s cubic-bezier(.76, 0, .24, 1) both; }
+.vt-curtain[data-dir="prev"] { animation: vt-in-prev .55s cubic-bezier(.76, 0, .24, 1) both; }
+@keyframes vt-in-next { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0); } }
+@keyframes vt-in-prev { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); } }
+
+html[data-vt-enter]::before { content: attr(data-vt-nome); }
+html[data-vt-leave="next"]::before { animation: vt-out-next .75s cubic-bezier(.76, 0, .24, 1) forwards; }
+html[data-vt-leave="prev"]::before { animation: vt-out-prev .75s cubic-bezier(.76, 0, .24, 1) forwards; }
+@keyframes vt-out-next { from { clip-path: inset(0); } to { clip-path: inset(0 100% 0 0); } }
+@keyframes vt-out-prev { from { clip-path: inset(0); } to { clip-path: inset(0 0 0 100%); } }
+
+/* ---------- Barra da vitrine pública ---------- */
+body:has(.vt-bar) { padding-bottom: 5rem; }
+.vt-bar {
+  position: fixed; left: 50%; bottom: .9rem; z-index: 90; transform: translateX(-50%);
+  display: flex; align-items: center; gap: .5rem; max-width: calc(100% - 1.5rem);
+  padding: .45rem; border-radius: 999px;
+  background: rgba(17, 19, 24, .92); color: #f2f2f2;
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, .3), 0 0 0 1px rgba(255, 255, 255, .06);
+  font: 400 .82rem/1.2 system-ui, -apple-system, "Segoe UI", sans-serif;
+  animation: vt-bar-in .8s cubic-bezier(.22, 1, .36, 1) .3s both;
+}
+@keyframes vt-bar-in { from { opacity: 0; translate: 0 1.5rem; } }
+.vt-bar a { color: inherit; text-decoration: none; }
+.vt-bar__back {
+  display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .8rem .5rem .55rem;
+  border-radius: 999px; color: #aeb3bd !important; white-space: nowrap; transition: background-color .2s, color .2s;
+}
+.vt-bar__back svg { width: 1rem; height: 1rem; }
+.vt-bar__back:hover { background: #2a2e37; color: #fff !important; }
+.vt-bar__skins { display: flex; align-items: center; gap: .2rem; padding-inline: .3rem; border-inline: 1px solid rgba(255, 255, 255, .1); }
+.vt-bar__arrow {
+  display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 50%;
+  font-size: 1.5rem; line-height: 1; transition: background-color .2s, scale .3s cubic-bezier(.34, 1.56, .64, 1);
+}
+.vt-bar__arrow:hover { background: #2a2e37; scale: 1.1; }
+.vt-bar__arrow:active { scale: .92; }
+.vt-bar__menu { position: relative; }
+.vt-bar__menu summary {
+  display: flex; align-items: center; gap: .5rem; min-width: 8.5rem; justify-content: center;
+  padding: .55rem .9rem; border-radius: 999px; background: #2a2e37; color: #fff;
+  cursor: pointer; list-style: none; white-space: nowrap; font-weight: 600;
+}
+.vt-bar__menu summary::-webkit-details-marker { display: none; }
+.vt-bar__menu summary span { color: #9aa0ab; font-weight: 400; font-size: .75rem; }
+.vt-bar__list {
+  position: absolute; bottom: calc(100% + .7rem); left: 50%; transform: translateX(-50%);
+  display: grid; min-width: 13rem; padding: .4rem; border-radius: .9rem;
+  background: #16181d; box-shadow: 0 18px 40px rgba(0, 0, 0, .4);
+  animation: vt-list .3s cubic-bezier(.22, 1, .36, 1) both;
+}
+@keyframes vt-list { from { opacity: 0; translate: 0 .5rem; } }
+.vt-bar__list a { display: flex; align-items: center; gap: .6rem; padding: .5rem .7rem; border-radius: .55rem; color: #c9ccd3; white-space: nowrap; }
+.vt-bar__list a:hover { background: #2a2e37; color: #fff; }
+.vt-bar__list a[aria-current] { color: #fff; font-weight: 600; }
+.vt-bar__dot { flex: none; width: .8rem; height: .8rem; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25); }
+.vt-bar__cta {
+  padding: .6rem 1rem; border-radius: 999px; background: #22d3ee; color: #06232a !important;
+  font-weight: 700; white-space: nowrap; transition: filter .2s, scale .3s cubic-bezier(.34, 1.56, .64, 1);
+}
+.vt-bar__cta:hover { filter: brightness(1.08); scale: 1.04; }
+.vt-bar__hint {
+  position: absolute; bottom: calc(100% + .7rem); left: 50%; transform: translateX(-50%);
+  margin: 0; padding: .5rem .85rem; border-radius: .6rem; background: #f2f2f2; color: #16181d;
+  font-size: .78rem; font-weight: 600; white-space: nowrap; pointer-events: none;
+  animation: vt-hint 4.6s ease both;
+}
+.vt-bar__hint::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -.35rem; border: .35rem solid transparent; border-top-color: #f2f2f2; }
+@keyframes vt-hint { 0% { opacity: 0; translate: 0 .4rem; } 10%, 85% { opacity: 1; translate: 0 0; } 100% { opacity: 0; } }
+
+.vt-toast {
+  position: fixed; left: 50%; bottom: 5.4rem; z-index: 91; transform: translateX(-50%);
+  max-width: calc(100% - 2rem); padding: .7rem 1rem; border-radius: .7rem;
+  background: #16181d; color: #f2f2f2; font: 400 .85rem/1.35 system-ui, sans-serif;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.vt-toast[data-on] { opacity: 1; }
+
+@media (max-width: 720px) {
+  body:has(.vt-bar) { padding-bottom: 5.2rem; }
+  .vt-bar { left: .5rem; right: .5rem; bottom: .5rem; transform: none; max-width: none; justify-content: space-between; gap: .3rem; }
+  .vt-bar__back span { display: none; }
+  .vt-bar__back { padding: .5rem; }
+  .vt-bar__menu summary { min-width: 0; padding-inline: .7rem; }
+  .vt-bar__cta { padding-inline: .8rem; }
+  .vt-bar__list { left: auto; right: -3rem; transform: none; }
+}
+@media (max-width: 380px) { .vt-bar__menu summary span { display: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .vt-curtain, html[data-vt-enter]::before { display: none; }
+  .vt-bar, .vt-bar__hint, .vt-bar__list { animation: none; }
+}

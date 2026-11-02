@@ -13,6 +13,7 @@
         </div>
 
         <figure class="panel" aria-hidden="true">
+          {% if fotos.hero %}{% include "portfolio/mockups/_foto.html" with foto=fotos.hero loading="eager" decorativa=True %}{% endif %}
           <div class="panel__light"></div>
           <div class="panel__arch"></div>
           <figcaption>
@@ -90,15 +91,16 @@
             <p class="eyebrow">03 — A sala</p>{% include "portfolio/mockups/_exemplo.html" %}
             <h2 id="room-title">Pouca coisa na parede. Muita luz.</h2>
           </div>
-          <p class="aside">O espaço foi pensado para a conversa durar o tempo que precisar. As fotos reais entram quando a clínica fechar o projeto. <a class="textlink" href="{{ base_url }}sobre/">Conheça a clínica</a></p>
+          <p class="aside">O espaço foi pensado para a conversa durar o tempo que precisar. Pouca coisa na parede, muita luz. <a class="textlink" href="{{ base_url }}sobre/">Conheça a clínica</a></p>
         </header>
         <figure class="window">
           <div class="window__glass">
+            {% if fotos.sala %}{% include "portfolio/mockups/_foto.html" with foto=fotos.sala sizes="100vw" %}{% endif %}
             <div class="window__glow"></div>
             <div class="window__mullion"></div>
             <div class="window__sill"></div>
           </div>
-          <figcaption>Janela da sala de avaliação. A fotografia entra depois do contrato.</figcaption>
+          <figcaption>Janela da sala de avaliação.{% if fotos.sala %} <span class="mk-credito">Foto: {{ fotos.sala.autor }} / Unsplash</span>{% endif %}</figcaption>
         </figure>
       </div>
     </section>

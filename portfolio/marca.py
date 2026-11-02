@@ -98,6 +98,30 @@ def _uf(estado: str) -> str:
     return estado if len(estado) <= 3 else ""
 
 
+def mapa_do_endereco(endereco: str, bairro: str, cidade: str, uf: str) -> dict | None:
+    """Mapa do Google para o endereço do site: embed, rota e o texto do cartão.
+
+    O complemento depois do travessão ("— sala 3") fica no cartão, mas sai da
+    busca, que só precisa de rua, bairro e cidade.
+    """
+    endereco = (endereco or "").strip()
+    cidade = (cidade or "").strip()
+    if not endereco and not cidade:
+        return None
+    rua = endereco.split("—")[0].strip(" ,")
+    local = f"{cidade} - {uf}" if cidade and uf else cidade
+    busca = ", ".join(p for p in (rua, (bairro or "").strip(), local, "Brasil") if p)
+    texto = ", ".join(p for p in (endereco, (bairro or "").strip()) if p)
+    zoom = 16 if rua else 13
+    return {
+        "busca": busca,
+        "texto": texto or local,
+        "local": local,
+        "embed": f"https://maps.google.com/maps?q={quote(busca)}&z={zoom}&hl=pt-BR&output=embed",
+        "rota": f"https://www.google.com/maps/dir/?api=1&destination={quote(busca)}",
+    }
+
+
 def marca_demo(landing: dict) -> dict:
     demo = landing.get("demo") or {}
     return {
@@ -111,6 +135,9 @@ def marca_demo(landing: dict) -> dict:
         "whatsapp_url": f"https://wa.me/{demo.get('whatsapp', '')}",
         "logo_url": "",
         "cores": None,
+        "mapa": mapa_do_endereco(
+            demo.get("endereco", ""), demo.get("bairro", ""), demo.get("cidade", ""), demo.get("uf", "")
+        ),
     }
 
 
@@ -134,6 +161,7 @@ def marca_do_lead(cliente, landing: dict) -> dict:
         "whatsapp_url": f"https://wa.me/{digitos}" if digitos else "#visita",
         "logo_url": cliente.logo.url if cliente.logo else "",
         "cores": cores,
+        "mapa": mapa_do_endereco(cliente.rua, "", cliente.cidade, _uf(cliente.estado)),
     }
 
 

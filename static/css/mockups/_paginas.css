@@ -181,3 +181,95 @@ html, body { overflow-x: clip; }
   .pg-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .pg-valores { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+
+/* Mapa real (Google) por cima do desenho, que fica como reserva se o mapa não carregar. */
+.mk-mapa { isolation: isolate; }
+.mk-mapa--real { min-height: 20rem; }
+.mk-mapa__frame {
+  position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; border: 0;
+  filter: grayscale(.55) sepia(.12) contrast(.95) brightness(1.02);
+  transition: filter .6s ease;
+}
+.mk-mapa:hover .mk-mapa__frame { filter: none; }
+html[data-motion="luxo"] .mk-mapa__frame,
+html[data-motion="retrato"] .mk-mapa__frame { filter: invert(.92) hue-rotate(180deg) saturate(.35) brightness(.92) contrast(.9); }
+html[data-motion="luxo"] .mk-mapa:hover .mk-mapa__frame,
+html[data-motion="retrato"] .mk-mapa:hover .mk-mapa__frame { filter: invert(.92) hue-rotate(180deg) saturate(.8) brightness(.95); }
+.mk-mapa--real > [class*="__rua"], .mk-mapa--real > [class*="__road"] { z-index: 0; }
+
+.mk-mapa .mk-mapa__card {
+  position: absolute; left: .8rem; right: auto; bottom: 1.9rem; z-index: 2;
+  display: flex; align-items: center; gap: .8rem; max-width: calc(100% - 1.6rem);
+  padding: .75rem .9rem; border-radius: .8rem;
+  background: rgba(255, 255, 255, .96); color: #1c1a18;
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .35);
+  font: 400 .85rem/1.35 system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.mk-mapa__pin {
+  position: relative; flex: none; width: 2.2rem; height: 2.2rem; border-radius: 50%;
+  background: var(--accent, var(--_accent, #1c1a18));
+}
+.mk-mapa__pin::after { content: ""; position: absolute; inset: .72rem; border-radius: 50%; background: #fff; }
+.mk-mapa__pin::before {
+  content: ""; position: absolute; inset: -.3rem; border-radius: 50%;
+  border: 2px solid var(--accent, var(--_accent, #1c1a18)); opacity: 0;
+  animation: mk-ping 2.4s ease-out infinite;
+}
+@keyframes mk-ping { 0% { opacity: .6; transform: scale(.7); } 100% { opacity: 0; transform: scale(1.6); } }
+.mk-mapa__txt { display: grid; min-width: 0; }
+.mk-mapa__txt strong { font-weight: 700; }
+.mk-mapa__txt span { color: #5c5752; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mk-mapa__rota {
+  flex: none; padding: .45rem .75rem; border-radius: 999px;
+  background: #1c1a18; color: #fff !important; font-weight: 600; font-size: .78rem; text-decoration: none; white-space: nowrap;
+  transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+}
+.mk-mapa__rota:hover { transform: translateX(3px); }
+html[data-motion="luxo"] .mk-mapa .mk-mapa__card, html[data-motion="retrato"] .mk-mapa .mk-mapa__card { background: rgba(24, 22, 20, .94); color: #f4efe6; }
+html[data-motion="luxo"] .mk-mapa__txt span, html[data-motion="retrato"] .mk-mapa__txt span { color: #b7afa3; }
+html[data-motion="luxo"] .mk-mapa__rota, html[data-motion="retrato"] .mk-mapa__rota { background: #f4efe6; color: #1a1612 !important; }
+html[data-motion="luxo"] .mk-mapa__pin, html[data-motion="luxo"] .mk-mapa__pin::before { --accent: #d4c4a8; }
+@media (max-width: 520px) {
+  .mk-mapa .mk-mapa__card { right: .8rem; flex-wrap: wrap; }
+  .mk-mapa__rota { margin-left: 3rem; }
+}
+@media (prefers-reduced-motion: reduce) { .mk-mapa__pin::before { animation: none; } }
+
+/* Fotos de exemplo (Unsplash) nos espaços de imagem dos templates. */
+.mk-foto { position: absolute; inset: 0; z-index: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; }
+.mk-credito { display: inline-block; margin-left: .4rem; opacity: .6; font-size: .85em; }
+.pg-foto .mk-foto { transition: transform 1.2s cubic-bezier(.22, 1, .36, 1); }
+.pg-foto:hover .mk-foto { transform: scale(1.04); }
+.pg-foto span { z-index: 1; }
+
+/* Consultório: a sala de avaliação dentro do arco */
+.panel .mk-foto { filter: saturate(.85) brightness(1.03); }
+.panel .panel__light { z-index: 1; mix-blend-mode: soft-light; }
+.panel .panel__arch, .panel figcaption { z-index: 2; }
+.window__glass .mk-foto ~ * { display: none; }
+.window__glass .mk-foto { transition: transform 1.4s cubic-bezier(.22, 1, .36, 1); }
+.window:hover .window__glass .mk-foto { transform: scale(1.03); }
+
+/* Luxo: a sala escura, com o anel por cima */
+.void { overflow: hidden; }
+.void .mk-foto { opacity: .62; filter: saturate(.7) contrast(1.05); transition: opacity .8s ease, transform 1.6s cubic-bezier(.22, 1, .36, 1); }
+.void:hover .mk-foto { opacity: .8; transform: scale(1.03); }
+.void::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(circle at 50% 46%, transparent 20%, rgba(12, 11, 10, .6) 85%); }
+.void .void__ring, .void figcaption { z-index: 1; }
+
+/* Revista: retrato de capa, com a inicial impressa por cima */
+.art .mk-foto ~ .art__sun, .art .mk-foto ~ .art__line { display: none; }
+.art .mk-foto { filter: saturate(.9); }
+.art .art__type { z-index: 1; mix-blend-mode: overlay; color: rgba(255, 255, 255, .9); }
+
+/* Retrato: foto no arco lateral, nome por cima */
+.portrait__frame .mk-foto { filter: saturate(.75) brightness(.8); }
+.portrait__frame .mk-foto ~ .portrait__initial { display: none; }
+.portrait__frame .mk-foto ~ .portrait__glow { z-index: 1; mix-blend-mode: screen; }
+.portrait__frame .portrait__mark { z-index: 2; background: linear-gradient(transparent, rgba(27, 20, 22, .92)); }
+
+/* Acolhedora: a foto dentro da bolha principal */
+.blob--a { overflow: hidden; }
+.blob--a .mk-foto { filter: saturate(.9) sepia(.12); }
+.blobs__word { z-index: 1; opacity: .9; text-shadow: 0 6px 30px rgba(59, 42, 36, .25); }

@@ -1,0 +1,12 @@
+{% if marca.mapa %}
+        <iframe class="mk-mapa__frame" src="{{ marca.mapa.embed }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Mapa: {{ marca.mapa.texto }}{% if marca.mapa.local %}, {{ marca.mapa.local }}{% endif %}" allowfullscreen></iframe>
+        <figcaption class="mk-mapa__card">
+          <span class="mk-mapa__pin" aria-hidden="true"></span>
+          <span class="mk-mapa__txt">
+            <strong>{{ marca.nome }}</strong>
+            <span>{{ marca.mapa.texto }}</span>
+            {% if marca.mapa.local %}<span>{{ marca.mapa.local }}</span>{% endif %}
+          </span>
+          <a class="mk-mapa__rota" href="{{ marca.mapa.rota }}" target="_blank" rel="noopener" data-rt>Como chegar <span aria-hidden="true">→</span></a>
+        </figcaption>
+{% endif %}

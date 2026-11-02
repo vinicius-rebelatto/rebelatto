@@ -15,7 +15,7 @@
           </div>
         </div>
         <figure class="blobs" aria-hidden="true">
-          <span class="blob blob--a"></span>
+          <span class="blob blob--a">{% if fotos.hero %}{% include "portfolio/mockups/_foto.html" with foto=fotos.hero loading="eager" decorativa=True %}{% endif %}</span>
           <span class="blob blob--b"></span>
           <span class="blob blob--c"></span>
           <span class="blobs__word">{{ marca.nome|slice:":1" }}</span>

@@ -24,6 +24,7 @@
     <aside class="portrait" aria-label="{{ marca.nome }}">
       <a class="portrait__link" href="{{ base_url }}" aria-label="Início"></a>
       <div class="portrait__frame">
+        {% if fotos.retrato %}{% include "portfolio/mockups/_foto.html" with foto=fotos.retrato loading="eager" decorativa=True sizes="(max-width: 900px) 100vw, 40vw" %}{% endif %}
         <span class="portrait__glow" aria-hidden="true"></span>
         <span class="portrait__initial" aria-hidden="true">{{ marca.nome|slice:":1" }}</span>
         <div class="portrait__mark">

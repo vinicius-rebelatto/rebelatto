@@ -1,0 +1,1 @@
+<img class="mk-foto{% if classe %} {{ classe }}{% endif %}" src="{{ foto.src }}" srcset="{{ foto.srcset }}" sizes="{{ sizes|default:'(max-width: 900px) 100vw, 50vw' }}" alt="{% if decorativa %}{% else %}{{ foto.alt }}{% endif %}" loading="{{ loading|default:'lazy' }}" decoding="async">

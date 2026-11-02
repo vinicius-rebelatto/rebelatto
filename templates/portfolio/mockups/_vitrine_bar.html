@@ -1,0 +1,22 @@
+{% load static %}
+  <aside class="vt-bar" aria-label="Vitrine de sites da Rebel Tech" data-vt-demo>
+    <a class="vt-bar__back" href="{% url 'portfolio:home' %}#vitrine" data-rt aria-label="Voltar para a vitrine">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      <span>Vitrine</span>
+    </a>
+    <nav class="vt-bar__skins" aria-label="Trocar de estilo">
+      {% with t=vitrine.anterior %}<a class="vt-bar__arrow" href="{% url 'portfolio:mockup_public' t.slug %}" data-rt data-vt-go="prev" data-vt-nome="{{ t.nome }}" data-vt-fundo="{{ t.fundo }}" data-vt-tema="{{ t.theme }}" aria-label="Estilo anterior: {{ t.nome }}" title="Anterior: {{ t.nome }} (←)">&#8249;</a>{% endwith %}
+      <details class="vt-bar__menu">
+        <summary data-rt>{{ landing.nome }} <span>{{ vitrine.posicao }}/{{ vitrine.biblioteca|length }}</span></summary>
+        <div class="vt-bar__list">
+          {% for t in vitrine.biblioteca %}
+          <a href="{% url 'portfolio:mockup_public' t.slug %}" data-rt data-vt-go="next" data-vt-nome="{{ t.nome }}" data-vt-fundo="{{ t.fundo }}" data-vt-tema="{{ t.theme }}"{% if t.slug == landing.slug %} aria-current="page"{% endif %}><span class="vt-bar__dot" style="background: linear-gradient(135deg, {{ t.fundo }} 50%, {{ t.acento }} 50%)"></span>{{ forloop.counter }}. {{ t.nome }}</a>
+          {% endfor %}
+        </div>
+      </details>
+      {% with t=vitrine.proximo %}<a class="vt-bar__arrow" href="{% url 'portfolio:mockup_public' t.slug %}" data-rt data-vt-go="next" data-vt-nome="{{ t.nome }}" data-vt-fundo="{{ t.fundo }}" data-vt-tema="{{ t.theme }}" aria-label="Próximo estilo: {{ t.nome }}" title="Próximo: {{ t.nome }} (→)">&#8250;</a>{% endwith %}
+    </nav>
+    <a class="vt-bar__cta" href="{% url 'portfolio:home' %}#contato" data-rt>Quero um assim</a>
+    <p class="vt-bar__hint" data-vt-hint hidden>Use as setas para provar outro estilo</p>
+  </aside>
+  <div class="vt-toast" role="status" aria-live="polite" data-vt-toast></div>

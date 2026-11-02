@@ -1,0 +1,88 @@
+{% load static %}
+{% if vitrine %}
+{% with primeiro=vitrine.0 %}
+<section class="section vitrine" id="vitrine" aria-labelledby="vitrine-title">
+  <div class="container">
+    <div class="vitrine-head reveal">
+      <div class="section-head">
+        <p class="section-kicker">Provador de sites</p>
+        <h2 id="vitrine-title">Veja seu site antes de ele existir</h2>
+        <p class="section-support">{{ vitrine|length }} estilos prontos para clínicas de estética. Escolha um, abra e navegue pelas páginas. Lá dentro, as setas trocam de estilo, como num provador.</p>
+      </div>
+      <div class="vitrine-nav" aria-hidden="false">
+        <button class="project-carousel-btn" type="button" data-vt-prev aria-label="Estilo anterior">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <button class="project-carousel-btn" type="button" data-vt-next aria-label="Próximo estilo">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="vitrine-stage reveal" data-vitrine style="--vt-cor: {{ primeiro.fundo }}">
+      <div class="vitrine-preview">
+        <a class="vitrine-browser" href="{% url 'portfolio:mockup_public' primeiro.slug %}" data-vt-open data-cursor="cta" data-cursor-label="Provar" aria-label="Abrir o estilo {{ primeiro.nome }}">
+          <span class="vitrine-browser__bar" aria-hidden="true">
+            <span class="vitrine-browser__dots"><i></i><i></i><i></i></span>
+            <span class="vitrine-browser__url"><span data-vt-url>rebelatto.tech/mockups/{{ primeiro.slug }}</span></span>
+          </span>
+          <span class="vitrine-browser__screen">
+            <img data-vt-desktop src="{% static 'img/vitrine/'|add:primeiro.slug|add:'-desktop.webp' %}" alt="Prévia do estilo {{ primeiro.nome }} no computador" width="960" height="2400" decoding="async">
+          </span>
+        </a>
+        <span class="vitrine-phone" aria-hidden="true">
+          <span class="vitrine-phone__screen">
+            <img data-vt-mobile src="{% static 'img/vitrine/'|add:primeiro.slug|add:'-mobile.webp' %}" alt="" width="300" height="1769" decoding="async">
+          </span>
+        </span>
+        <span class="vitrine-wipe" data-vt-wipe aria-hidden="true"><span data-vt-wipe-nome></span></span>
+      </div>
+
+      <div class="vitrine-side">
+        <div class="vitrine-info" aria-live="polite">
+          <p class="vitrine-info__tipo"><span data-vt-n>01</span> · <span data-vt-tipo>{{ primeiro.tipo_rotulo }}</span></p>
+          <h3 data-vt-nome>{{ primeiro.nome }}</h3>
+          <p class="vitrine-info__chamada" data-vt-chamada>{{ primeiro.vitrine }}</p>
+          <div class="vitrine-actions">
+            <a class="btn btn-primary" href="{% url 'portfolio:mockup_public' primeiro.slug %}" data-vt-open data-cursor="cta" data-cursor-label="Provar">
+              Provar este site
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a class="btn btn-ghost" href="#contato" data-cursor="cta" data-cursor-label="Vamos lá">Quero um assim</a>
+          </div>
+        </div>
+
+        <ol class="vitrine-list" aria-label="Estilos disponíveis">
+          {% for item in vitrine %}
+          <li>
+            <button
+              class="vitrine-item"
+              type="button"
+              aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+              data-vt-item
+              data-slug="{{ item.slug }}"
+              data-nome="{{ item.nome }}"
+              data-fundo="{{ item.fundo }}"
+              data-tema="{{ item.theme }}"
+              data-tipo="{{ item.tipo_rotulo }}"
+              data-chamada="{{ item.vitrine }}"
+              data-url="{% url 'portfolio:mockup_public' item.slug %}"
+              data-desktop="{% static 'img/vitrine/'|add:item.slug|add:'-desktop.webp' %}"
+              data-mobile="{% static 'img/vitrine/'|add:item.slug|add:'-mobile.webp' %}"
+            >
+              <span class="vitrine-item__cor" style="background: linear-gradient(135deg, {{ item.fundo }} 50%, {{ item.acento }} 50%)" aria-hidden="true"></span>
+              <span class="vitrine-item__n" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span>
+              <span class="vitrine-item__nome">{{ item.nome }}</span>
+              <span class="vitrine-item__tipo">{{ item.tipo_rotulo }}</span>
+              <span class="vitrine-item__timer" aria-hidden="true"></span>
+            </button>
+          </li>
+          {% endfor %}
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+<script src="{% static 'js/vitrine.js' %}" defer></script>
+{% endwith %}
+{% endif %}

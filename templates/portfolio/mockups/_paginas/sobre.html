@@ -38,9 +38,9 @@
       <div>
         <p class="pg-eyebrow">O espaço</p>
         <h2>Um ambiente pensado para a calma</h2>
-        <p class="pg-muted">As fotografias do espaço entram no site real, depois do contrato. Aqui, uma ilustração.</p>
+        <p class="pg-muted">Luz natural, poucos móveis e tempo para conversar. A primeira visita acontece aqui.</p>
       </div>
-      <figure class="pg-foto" aria-hidden="true"><span></span></figure>
+      <figure class="pg-foto">{% if fotos.sobre %}{% include "portfolio/mockups/_foto.html" with foto=fotos.sobre %}{% endif %}<span aria-hidden="true"></span></figure>
     </div>
   </section>
 

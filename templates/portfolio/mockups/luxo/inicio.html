@@ -82,9 +82,10 @@
             <p class="eyebrow">03 — A sala</p>{% include "portfolio/mockups/_exemplo.html" %}
             <h2 id="room-title">O luxo, aqui, é o espaço.</h2>
           </div>
-          <p class="aside">Poucos móveis, uma janela, silêncio. A fotografia da sala entra quando a clínica fechar o projeto. <a class="textlink" href="{{ base_url }}sobre/">Conheça a clínica</a></p>
+          <p class="aside">Poucos móveis, uma janela, silêncio. A hora marcada é inteira sua. <a class="textlink" href="{{ base_url }}sobre/">Conheça a clínica</a></p>
         </header>
         <figure class="void">
+          {% if fotos.sala %}{% include "portfolio/mockups/_foto.html" with foto=fotos.sala sizes="100vw" %}{% endif %}
           <div class="void__ring" aria-hidden="true"></div>
           <figcaption>
             <span>Sala reservada</span>

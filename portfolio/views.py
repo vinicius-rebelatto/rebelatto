@@ -18,7 +18,8 @@ from crm.models import Cliente, Mockup
 from portfolio import chatbot as chatbot_service
 from portfolio.marca import link_rebel_tech, marca_demo, marca_do_lead
 from portfolio import conteudo_estetica
-from portfolio.mockup_landings import LANDINGS, biblioteca_do_nicho, paginas_do_tipo
+from portfolio.fotos_mockup import fotos_do_template
+from portfolio.mockup_landings import LANDINGS, biblioteca_do_nicho, biblioteca_publica, paginas_do_tipo
 from portfolio.models import Project
 
 logger = logging.getLogger(__name__)
@@ -105,6 +106,7 @@ def home(request):
             "whatsapp_url": whatsapp_url,
             "hero_tecnologias": load_hero_tecnologias(),
             "skills": load_skills(),
+            "vitrine": biblioteca_publica(),
         },
     )
 
@@ -180,8 +182,26 @@ def _contexto_mockup(landing, slug, marca, base_url, pagina, extra):
         "base_template": landing.get("base", landing["template"]),
         "pagina": pagina or "inicio",
         "paginas": paginas_do_tipo(landing.get("tipo")),
+        "fotos": fotos_do_template(slug),
         **conteudo_estetica.contexto(marca["nome"]),
         **extra,
+    }
+
+
+def _vitrine_vizinhos(slug, nicho):
+    """Anterior e próximo da vitrine pública, para as setas do provador."""
+    biblioteca = biblioteca_publica(nicho) if nicho else []
+    atual = next((t for t in biblioteca if t["slug"] == slug), None)
+    if atual is None or len(biblioteca) < 2:
+        return {}
+    posicao = biblioteca.index(atual)
+    return {
+        "vitrine": {
+            "biblioteca": biblioteca,
+            "posicao": posicao + 1,
+            "anterior": biblioteca[posicao - 1],
+            "proximo": biblioteca[(posicao + 1) % len(biblioteca)],
+        }
     }
 
 
@@ -205,6 +225,7 @@ def mockup_public(request, slug, pagina=None, servico=None):
                 extra,
             )
             contexto["mockup"] = mockup
+            contexto.update(_vitrine_vizinhos(mockup.slug, landing.get("nicho")))
             return render(request, arquivo, contexto)
 
     if pagina is not None:

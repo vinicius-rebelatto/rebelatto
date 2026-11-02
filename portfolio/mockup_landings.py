@@ -24,8 +24,10 @@ LANDINGS = {
         "theme": "light",
         "nicho": "estetica",
         "nome": "Consultório",
+        "vitrine": "Calmo e editorial: sala, método e visita, sem pressa.",
         "ordem": 1,
         "fundo": "#f3eee6",
+        "acento": "#3f4a3c",
         "demo": {
             "nome": "Alva",
             "cidade": "Itajaí",
@@ -45,8 +47,10 @@ LANDINGS = {
         "theme": "dark",
         "nicho": "estetica",
         "nome": "Luxo",
+        "vitrine": "Escuro e silencioso, para quem atende poucos e bem.",
         "ordem": 2,
         "fundo": "#100e0c",
+        "acento": "#d4c4a8",
         "demo": {
             "nome": "Ónix",
             "cidade": "Balneário Camboriú",
@@ -65,8 +69,10 @@ LANDINGS = {
         "theme": "light",
         "nicho": "estetica",
         "nome": "Harmonização",
+        "vitrine": "Um procedimento só, contado do mapa do rosto à aplicação.",
         "ordem": 3,
         "fundo": "#f3ece8",
+        "acento": "#8d4554",
         "demo": {
             "nome": "Nara",
             "cidade": "Joinville",
@@ -85,8 +91,10 @@ LANDINGS = {
         "theme": "light",
         "nicho": "estetica",
         "nome": "Agenda",
+        "vitrine": "O WhatsApp na frente: a avaliação marcada em duas mensagens.",
         "ordem": 4,
         "fundo": "#f7f4ee",
+        "acento": "#1f5c56",
         "demo": {
             "nome": "Lis",
             "cidade": "Florianópolis",
@@ -105,8 +113,10 @@ LANDINGS = {
         "theme": "light",
         "nicho": "estetica",
         "nome": "Cartão",
+        "vitrine": "Um cartão de visita, frente e verso, que cabe em uma tela.",
         "ordem": 5,
         "fundo": "#ddd3c6",
+        "acento": "#6e3328",
         "demo": {
             "nome": "Íris",
             "cidade": "Brusque",
@@ -126,8 +136,10 @@ LANDINGS = {
         "theme": "light",
         "nicho": "estetica",
         "nome": "Revista",
+        "vitrine": "Capa, matéria e índice, como uma edição de revista.",
         "ordem": 6,
         "fundo": "#f5f2ec",
+        "acento": "#9b3426",
         "demo": {
             "nome": "Aurea",
             "cidade": "Chapecó",
@@ -147,8 +159,10 @@ LANDINGS = {
         "theme": "dark",
         "nicho": "estetica",
         "nome": "Retrato",
+        "vitrine": "Pensado primeiro para o celular, em tom escuro e elegante.",
         "ordem": 7,
         "fundo": "#1b1416",
+        "acento": "#e2b2a0",
         "demo": {
             "nome": "Vela",
             "cidade": "Criciúma",
@@ -168,8 +182,10 @@ LANDINGS = {
         "theme": "light",
         "nicho": "estetica",
         "nome": "Mínima",
+        "vitrine": "Nome, uma frase e um botão. O essencial e nada mais.",
         "ordem": 8,
         "fundo": "#f0eee9",
+        "acento": "#141414",
         "demo": {
             "nome": "Lume",
             "cidade": "Jaraguá do Sul",
@@ -189,8 +205,10 @@ LANDINGS = {
         "theme": "light",
         "nicho": "estetica",
         "nome": "Acolhedora",
+        "vitrine": "Formas redondas e tom quente, para receber bem.",
         "ordem": 9,
         "fundo": "#fbf2ea",
+        "acento": "#a24e3a",
         "demo": {
             "nome": "Brisa",
             "cidade": "Palhoça",
@@ -210,8 +228,10 @@ LANDINGS = {
         "theme": "light",
         "nicho": "estetica",
         "nome": "Clínica",
+        "vitrine": "Objetivo e completo: sobre, serviços, comparativo e mapa.",
         "ordem": 10,
         "fundo": "#ffffff",
+        "acento": "#0f6e7a",
         "demo": {
             "nome": "Clínica Vértice",
             "cidade": "São José",
@@ -237,6 +257,13 @@ def paginas_do_tipo(tipo: str | None) -> tuple:
     return PAGINAS.get(tipo or "landing", ())
 
 
+TIPO_ROTULO = {
+    "landing": "Página única",
+    "simples": "Site enxuto",
+    "institucional": "Site completo",
+}
+
+
 def biblioteca_do_nicho(nicho: str = NICHO_PADRAO) -> list[dict]:
     """Templates do nicho, em ordem, com o slug dentro de cada item."""
     itens = [
@@ -245,3 +272,23 @@ def biblioteca_do_nicho(nicho: str = NICHO_PADRAO) -> list[dict]:
         if dados.get("nicho") == nicho
     ]
     return sorted(itens, key=lambda item: item["ordem"])
+
+
+def biblioteca_publica(nicho: str = NICHO_PADRAO) -> list[dict]:
+    """Templates do nicho que estão publicados, na ordem da vitrine.
+
+    É a lista que o visitante percorre com as setas em /mockups/<slug>/ e a
+    que aparece na seção Vitrine da home.
+    """
+    from crm.models import Mockup
+
+    publicados = set(
+        Mockup.objects.filter(
+            tipo=Mockup.Tipo.LANDING, status=Mockup.Status.PUBLICADO
+        ).values_list("slug", flat=True)
+    )
+    return [
+        {**item, "tipo_rotulo": TIPO_ROTULO.get(item.get("tipo") or "landing", "")}
+        for item in biblioteca_do_nicho(nicho)
+        if item["slug"] in publicados
+    ]

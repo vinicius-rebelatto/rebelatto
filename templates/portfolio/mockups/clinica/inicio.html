@@ -96,12 +96,12 @@
             <span>Chamar no WhatsApp</span>
           </a>
         </div>
-        <figure class="map" aria-hidden="true">
-          <span class="map__road map__road--h"></span>
-          <span class="map__road map__road--v"></span>
-          <span class="map__road map__road--d"></span>
-          <span class="map__pin"></span>
-          <figcaption>{% if marca.endereco %}{{ marca.endereco }}{% endif %}{% if marca.cidade %}{% if marca.endereco %} · {% endif %}{{ marca.cidade }}{% endif %}</figcaption>
+        <figure class="map mk-mapa{% if marca.mapa %} mk-mapa--real{% endif %}">
+          <span class="map__road map__road--h" aria-hidden="true"></span>
+          <span class="map__road map__road--v" aria-hidden="true"></span>
+          <span class="map__road map__road--d" aria-hidden="true"></span>
+          <span class="map__pin" aria-hidden="true"></span>
+{% include "portfolio/mockups/_mapa.html" %}
         </figure>
       </div>
     </section>

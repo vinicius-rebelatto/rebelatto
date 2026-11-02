@@ -1,3 +1,6 @@
 {% load static %}
   <link rel="stylesheet" href="{% static 'css/mockups/_motion.css' %}">
+  <link rel="stylesheet" href="{% static 'css/mockups/_vitrine.css' %}">
   <script>(function(d){d.setAttribute("data-motion","{{ landing.slug }}");if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("mo-preload");setTimeout(function(){d.classList.remove("mo-preload")},2500)}})(document.documentElement);</script>
+  <script>(function(d){try{var c=JSON.parse(sessionStorage.getItem("vt-cortina")||"null");if(!c||Date.now()-c.t>6000)return;sessionStorage.removeItem("vt-cortina");d.setAttribute("data-vt-enter",c.dir||"next");d.setAttribute("data-vt-nome",c.nome||"");d.style.setProperty("--vt-fundo",c.fundo||"#111");d.style.setProperty("--vt-tinta",c.tema==="dark"?"#f4efe6":"#1c1a18")}catch(e){}})(document.documentElement);</script>
+  <script src="{% static 'js/mockups/_vitrine.js' %}" defer></script>
