@@ -59,11 +59,11 @@
       <div class="wrap">
         <header class="proc__head">
           <p class="kicker rt-detalhe">03 · Procedimentos {% include "portfolio/mockups/_exemplo.html" %}</p>
-          <h2 id="proc-title">O que se faz aqui</h2>
+          <h2 id="proc-title">As matérias desta edição</h2>
         </header>
         <ol class="proc__grid list">
-          {% for s in servicos|slice:":6" %}
-          <li><a class="proc__link" href="{{ base_url }}servicos/{{ s.slug }}/"><span class="list__n">{{ s.categoria }}</span><h3>{{ s.nome }}</h3><p>{{ s.resumo }}</p><span class="proc__mais">Ler mais →</span></a></li>
+          {% for s in servicos %}
+          <li class="proc__item{% if forloop.first %} proc__item--destaque{% endif %}"><a class="proc__link" href="{{ base_url }}servicos/{{ s.slug }}/"><span class="proc__num">{{ forloop.counter|stringformat:"02d" }}</span><span class="list__n">{{ s.categoria }}</span><h3>{{ s.nome }}</h3><p>{% if forloop.first %}{{ s.descricao.0 }}{% else %}{{ s.resumo }}{% endif %}</p><span class="proc__mais">Ler a matéria →</span></a></li>
           {% endfor %}
         </ol>
         <p class="proc__todos"><a class="textlink" href="{{ base_url }}servicos/">Todos os serviços →</a></p>

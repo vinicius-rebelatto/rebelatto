@@ -1,3 +1,11 @@
+/* Telas grandes (comum aos 10 templates): margem que acompanha a tela,
+   tipografia que continua crescendo e medida confortável para texto longo. */
+:root { --gutter: clamp(1rem, 4vw, 6rem); --medida: 68ch; }
+html, body { overflow-x: clip; }
+@media (min-width: 1600px) { html { font-size: 106.25%; } }
+@media (min-width: 2000px) { html { font-size: 112.5%; } }
+@media (min-width: 2400px) { html { font-size: 118.75%; } }
+
 /* Páginas internas compartilhadas (Sobre, Serviços, Serviço, Contato).
    Cada template define os tokens --pg-* no próprio CSS; aqui só a estrutura. */
 .pg {
@@ -14,7 +22,7 @@
   color: var(--_ink);
   font-family: var(--_body);
 }
-.pg-wrap { width: min(var(--_wrap), calc(100% - 3rem)); margin-inline: auto; }
+.pg-wrap { width: min(var(--_wrap), calc(100% - 2 * var(--gutter))); margin-inline: auto; }
 .pg h1, .pg h2, .pg h3 { margin-top: 0; font-family: var(--_display); font-weight: var(--pg-h-weight, 400); letter-spacing: var(--pg-h-spacing, -0.02em); line-height: 1.1; }
 .pg h3 { font-family: var(--pg-h3-font, var(--_display)); }
 .pg p { margin-top: 0; }
@@ -38,7 +46,7 @@
 .pg-split { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.3fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: start; }
 .pg-texto p { font-size: 1.1rem; line-height: 1.7; }
 
-.pg-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr)); gap: 1rem; margin: 0; padding: 0; list-style: none; }
+.pg-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: 1rem; margin: 0; padding: 0; list-style: none; }
 .pg-card a {
   display: flex; flex-direction: column; height: 100%; padding: 1.6rem 1.5rem 1.4rem;
   border: 1px solid var(--_line); border-radius: var(--_radius); background: var(--_surface);
@@ -58,7 +66,7 @@
 .pg-steps h3 { margin-bottom: .25rem; font-size: 1.2rem; }
 .pg-steps p { margin: 0; color: var(--_muted); }
 
-.pg-detalhe { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 21rem); gap: clamp(2rem, 5vw, 4.5rem); align-items: start; padding: clamp(2.5rem, 6vw, 4.5rem) 0; }
+.pg-detalhe { display: grid; grid-template-columns: minmax(0, 1fr) minmax(17rem, 24rem); gap: clamp(2rem, 5vw, 4.5rem); align-items: start; padding: clamp(2.5rem, 6vw, 4.5rem) 0; }
 .pg-detalhe__corpo { display: grid; gap: 2.8rem; }
 .pg-detalhe__corpo h2 { margin-bottom: 1rem; font-size: clamp(1.5rem, 2.6vw, 2rem); }
 .pg-detalhe__corpo p { font-size: 1.08rem; line-height: 1.7; }
@@ -166,4 +174,10 @@
   .pg-exp__nome { grid-column: 1; }
   .pg-exp__resumo { grid-column: 1; }
   .pg-exp__item summary::after { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
+}
+
+.pg-texto p, .pg-detalhe__corpo p, .pg-exp__corpo p { max-width: var(--medida); }
+@media (min-width: 1600px) {
+  .pg-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .pg-valores { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }

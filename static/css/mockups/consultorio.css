@@ -10,7 +10,7 @@
   --cream: #f7f3ec;
   --serif: "Fraunces", "Iowan Old Style", Palatino, serif;
   --sans: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
-  --wrap: 72rem;
+  --wrap: 88rem;
 }
 
 * { box-sizing: border-box; }
@@ -59,7 +59,7 @@ a { color: inherit; }
 .skip:focus { top: 0.6rem; }
 
 .wrap {
-  width: min(var(--wrap), calc(100% - 3rem));
+  width: min(var(--wrap), calc(100% - 2 * var(--gutter, 1.5rem)));
   margin-inline: auto;
 }
 
@@ -566,3 +566,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 .list__todos { margin: 1.6rem 0 0; }
 .nav a[aria-current="page"], .drawer a[aria-current="page"] { color: var(--ink); text-decoration: underline; text-underline-offset: .4em; text-decoration-thickness: 1px; }
 .pg .btn { border-radius: 999px; }
+
+/* C1: arco do hero como painel que sangra até a borda direita */
+@media (min-width: 1100px) {
+  .hero { position: relative; padding: 0; }
+  .hero__grid { display: flex; align-items: center; min-height: max(38rem, calc(100vh - 4.6rem)); padding: 3rem 0 4.2rem; }
+  .hero__copy { width: 48%; }
+  .panel {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 46vw; min-height: 0;
+    border-radius: 24rem 0 0 0;
+  }
+  .panel__light { inset: 14% 22% auto; }
+  .panel__arch { left: 18%; right: 18%; height: 62%; }
+  .panel figcaption { left: 2.4rem; right: var(--gutter); bottom: 2rem; }
+}

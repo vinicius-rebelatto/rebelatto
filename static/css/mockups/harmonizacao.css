@@ -9,7 +9,7 @@
   --cream: #fbf7f5;
   --serif: "Instrument Serif", Palatino, Georgia, serif;
   --sans: "Instrument Sans", "Avenir Next", "Segoe UI", sans-serif;
-  --wrap: 72rem;
+  --wrap: 88rem;
 }
 
 * { box-sizing: border-box; }
@@ -50,7 +50,7 @@ a { color: inherit; }
 .skip:focus { top: 0.6rem; }
 
 .wrap {
-  width: min(var(--wrap), calc(100% - 3rem));
+  width: min(var(--wrap), calc(100% - 2 * var(--gutter, 1.5rem)));
   margin-inline: auto;
 }
 
@@ -505,3 +505,21 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 }
 .pg h3, .pg h4 { font-weight: 500; letter-spacing: 0; }
 .pg-exp__nome { font-size: 1.6rem; }
+
+/* H1: mapa do rosto como painel que sangra até a borda direita */
+@media (min-width: 1100px) {
+  .hero { position: relative; padding: 0; }
+  .hero__grid { display: flex; align-items: center; min-height: max(38rem, calc(100vh - 4.6rem)); padding: 3rem 0 4rem; }
+  .hero__copy { width: 46%; }
+  .contour {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 48vw; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 26rem 0 0 0;
+    background:
+      radial-gradient(circle at 45% 38%, rgba(251, 247, 245, .85), transparent 55%),
+      linear-gradient(160deg, #efe0da 0%, #e7d4ce 55%, #dcc0b8 100%);
+    box-shadow: none;
+  }
+  .contour svg { width: auto; height: 78%; max-width: 70%; }
+  .contour figcaption { left: 3rem; right: var(--gutter); bottom: 2rem; }
+}

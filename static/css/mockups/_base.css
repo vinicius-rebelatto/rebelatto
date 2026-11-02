@@ -10,7 +10,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 
 .skip { position: absolute; left: 1rem; top: -3rem; z-index: 20; padding: .4rem .7rem; background: var(--ink); color: var(--bg); }
 .skip:focus { top: .6rem; }
-.wrap { width: min(var(--wrap, 72rem), calc(100% - 3rem)); margin-inline: auto; }
+.wrap { width: min(var(--wrap, 72rem), calc(100% - 2 * var(--gutter, 1.5rem))); margin-inline: auto; }
 
 .bar { position: sticky; top: 0; z-index: 5; border-bottom: 1px solid transparent; }
 .bar.is-scrolled { background: var(--bar-bg); border-bottom-color: var(--line); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }

@@ -58,6 +58,28 @@
           {% endfor %}
         </ul>
         <p class="grid__todos"><a class="btn btn--ghost" href="{{ base_url }}servicos/">Ver todos os serviços</a></p>
+
+        <div class="compare">
+          <div class="compare__head">
+            <h3>Compare os serviços</h3>
+            {% include "portfolio/mockups/_exemplo.html" %}
+          </div>
+          <div class="compare__scroll">
+            <table>
+              <thead><tr><th scope="col">Serviço</th><th scope="col">Área</th><th scope="col">Duração</th><th scope="col">Retorno</th></tr></thead>
+              <tbody>
+                {% for s in servicos %}
+                <tr>
+                  <th scope="row"><a href="{{ base_url }}servicos/{{ s.slug }}/">{{ s.nome }}</a></th>
+                  <td><span class="compare__tag">{{ s.categoria }}</span></td>
+                  <td>{{ s.duracao }}</td>
+                  <td>{{ s.retorno }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </section>
 

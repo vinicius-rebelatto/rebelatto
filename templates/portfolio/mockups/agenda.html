@@ -32,6 +32,7 @@
       <nav class="nav" aria-label="Principal">
         <a href="#tratamentos">Tratamentos</a>
         <a href="#como-agendar">Como agendar</a>
+        <a href="#preparo">Preparo</a>
         <a href="#duvidas">Dúvidas</a>
         <a href="#visita">Contato</a>
       </nav>
@@ -89,6 +90,32 @@
     </section>
 
     {% include "portfolio/mockups/_paginas/_landing_servicos.html" with titulo="O que dá para agendar" %}
+
+    <section class="prep" id="preparo" aria-labelledby="prep-title">
+      <div class="wrap">
+        <div class="prep__head">
+          <p class="eyebrow">Preparo</p>
+          <h2 id="prep-title">O que fazer antes e depois</h2>
+          {% include "portfolio/mockups/_exemplo.html" %}
+        </div>
+        <div class="prep__grid">
+          <article class="prep__card">
+            <span class="prep__tag rt-detalhe">Antes</span>
+            <h3>Para a avaliação</h3>
+            <ul class="list">{% for item in preparo.antes %}<li>{{ item }}</li>{% endfor %}</ul>
+          </article>
+          <article class="prep__card prep__card--depois">
+            <span class="prep__tag rt-detalhe">Depois</span>
+            <h3>Depois de um procedimento</h3>
+            <ul class="list">{% for item in preparo.depois %}<li>{{ item }}</li>{% endfor %}</ul>
+          </article>
+          <aside class="prep__cta">
+            <p>Ficou alguma dúvida sobre o preparo?</p>
+            <a class="btn" href="{{ marca.whatsapp_url }}" rel="noopener">{% include "portfolio/mockups/_whatsapp_icon.html" %}<span>Perguntar no WhatsApp</span></a>
+          </aside>
+        </div>
+      </div>
+    </section>
 
     {% include "portfolio/mockups/_paginas/_landing_diferenciais.html" %}
 

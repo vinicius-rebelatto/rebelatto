@@ -286,6 +286,21 @@ DUVIDAS = [
     ("Quais formas de pagamento?", "As condições são explicadas na avaliação, junto com o plano."),
 ]
 
+PREPARO = {
+    "antes": [
+        "Venha sem maquiagem, se possível",
+        "Traga a lista de procedimentos que já fez e quando",
+        "Informe medicamentos de uso contínuo e alergias",
+        "Chegue com alguns minutos de antecedência",
+    ],
+    "depois": [
+        "Siga as orientações escritas que você recebe no dia",
+        "Evite sol forte e calor excessivo nos primeiros dias",
+        "Evite atividade física intensa nas primeiras 24 horas",
+        "Em caso de dúvida, chame pelo WhatsApp",
+    ],
+}
+
 POR_SLUG = {s["slug"]: s for s in SERVICOS}
 
 
@@ -300,4 +315,5 @@ def contexto(nome: str) -> dict:
         "diferenciais": DIFERENCIAIS,
         "primeira_visita": PRIMEIRA_VISITA,
         "duvidas_gerais": DUVIDAS,
+        "preparo": PREPARO,
     }

@@ -8,7 +8,7 @@
   --ink: #1a1612;
   --serif: "Cormorant Garamond", Palatino, "Times New Roman", serif;
   --sans: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
-  --wrap: 74rem;
+  --wrap: 90rem;
   --margin: clamp(1.5rem, 7vw, 7.5rem);
 }
 
@@ -574,3 +574,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 .pg h1 { font-size: clamp(2.8rem, 6vw, 4.8rem); }
 .pg-steps__n { border-radius: 0; }
 .pg-wrap { width: min(var(--wrap), calc(100% - 2 * var(--margin))); }
+
+/* L2: a sala vira faixa de borda a borda, com o anel maior */
+.void {
+  height: min(72vh, 42rem);
+  margin-inline: calc(50% - 50vw);
+  border-inline: 0;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(212, 196, 168, 0.14), transparent 40%),
+    radial-gradient(120% 80% at 50% 120%, rgba(212, 196, 168, 0.06), transparent 60%),
+    #0c0b0a;
+}
+.void__ring { width: clamp(9rem, 16vw, 18rem); height: clamp(9rem, 16vw, 18rem); }
+.void figcaption { left: var(--margin); right: var(--margin); bottom: 1.8rem; }
+@media (max-width: 900px) { .void { height: 22rem; } }

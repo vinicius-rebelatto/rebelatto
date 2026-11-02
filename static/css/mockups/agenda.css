@@ -12,7 +12,7 @@
   --bar-bg: rgba(247, 244, 238, 0.9);
   --serif: "Gloock", Georgia, serif;
   --sans: "Figtree", "Segoe UI", system-ui, sans-serif;
-  --wrap: 70rem;
+  --wrap: 84rem;
 }
 
 body {
@@ -130,3 +130,23 @@ h3 { font-family: var(--sans); font-weight: 600; font-size: 1.1rem; letter-spaci
 .pg h3, .pg h4 { font-weight: 600; letter-spacing: 0; }
 .nav a { font-weight: 500; font-size: .95rem; }
 .pg-home-faq { border-block: 0; background: transparent; }
+
+/* A5: preparo antes e depois */
+.prep { padding: 5rem 0; }
+.prep__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .6rem 1.2rem; margin-bottom: 2rem; }
+.prep__head .eyebrow { width: 100%; margin-bottom: 0; border: 0; background: none; padding: 0; text-transform: uppercase; letter-spacing: .14em; font-size: .78rem; }
+.prep__head h2 { margin: 0; }
+.prep__head .exemplo { margin: 0; }
+.prep__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(16rem, .8fr); gap: 1rem; }
+.prep__card { padding: 1.8rem; border-radius: 1.4rem; background: var(--surface); box-shadow: 0 0 0 1px var(--line); }
+.prep__card--depois { background: var(--sand); box-shadow: none; }
+.prep__tag { display: inline-block; margin-bottom: 1rem; color: var(--accent); font-size: .78rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+.prep__card h3 { margin-bottom: 1rem; font-size: 1.25rem; }
+.prep__card li { position: relative; padding: .55rem 0 .55rem 1.8rem; border-top: 1px solid var(--line); }
+.prep__card li::before { content: ""; position: absolute; left: .2rem; top: 1.05rem; width: .7rem; height: .4rem; border-left: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(-45deg); }
+.prep__cta { display: flex; flex-direction: column; justify-content: space-between; gap: 1.4rem; padding: 1.8rem; border-radius: 1.4rem; background: var(--accent); color: var(--accent-ink); }
+.prep__cta p { margin: 0; font-family: var(--serif); font-size: 1.6rem; line-height: 1.15; }
+.prep__cta .btn { background: var(--accent-ink); color: var(--accent); border-color: var(--accent-ink); }
+body[data-lead] .prep__cta .btn { background: #fff !important; color: var(--ink) !important; border-color: #fff !important; }
+@media (max-width: 1000px) { .prep__grid { grid-template-columns: 1fr 1fr; } .prep__cta { grid-column: 1 / -1; } }
+@media (max-width: 640px) { .prep__grid { grid-template-columns: 1fr; } .prep { padding: 3.5rem 0; } }

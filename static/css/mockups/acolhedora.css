@@ -14,7 +14,7 @@
   --bar-bg: rgba(251, 242, 234, 0.9);
   --serif: "Young Serif", Georgia, serif;
   --sans: "Nunito", "Segoe UI", system-ui, sans-serif;
-  --wrap: 70rem;
+  --wrap: 84rem;
 }
 
 body { font-family: var(--sans); font-size: 1.06rem; line-height: 1.65; }

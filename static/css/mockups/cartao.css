@@ -99,7 +99,7 @@ body[data-lead] .table { min-height: calc(100vh - 4.5rem); }
 :root {
   --pg-display: var(--serif); --pg-body: var(--sans); --pg-h3-font: var(--sans); --pg-ink: var(--ink); --pg-muted: var(--muted);
   --pg-line: var(--line); --pg-surface: var(--paper); --pg-alt: rgba(248, 244, 236, .55); --pg-accent: var(--accent);
-  --pg-radius: .35rem; --pg-wrap: 62rem;
+  --pg-radius: .35rem; --pg-wrap: 72rem;
 }
 .table { padding-bottom: 0; }
 .table > .pg { justify-self: stretch; width: calc(100% + 3rem); margin-inline: -1.5rem; }
