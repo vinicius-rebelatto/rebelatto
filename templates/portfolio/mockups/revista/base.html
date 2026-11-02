@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="{% static 'css/mockups/_base.css' %}">
   <link rel="stylesheet" href="{% static 'css/mockups/_paginas.css' %}">
   <link rel="stylesheet" href="{% static landing.css %}">
+  {% include "portfolio/mockups/_motion_head.html" %}
   {% include "portfolio/mockups/_lead_head.html" %}
 </head>
 <body{% if marca.lead %} data-lead{% endif %}>
@@ -57,5 +58,6 @@
 
   {% include "portfolio/mockups/_lead_bar.html" %}
   <script src="{% static landing.js %}" defer></script>
+  <script src="{% static 'js/mockups/_motion.js' %}" defer></script>
 </body>
 </html>

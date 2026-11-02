@@ -13,6 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,460;0,9..144,560;1,9..144,460&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/mockups/_paginas.css' %}">
   <link rel="stylesheet" href="{% static landing.css %}">
+  {% include "portfolio/mockups/_motion_head.html" %}
   {% include "portfolio/mockups/_lead_head.html" %}
 </head>
 <body{% if marca.lead %} data-lead{% endif %}>
@@ -64,5 +65,6 @@
 
   {% include "portfolio/mockups/_lead_bar.html" %}
   <script src="{% static landing.js %}" defer></script>
+  <script src="{% static 'js/mockups/_motion.js' %}" defer></script>
 </body>
 </html>
