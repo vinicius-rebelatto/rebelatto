@@ -1,0 +1,100 @@
+{% extends "erp/base.html" %}
+
+{% block page_actions %}
+<form method="post" action="{% url 'captacao:numero_conectar' numero.pk %}">
+  {% csrf_token %}
+  <button class="btn btn-outline btn-sm" type="submit">{% include "erp/partials/icon.html" with name="refresh" %}<span>{% if numero.conexao == 'conectado' %}Reconfigurar webhook{% else %}Gerar QR code novo{% endif %}</span></button>
+</form>
+{% if numero.conexao == 'conectado' %}
+<form method="post" action="{% url 'captacao:numero_desconectar' numero.pk %}" onsubmit="return confirm('Desconectar este número? Os envios param.');">
+  {% csrf_token %}
+  <button class="btn btn-danger btn-sm" type="submit">{% include "erp/partials/icon.html" with name="x" %}<span>Desconectar</span></button>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if numero.ultimo_erro %}
+<div class="erp-alert erp-alert--danger"><div class="erp-alert__body">{{ numero.ultimo_erro }}</div></div>
+{% endif %}
+<section class="erp-grid-2">
+  <article class="erp-card">
+    <div class="erp-card__header">
+      <h2 class="erp-heading">{% include "erp/partials/icon.html" with name="zap" %}<span>{{ numero.telefone }}</span></h2>
+      <span class="erp-badge erp-badge--{{ numero.conexao }}" data-conexao>{{ numero.get_conexao_display }}</span>
+    </div>
+    {% if numero.conexao != 'conectado' %}
+    <div class="cap-qr" data-qr-box data-status-url="{% url 'captacao:numero_status' numero.pk %}">
+      {% if numero.qr_code %}<img src="{{ numero.qr_code }}" alt="QR code para conectar o WhatsApp" data-qr>{% else %}<p class="erp-muted" data-qr-vazio>Clique em "Gerar QR code novo".</p>{% endif %}
+      <ol class="cap-qr__passos">
+        <li>No celular do chip, abra o <strong>WhatsApp Business</strong>.</li>
+        <li>Toque em <strong>⋮ &gt; Dispositivos conectados &gt; Conectar dispositivo</strong>.</li>
+        <li>Aponte a câmera para o QR code. Ele muda a cada poucos segundos.</li>
+      </ol>
+      {% if numero.codigo_pareamento %}<p>Ou conecte pelo número de telefone com o código <strong class="erp-mono" data-codigo>{{ numero.codigo_pareamento }}</strong>.</p>{% endif %}
+    </div>
+    {% else %}
+    <dl class="erp-dl">
+      <div><dt>Conectado desde</dt><dd>{{ numero.conectado_em|date:"d/m/Y H:i"|default:"—" }}</dd></div>
+      <div><dt>Hoje</dt><dd>{{ situacao.enviados_hoje }} de {{ situacao.limite_hoje }} mensagens</dd></div>
+      <div><dt>Situação</dt><dd>{{ situacao.motivo }}</dd></div>
+      <div><dt>Resposta (últimos dias)</dt><dd>{% if situacao.taxa_resposta is not None %}{% widthratio situacao.taxa_resposta 1 100 %}%{% else %}—{% endif %}{% if situacao.freado %} · <strong>freado</strong>, volume pela metade{% endif %}</dd></div>
+      <div><dt>Dia do aquecimento</dt><dd>{% if numero.dia_aquecimento %}{{ numero.dia_aquecimento }}{% else %}não começou{% endif %}</dd></div>
+      <div><dt>Próximo envio</dt><dd>{{ numero.proximo_envio_em|date:"d/m H:i:s"|default:"—" }}</dd></div>
+    </dl>
+    {% endif %}
+    <h3 class="erp-heading cap-curva__titulo">Curva de aquecimento</h3>
+    <div class="cap-curva">
+      {% for d in curva %}<span class="cap-curva__dia{% if d.hoje %} is-hoje{% endif %}" title="Dia {{ d.dia }}"><b>{{ d.limite }}</b><small>d{{ d.dia }}</small></span>{% endfor %}
+    </div>
+  </article>
+
+  <article class="erp-card">
+    <div class="erp-card__header"><h2 class="erp-heading">{% include "erp/partials/icon.html" with name="target" %}<span>Envios</span></h2></div>
+    <form method="post" class="erp-form erp-form--grid">
+      {% csrf_token %}
+      {% for field in form %}
+      <label class="erp-field{% if field.field.widget.input_type == 'checkbox' %} erp-field--check erp-field--full{% endif %}">
+        <span>{{ field.label }}</span>
+        {{ field }}
+        {% if field.help_text %}<small class="erp-muted">{{ field.help_text }}</small>{% endif %}
+        {% if field.errors %}<span class="erp-error">{{ field.errors|striptags }}</span>{% endif %}
+      </label>
+      {% endfor %}
+      <div class="erp-form__actions erp-field--full">
+        <button class="btn btn-primary" type="submit">{% include "erp/partials/icon.html" with name="save" %}<span>Salvar</span></button>
+      </div>
+    </form>
+  </article>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% if numero.conexao != 'conectado' %}
+<script>
+(function () {
+  var box = document.querySelector("[data-qr-box]");
+  if (!box) return;
+  var url = box.getAttribute("data-status-url");
+  function atualizar() {
+    fetch(url, {credentials: "same-origin"}).then(function (r) { return r.json(); }).then(function (d) {
+      if (d.conexao === "conectado") { window.location.reload(); return; }
+      if (d.qr) {
+        var img = box.querySelector("[data-qr]");
+        if (!img) {
+          img = document.createElement("img");
+          img.setAttribute("data-qr", "");
+          img.alt = "QR code para conectar o WhatsApp";
+          var vazio = box.querySelector("[data-qr-vazio]");
+          if (vazio) vazio.remove();
+          box.insertBefore(img, box.firstChild);
+        }
+        if (img.src !== d.qr) img.src = d.qr;
+      }
+    }).catch(function () {});
+  }
+  setInterval(atualizar, 3000);
+})();
+</script>
+{% endif %}
+{% endblock %}

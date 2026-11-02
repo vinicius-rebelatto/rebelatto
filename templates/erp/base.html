@@ -33,6 +33,10 @@
           {% include "erp/partials/icon.html" with name="check" %}
           <span>Tarefas</span>
         </a>
+        <a class="erp-nav__link{% if request.resolver_match.namespace == 'captacao' %} is-active{% endif %}" href="{% url 'captacao:painel' %}">
+          {% include "erp/partials/icon.html" with name="target" %}
+          <span>Captação</span>
+        </a>
         <a class="erp-nav__link{% if 'cliente' in request.resolver_match.url_name %} is-active{% endif %}" href="{% url 'erp:cliente_list' %}">
           {% include "erp/partials/icon.html" with name="users" %}
           <span>Clientes</span>
@@ -74,7 +78,9 @@
           <h1 class="erp-page-title">
             {% block page_icon %}
               {% with n=request.resolver_match.url_name %}
-                {% if n == "dashboard" %}
+                {% if request.resolver_match.namespace == "captacao" %}
+                  {% include "erp/partials/icon.html" with name="target" %}
+                {% elif n == "dashboard" %}
                   {% include "erp/partials/icon.html" with name="dashboard" %}
                 {% elif n == "cliente_filtragem" or n == "cliente_filtragem_bulk" %}
                   {% include "erp/partials/icon.html" with name="filter" %}

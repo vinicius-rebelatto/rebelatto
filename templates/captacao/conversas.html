@@ -1,0 +1,31 @@
+{% extends "erp/base.html" %}
+{% load captacao_extras %}
+
+{% block content %}
+<section class="erp-card">
+  <nav class="erp-toolbar cap-filtros">
+    {% for valor, rotulo in "responderam:Responderam,aguardando:Esperando você,reunioes:Reuniões,fila:Na fila,falhas:Falhas,todas:Todas"|cap_opcoes %}
+    <a class="btn btn-sm {% if filtro == valor %}btn-primary{% else %}btn-outline{% endif %}" href="?f={{ valor }}">{{ rotulo }}</a>
+    {% endfor %}
+  </nav>
+  <div class="erp-table-wrap">
+    <table class="erp-table">
+      <thead><tr><th>Lead</th><th>Script</th><th>Etapa</th><th class="erp-num">Mensagens dele</th><th>Última atividade</th><th>Telefone</th></tr></thead>
+      <tbody>
+        {% for a in abordagens %}
+        <tr>
+          <td><a href="{% url 'captacao:conversa_detail' a.pk %}">{{ a.cliente.display_name }}</a></td>
+          <td>{{ a.variante.letra }}</td>
+          <td>{{ a.etapa }}</td>
+          <td class="erp-num">{{ a.recebidas }}</td>
+          <td>{{ a.ultima|date:"d/m H:i"|default:"—" }}</td>
+          <td class="erp-nowrap">{{ a.telefone }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="erp-empty">Nada aqui ainda.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -8,6 +8,12 @@
   <a class="erp-tab{% if 'credencial' in name %} is-active{% endif %}" href="{% url 'ia:credencial_list' %}">Chaves</a>
   <a class="erp-tab{% if 'modelo' in name %} is-active{% endif %}" href="{% url 'ia:modelo_list' %}">Modelos</a>
 </nav>
+{% elif ns == "captacao" %}
+<nav class="erp-tabs" aria-label="Captação">
+  <a class="erp-tab{% if name == 'painel' or 'experimento' in name %} is-active{% endif %}" href="{% url 'captacao:painel' %}">Funil</a>
+  <a class="erp-tab{% if 'conversa' in name %} is-active{% endif %}" href="{% url 'captacao:conversa_list' %}">Conversas</a>
+  <a class="erp-tab{% if 'numero' in name %} is-active{% endif %}" href="{% url 'captacao:numero_create' %}">Números</a>
+</nav>
 {% elif ns == "catalogo" %}
 <nav class="erp-tabs" aria-label="Comercial">
   <a class="erp-tab{% if 'pacote' in name %} is-active{% endif %}" href="{% url 'catalogo:pacote_list' %}">Catálogo</a>

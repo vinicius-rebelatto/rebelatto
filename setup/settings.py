@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     "catalogo",
     "erp",
     "ia",
+    "captacao",
 ]
 
 LOGIN_URL = "erp:login"
@@ -166,6 +167,14 @@ IA_ENCRYPTION_KEY = secret_or_env("IA_ENCRYPTION_KEY", "") or ""
 
 GEMINI_API_KEY = secret_or_env("GEMINI_API_KEY", "")
 GEMINI_MODEL = secret_or_env("GEMINI_MODEL", "gemini-3.5-flash-lite") or "gemini-3.5-flash-lite"
+
+# WhatsApp pela Evolution API (serviço `evolution` do docker-compose)
+EVOLUTION_URL = (secret_or_env("EVOLUTION_URL", "http://evolution:8080") or "").strip()
+EVOLUTION_API_KEY = (secret_or_env("EVOLUTION_API_KEY", "") or "").strip()
+# Endereço pelo qual a Evolution chama o Django dentro da rede do Docker.
+EVOLUTION_WEBHOOK_BASE = (secret_or_env("EVOLUTION_WEBHOOK_BASE", "http://web:8000") or "").strip()
+if "web" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("web")
 
 # Apify: busca de leads no Google Maps
 APIFY_TOKEN = (secret_or_env("APIFY_TOKEN", "") or "").strip()

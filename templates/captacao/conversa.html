@@ -1,0 +1,86 @@
+{% extends "erp/base.html" %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'erp:cliente_detail' abordagem.cliente_id %}">{% include "erp/partials/icon.html" with name="user" %}<span>Ficha do lead</span></a>
+<a class="btn btn-outline btn-sm" href="{% url 'captacao:conversa_list' %}">{% include "erp/partials/icon.html" with name="back" %}<span>Conversas</span></a>
+{% endblock %}
+
+{% block content %}
+<section class="erp-grid-2">
+  <article class="erp-card cap-chat">
+    <div class="erp-card__header">
+      <h2 class="erp-heading">{% include "erp/partials/icon.html" with name="inbox" %}<span>Script {{ abordagem.variante.letra }} · {{ abordagem.etapa }}</span></h2>
+      <span class="erp-muted">{{ abordagem.telefone }}{% if abordagem.numero %} · via {{ abordagem.numero.apelido }}{% endif %}</span>
+    </div>
+    <div class="cap-chat__lista">
+      {% for m in mensagens %}
+      <div class="cap-msg cap-msg--{{ m.direcao }}">
+        <p>{{ m.texto|linebreaksbr }}</p>
+        <small>{{ m.get_autor_display }} · {{ m.created_at|date:"d/m H:i" }}{% if m.status %} · {{ m.status|lower }}{% endif %}</small>
+      </div>
+      {% empty %}
+      <p class="erp-muted">{% if abordagem.envio == 'na_fila' %}Na fila. A primeira mensagem sai quando chegar a vez.{% elif abordagem.erro %}{{ abordagem.erro }}{% else %}Sem mensagens.{% endif %}</p>
+      {% endfor %}
+    </div>
+
+    {% if abordagem.opt_out_em %}
+    <div class="erp-alert erp-alert--warning"><div class="erp-alert__body">O lead pediu para sair em {{ abordagem.opt_out_em|date:"d/m H:i" }}. Ninguém mais envia mensagem para este número.</div></div>
+    {% elif abordagem.numero %}
+      {% if sugestao %}
+      <form method="post" class="erp-form cap-sugestao">
+        {% csrf_token %}
+        {% if sugestao.sugestao_status == 'passar' %}
+        <p><strong>A IA passou esta conversa para você.</strong> Responda abaixo.</p>
+        {% elif sugestao.sugestao_status == 'erro' %}
+        <p class="erp-error">{{ sugestao.sugestao }}</p>
+        {% else %}
+        <p><strong>Sugestão da IA</strong> · edite se quiser e envie</p>
+        <textarea name="texto" rows="3">{{ sugestao.sugestao }}</textarea>
+        <div class="erp-actions-row">
+          <button class="btn btn-primary btn-sm" name="acao" value="aprovar">Enviar sugestão</button>
+          <button class="btn btn-outline btn-sm" name="acao" value="descartar" formnovalidate>Descartar</button>
+        </div>
+        {% endif %}
+      </form>
+      {% endif %}
+      <form method="post" class="erp-form cap-responder">
+        {% csrf_token %}
+        <textarea name="texto" rows="2" placeholder="Responder como você…" required></textarea>
+        <button class="btn btn-primary btn-sm" name="acao" value="responder">Enviar</button>
+      </form>
+    {% endif %}
+  </article>
+
+  <div class="erp-stack">
+    <article class="erp-card">
+      <div class="erp-card__header"><h2 class="erp-heading">{% include "erp/partials/icon.html" with name="target" %}<span>Reunião e resultado</span></h2></div>
+      <form method="post" class="erp-form">
+        {% csrf_token %}
+        <input type="hidden" name="acao" value="resultado">
+        {% for field in resultado_form %}
+        <label class="erp-field{% if field.name == 'ia_pausada' %} erp-field--check{% endif %}">
+          <span>{{ field.label }}</span>
+          {{ field }}
+          {% if field.errors %}<span class="erp-error">{{ field.errors|striptags }}</span>{% endif %}
+        </label>
+        {% endfor %}
+        <button class="btn btn-primary btn-sm" type="submit">{% include "erp/partials/icon.html" with name="save" %}<span>Salvar</span></button>
+      </form>
+    </article>
+    <article class="erp-card">
+      <dl class="erp-dl erp-dl--stack">
+        <div><dt>Lead</dt><dd>{{ abordagem.cliente.display_name }} · {{ abordagem.cliente.cidade }}</dd></div>
+        <div><dt>Categoria</dt><dd>{{ abordagem.cliente.get_categoria_lead_display|default:"—" }} · nota {{ abordagem.cliente.nota }}</dd></div>
+        <div><dt>Prévia</dt><dd><a href="{{ abordagem.cliente.mockup_path }}" target="_blank" rel="noopener">Abrir mockup</a> · {{ abordagem.cliente.mockup_visitas }} visita(s)</dd></div>
+        <div><dt>Enviada</dt><dd>{{ abordagem.enviada_em|date:"d/m H:i"|default:"—" }}{% if abordagem.lida_em %} · lida {{ abordagem.lida_em|date:"d/m H:i" }}{% endif %}</dd></div>
+      </dl>
+      {% if not abordagem.opt_out_em %}
+      <form method="post" onsubmit="return confirm('Marcar que este lead não quer mais contato?');" class="erp-danger-zone">
+        {% csrf_token %}
+        <button class="btn btn-danger btn-sm" name="acao" value="opt_out">Não contatar mais</button>
+      </form>
+      {% endif %}
+    </article>
+  </div>
+</section>
+{% endblock %}

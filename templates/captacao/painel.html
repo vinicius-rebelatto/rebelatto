@@ -1,0 +1,88 @@
+{% extends "erp/base.html" %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'captacao:numero_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Conectar número</span>
+</a>
+<a class="btn btn-primary btn-sm" href="{% url 'captacao:experimento_create' %}">
+  {% include "erp/partials/icon.html" with name="plus" %}
+  <span>Novo experimento</span>
+</a>
+{% endblock %}
+
+{% block content %}
+{% if not evolution_ok %}
+<div class="erp-alert erp-alert--warning"><div class="erp-alert__body">A Evolution API ainda não está configurada no servidor (<code>EVOLUTION_API_KEY</code>). O deploy cria a chave sozinho; se este aviso continuar, recrie o container <code>web</code>.</div></div>
+{% endif %}
+
+<section class="erp-metrics">
+  {% for item in numeros %}
+  <a class="erp-metric cap-numero" href="{% url 'captacao:numero_detail' item.numero.pk %}">
+    <span class="erp-metric__label">
+      {% include "erp/partials/icon.html" with name="zap" %}
+      <span>{{ item.numero.apelido }}</span>
+      <span class="erp-badge erp-badge--{{ item.numero.conexao }}">{{ item.numero.get_conexao_display }}</span>
+    </span>
+    <strong class="erp-metric__value">{{ item.situacao.enviados_hoje }} <small>/ {{ item.situacao.limite_hoje }} hoje</small></strong>
+    <span class="erp-muted cap-numero__motivo">{{ item.situacao.motivo }}{% if item.situacao.freado %} · freado: resposta baixa{% endif %}</span>
+  </a>
+  {% empty %}
+  <article class="erp-metric">
+    <span class="erp-metric__label">{% include "erp/partials/icon.html" with name="zap" %}<span>WhatsApp</span></span>
+    <strong class="erp-metric__value"><small>Nenhum número conectado</small></strong>
+    <a href="{% url 'captacao:numero_create' %}">Conectar o primeiro número</a>
+  </article>
+  {% endfor %}
+  <a class="erp-metric" href="{% url 'captacao:conversa_list' %}?f=aguardando">
+    <span class="erp-metric__label">{% include "erp/partials/icon.html" with name="inbox" %}<span>Esperando você</span></span>
+    <strong class="erp-metric__value">{{ aguardando }}</strong>
+  </a>
+  <a class="erp-metric" href="{% url 'captacao:conversa_list' %}?f=fila">
+    <span class="erp-metric__label">{% include "erp/partials/icon.html" with name="target" %}<span>Na fila</span></span>
+    <strong class="erp-metric__value">{{ na_fila }}</strong>
+  </a>
+</section>
+
+<section class="erp-card">
+  <div class="erp-card__header">
+    <h2 class="erp-heading">{% include "erp/partials/icon.html" with name="trending" %}<span>Funil por script</span></h2>
+    {% if experimento %}
+    <div class="erp-actions-row">
+      {% if experimentos|length > 1 %}
+      <form method="get">
+        <select name="experimento" onchange="this.form.submit()">
+          {% for e in experimentos %}<option value="{{ e.pk }}" {% if e.pk == experimento.pk %}selected{% endif %}>{{ e.nome }}</option>{% endfor %}
+        </select>
+      </form>
+      {% endif %}
+      <a class="btn btn-outline btn-sm" href="{% url 'captacao:experimento_edit' experimento.pk %}">{% include "erp/partials/icon.html" with name="edit" %}<span>Editar scripts</span></a>
+      <form method="post" action="{% url 'captacao:experimento_fila' experimento.pk %}">
+        {% csrf_token %}
+        <button class="btn btn-primary btn-sm" type="submit">{% include "erp/partials/icon.html" with name="plus" %}<span>Completar a fila</span></button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+  {% if experimento %}
+  <p class="erp-muted">{{ experimento.nome }} · {{ experimento.leads_por_variante }} leads por script · categorias {{ experimento.categorias }} · IA: {{ experimento.get_modo_ia_display|lower }}{% if not experimento.ativo %} · <strong>pausado</strong>{% endif %}</p>
+  <div class="erp-table-wrap">
+    <table class="erp-table cap-funil">
+      <thead><tr><th>Etapa</th>{% for v in tabela.scripts %}<th class="erp-num" title="{{ v.nome }}">Script {{ v.letra }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for etapa in tabela.etapas %}
+        <tr><td>{{ etapa.rotulo }}</td>{% for valor in etapa.valores %}<td class="erp-num">{{ valor }}</td>{% endfor %}</tr>
+        {% endfor %}
+      </tbody>
+      <tbody class="cap-funil__taxas">
+        {% for taxa in tabela.taxas %}
+        <tr><td><strong>{{ taxa.rotulo }}</strong></td>{% for valor in taxa.valores %}<td class="erp-num"><strong>{% if valor is not None %}{{ valor }}%{% else %}—{% endif %}</strong></td>{% endfor %}</tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="erp-empty">Crie o primeiro experimento com os 3 scripts. Depois aceite leads na Filtragem e clique em "Completar a fila".</p>
+  {% endif %}
+</section>
+{% endblock %}
