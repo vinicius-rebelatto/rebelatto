@@ -12,7 +12,7 @@ from ia.gateway import GatewayError, executar
 from ia.models import Agente, Modelo, VersaoAgente
 
 from . import evolution, operacao, textos
-from .models import Abordagem, Experimento, Mensagem
+from .models import Abordagem, Experimento, Mensagem, RespostaPadrao
 
 SLUG = "captacao-conversao"
 ESPERA_SEGUNDOS = 45  # o lead costuma mandar várias mensagens seguidas
@@ -134,11 +134,24 @@ def pendentes(agora=None):
         yield mensagem
 
 
+def respostas_padrao() -> str:
+    itens = list(RespostaPadrao.objects.filter(ativa=True).order_by("pergunta")[:40])
+    if not itens:
+        return ""
+    linhas = ["Respostas aprovadas pelo Vinícius para perguntas frequentes (use o conteúdo, adaptando ao tom da conversa):"]
+    for item in itens:
+        linhas.append(f"- Pergunta: {item.pergunta}\n  Resposta: {item.resposta}")
+    return "\n".join(linhas)
+
+
 def sugerir(mensagem: Mensagem) -> Mensagem:
     abordagem = mensagem.abordagem
     agente = garantir_agente()
     versao = agente.versao_ativa
     sistema = f"{versao.prompt if versao else PROMPT}\n\nDados do lead:\n{contexto_do_lead(abordagem)}"
+    padroes = respostas_padrao()
+    if padroes:
+        sistema += f"\n\n{padroes}"
     try:
         resultado = executar(
             agente,

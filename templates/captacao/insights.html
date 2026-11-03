@@ -1,0 +1,74 @@
+{% extends "erp/base.html" %}
+
+{% block page_actions %}
+<a class="btn btn-outline btn-sm" href="{% url 'captacao:exportar_mensagens' %}">{% include "erp/partials/icon.html" with name="file" %}<span>Exportar mensagens</span></a>
+<a class="btn btn-outline btn-sm" href="{% url 'captacao:exportar_abordagens' %}">{% include "erp/partials/icon.html" with name="file" %}<span>Exportar abordagens</span></a>
+{% endblock %}
+
+{% block content %}
+<section class="erp-card">
+  <form method="get" class="erp-toolbar">
+    <select name="experimento" onchange="this.form.submit()">
+      <option value="">Todos os experimentos</option>
+      {% for e in experimentos %}<option value="{{ e.pk }}" {% if experimento and e.pk == experimento.pk %}selected{% endif %}>{{ e.nome }}</option>{% endfor %}
+    </select>
+    <p class="erp-muted">{{ dados.total }} mensagem(ns) de leads analisada(s){% if pendentes %} · {{ pendentes }} esperando a IA classificar{% endif %}. Cada mensagem recebida é classificada sozinha pelo agente de triagem.</p>
+  </form>
+</section>
+
+<section class="erp-grid-2">
+  <article class="erp-card">
+    <div class="erp-card__header"><h2 class="erp-heading">{% include "erp/partials/icon.html" with name="inbox" %}<span>Perguntas mais feitas</span></h2></div>
+    {% for p in dados.perguntas %}
+    <div class="cap-pergunta">
+      <div class="cap-barra"><span>{{ p.texto }}</span><span class="erp-muted">{% for ex in p.exemplos %}<a href="{% url 'captacao:conversa_detail' ex.abordagem_id %}" title="{{ ex.texto }}">conversa</a>{% if not forloop.last %} · {% endif %}{% endfor %}</span><strong class="erp-num">{{ p.total }}</strong></div>
+      <a class="erp-muted" href="{% url 'captacao:resposta_padrao_create' %}?pergunta={{ p.texto|urlencode }}">+ Ensinar a resposta ao agente</a>
+    </div>
+    {% empty %}
+    <p class="erp-empty">As perguntas aparecem aqui quando os leads começarem a responder.</p>
+    {% endfor %}
+  </article>
+
+  <div class="erp-stack">
+    <article class="erp-card">
+      <div class="erp-card__header"><h2 class="erp-heading">{% include "erp/partials/icon.html" with name="target" %}<span>Intenção das mensagens</span></h2></div>
+      {% for rotulo, total in dados.intencoes %}
+      <div class="cap-barra"><span>{{ rotulo }}</span><span class="cap-barra__trilho"><i style="width: {% widthratio total dados.total 100 %}%"></i></span><strong class="erp-num">{{ total }}</strong></div>
+      {% empty %}<p class="erp-empty">Sem dados ainda.</p>{% endfor %}
+    </article>
+    <article class="erp-card">
+      <div class="erp-card__header"><h2 class="erp-heading">{% include "erp/partials/icon.html" with name="alert" %}<span>Objeções</span></h2></div>
+      {% for o in dados.objecoes %}
+      <div class="cap-barra"><span>{{ o.texto }}</span><span class="erp-muted">{% for ex in o.exemplos %}<a href="{% url 'captacao:conversa_detail' ex.abordagem_id %}" title="{{ ex.texto }}">conversa</a>{% if not forloop.last %} · {% endif %}{% endfor %}</span><strong class="erp-num">{{ o.total }}</strong></div>
+      {% empty %}<p class="erp-empty">Nenhuma objeção registrada.</p>{% endfor %}
+    </article>
+  </div>
+</section>
+
+<section class="erp-card">
+  <div class="erp-card__header"><h2 class="erp-heading">{% include "erp/partials/icon.html" with name="tag" %}<span>Temas por script</span></h2></div>
+  <div class="erp-table-wrap">
+    <table class="erp-table erp-table--compact">
+      <thead><tr><th>Tema</th><th class="erp-num">Total</th>{% for l in letras %}<th class="erp-num">Script {{ l }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for t in temas %}
+        <tr><td>{{ t.tema }}</td><td class="erp-num"><strong>{{ t.total }}</strong></td>{% for n in t.por_script %}<td class="erp-num">{{ n }}</td>{% endfor %}</tr>
+        {% empty %}<tr><td colspan="5" class="erp-empty">Sem dados ainda.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="erp-card">
+  <div class="erp-card__header">
+    <h2 class="erp-heading">{% include "erp/partials/icon.html" with name="check" %}<span>Respostas que o agente já sabe</span></h2>
+    <a class="btn btn-outline btn-sm" href="{% url 'captacao:resposta_padrao_create' %}">{% include "erp/partials/icon.html" with name="plus" %}<span>Nova</span></a>
+  </div>
+  <p class="erp-muted">Cada resposta ativa entra no contexto do agente de conversão. Comece pelas perguntas que mais aparecem acima.</p>
+  <ul class="erp-simple-list">
+    {% for item in padroes %}
+    <li><a href="{% url 'captacao:resposta_padrao_edit' item.pk %}">{{ item.pergunta }}</a>{% if not item.ativa %} <span class="erp-tag">inativa</span>{% endif %}</li>
+    {% empty %}<li class="erp-muted">Nenhuma ainda.</li>{% endfor %}
+  </ul>
+</section>
+{% endblock %}

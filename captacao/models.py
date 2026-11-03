@@ -142,6 +142,13 @@ class Variante(models.Model):
         help_text="Campos: {{empresa}}, {{cidade}}, {{bairro}}, {{nota_maps}}, {{avaliacoes}}, {{mockup}}. "
         "Variações: {Oi|Olá|Bom dia}.",
     )
+    versao = models.PositiveIntegerField("Versão", default=1)
+    historico = models.JSONField(
+        "Versões anteriores",
+        default=list,
+        blank=True,
+        help_text="Cada edição do texto guarda a versão anterior aqui.",
+    )
 
     class Meta:
         ordering = ["experimento", "letra"]
@@ -161,6 +168,14 @@ class Abordagem(models.Model):
         ENVIADA = "enviada", "Enviada"
         FALHOU = "falhou", "Falhou"
         CANCELADA = "cancelada", "Cancelada"
+
+    class Produto(models.TextChoices):
+        SITE = "site", "Site"
+        LANDING = "landing", "Landing page"
+        LOJA = "loja", "Loja virtual"
+        SISTEMA = "sistema", "Sistema (ERP/CRM)"
+        MANUTENCAO = "manutencao", "Manutenção / mensalidade"
+        OUTRO = "outro", "Outro"
 
     class Resultado(models.TextChoices):
         FECHOU = "fechou", "Fechou"
@@ -193,6 +208,18 @@ class Abordagem(models.Model):
     motivo_perda = models.CharField("Motivo", max_length=200, blank=True)
     notas = models.TextField("Notas da reunião", blank=True)
     ia_pausada = models.BooleanField("IA pausada nesta conversa", default=False)
+
+    versao_script = models.PositiveIntegerField("Versão do script enviada", null=True, blank=True)
+    texto_script = models.TextField("Script como estava no envio", blank=True)
+    lead_no_envio = models.JSONField(
+        "Lead no momento do envio",
+        default=dict,
+        blank=True,
+        help_text="Nota, categoria, presença e números do Google como estavam quando a mensagem saiu.",
+    )
+    produto = models.CharField("Produto vendido", max_length=20, choices=Produto.choices, blank=True)
+    valor_fechado = models.DecimalField("Valor fechado (R$)", max_digits=10, decimal_places=2, null=True, blank=True)
+    resultado_em = models.DateTimeField("Resultado registrado em", null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -251,6 +278,11 @@ class Mensagem(models.Model):
     status = models.CharField(max_length=30, blank=True)
     sugestao = models.TextField("Resposta sugerida pela IA", blank=True)
     sugestao_status = models.CharField(max_length=20, blank=True)
+    intencao = models.CharField("Intenção", max_length=30, blank=True, db_index=True)
+    temas = models.JSONField("Temas", default=list, blank=True)
+    pergunta = models.CharField("Pergunta feita", max_length=300, blank=True)
+    objecao = models.CharField("Objeção", max_length=300, blank=True)
+    classificada_em = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -274,3 +306,39 @@ class OptOut(models.Model):
 
     def __str__(self) -> str:
         return self.telefone
+
+
+class EventoWhatsApp(models.Model):
+    """Cada evento da Evolution exatamente como chegou, para reprocessar ou analisar depois."""
+
+    instancia = models.CharField(max_length=60, db_index=True)
+    evento = models.CharField(max_length=60, db_index=True)
+    payload = models.JSONField(default=dict)
+    resultado = models.CharField(max_length=60, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Evento do WhatsApp"
+        verbose_name_plural = "Eventos do WhatsApp"
+
+    def __str__(self) -> str:
+        return f"{self.evento} · {self.instancia}"
+
+
+class RespostaPadrao(models.Model):
+    """Resposta aprovada para uma pergunta frequente. Entra no contexto do agente de conversão."""
+
+    pergunta = models.CharField("Pergunta", max_length=300)
+    resposta = models.TextField("Como responder")
+    ativa = models.BooleanField("Ativa", default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["pergunta"]
+        verbose_name = "Resposta padrão"
+        verbose_name_plural = "Respostas padrão"
+
+    def __str__(self) -> str:
+        return self.pergunta

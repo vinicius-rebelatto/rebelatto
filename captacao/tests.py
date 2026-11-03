@@ -377,3 +377,102 @@ class HoraTests(TestCase):
     def test_janela_padrao(self):
         n = numero()
         self.assertEqual((n.hora_inicio, n.hora_fim), (time(9), time(18)))
+
+
+class DadosParaAnaliseTests(TestCase):
+    def setUp(self):
+        usuario = get_user_model().objects.create_user("staff2", password="x", is_staff=True)
+        self.client.force_login(usuario)
+        self.numero = numero()
+        self.exp = experimento()
+        self.lead = cliente("Clínica Aurora", "(47) 99999-1111")
+        operacao.montar_fila(self.exp)
+
+    def test_envio_guarda_versao_do_script_e_foto_do_lead(self):
+        with patch("captacao.evolution.enviar_texto", return_value={"key": {"id": "M1"}}):
+            abordagem = operacao.disparar(self.numero, quarta(10))
+        self.assertEqual(abordagem.versao_script, 1)
+        self.assertEqual(abordagem.texto_script, abordagem.variante.texto)
+        self.assertEqual(abordagem.lead_no_envio["categoria_lead"], "sem_site")
+        self.assertEqual(abordagem.lead_no_envio["nota"], 80)
+        self.assertEqual(abordagem.lead_no_envio["hora"], 10)
+        self.assertEqual(abordagem.lead_no_envio["dia_aquecimento"], 1)
+
+    def test_editar_script_cria_nova_versao(self):
+        dados = {"nome": "Teste", "ativo": "on", "leads_por_variante": 2, "nota_minima": 0, "modo_ia": "copiloto",
+                 "categorias_escolhidas": ["sem_site"]}
+        for v in self.exp.variantes.all():
+            dados[f"{v.letra.lower()}-nome"] = ""
+            dados[f"{v.letra.lower()}-texto"] = v.texto
+        dados["a-texto"] = "Texto novo {{empresa}}"
+        self.client.post(reverse("captacao:experimento_edit", args=[self.exp.pk]), dados)
+        a = self.exp.variantes.get(letra="A")
+        b = self.exp.variantes.get(letra="B")
+        self.assertEqual(a.versao, 2)
+        self.assertEqual(a.historico[0]["versao"], 1)
+        self.assertIn("Script A", a.historico[0]["texto"])
+        self.assertEqual(b.versao, 1)
+
+    @override_settings(EVOLUTION_API_KEY="chave")
+    def test_evento_bruto_guardado(self):
+        from captacao.models import EventoWhatsApp
+
+        url = reverse("captacao:webhook", kwargs={"token": evolution.token_webhook()})
+        self.client.post(url, {"event": "presence.update", "instance": "rebel-tim", "data": {"x": 1}}, content_type="application/json")
+        evento = EventoWhatsApp.objects.get()
+        self.assertEqual(evento.payload["data"], {"x": 1})
+        self.assertEqual(evento.resultado, "ignorado")
+
+    def test_visita_ao_mockup_vira_evento(self):
+        from crm.models import VisitaMockup
+
+        self.client.logout()
+        self.lead.categoria_lead = "sem_site"
+        self.lead.save()
+        self.client.get(self.lead.mockup_path, HTTP_USER_AGENT="Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)")
+        self.client.get(self.lead.mockup_path, HTTP_USER_AGENT="WhatsApp/2.23")
+        visitas = VisitaMockup.objects.filter(cliente=self.lead)
+        self.assertEqual(visitas.count(), 1)
+        self.assertTrue(visitas.get().celular)
+
+    def test_resultado_com_valor_e_data(self):
+        abordagem = Abordagem.objects.first()
+        self.client.post(reverse("captacao:conversa_detail", args=[abordagem.pk]), {
+            "acao": "resultado", "reuniao_para": "2026-11-10T14:00", "compareceu": "true",
+            "resultado": "fechou", "produto": "site", "valor_fechado": "2500.00",
+        })
+        abordagem.refresh_from_db()
+        self.assertEqual((abordagem.resultado, abordagem.produto, str(abordagem.valor_fechado)), ("fechou", "site", "2500.00"))
+        self.assertIsNotNone(abordagem.resultado_em)
+
+    def test_classificacao_insights_e_respostas_padrao(self):
+        from captacao import analise
+        from captacao.models import RespostaPadrao
+
+        abordagem = Abordagem.objects.first()
+        for i, texto in enumerate(["Vocês têm portfólio?", "tem outros trabalhos pra eu ver?", "Já tenho site"]):
+            Mensagem.objects.create(abordagem=abordagem, direcao="entrada", autor="lead", texto=texto, whatsapp_id=f"E{i}")
+        respostas = [
+            '{"intencao": "pergunta", "temas": ["portfolio"], "pergunta": "Vocês têm outros trabalhos para mostrar?", "objecao": ""}',
+            'Claro: {"intencao": "pergunta", "temas": ["Portfólio"], "pergunta": "Vocês têm outros trabalhos para mostrar?", "objecao": ""}',
+            '{"intencao": "objecao", "temas": ["ja_tem_site"], "pergunta": "", "objecao": "Já tem site"}',
+        ]
+        with patch("captacao.analise.executar", side_effect=[SimpleNamespace(texto=r) for r in respostas]):
+            self.assertEqual(analise.classificar_pendentes(), 3)
+        dados = analise.resumo()
+        self.assertEqual(dados["perguntas"][0]["total"], 2)
+        self.assertEqual(dados["objecoes"][0]["texto"], "Já tem site")
+        self.assertIn(("portfolio", 2), dados["temas"])
+        resposta = self.client.get(reverse("captacao:insights"))
+        self.assertContains(resposta, "Vocês têm outros trabalhos para mostrar?")
+        RespostaPadrao.objects.create(pergunta="Vocês têm portfólio?", resposta="Sim, em rebelatto.tech/projetos")
+        self.assertIn("rebelatto.tech/projetos", conversao.respostas_padrao())
+
+    def test_exportacoes_csv(self):
+        abordagem = Abordagem.objects.first()
+        Mensagem.objects.create(abordagem=abordagem, direcao="entrada", autor="lead", texto="Oi; tudo bem?")
+        r1 = self.client.get(reverse("captacao:exportar_abordagens"))
+        r2 = self.client.get(reverse("captacao:exportar_mensagens"))
+        self.assertEqual(r1["Content-Type"], "text/csv; charset=utf-8")
+        self.assertIn("Clínica Aurora", r1.content.decode("utf-8-sig"))
+        self.assertIn('"Oi; tudo bem?"', r2.content.decode("utf-8-sig"))

@@ -12,6 +12,7 @@
 <nav class="erp-tabs" aria-label="Captação">
   <a class="erp-tab{% if name == 'painel' or 'experimento' in name %} is-active{% endif %}" href="{% url 'captacao:painel' %}">Funil</a>
   <a class="erp-tab{% if 'conversa' in name %} is-active{% endif %}" href="{% url 'captacao:conversa_list' %}">Conversas</a>
+  <a class="erp-tab{% if name == 'insights' or 'resposta_padrao' in name %} is-active{% endif %}" href="{% url 'captacao:insights' %}">Perguntas e objeções</a>
   <a class="erp-tab{% if 'numero' in name %} is-active{% endif %}" href="{% url 'captacao:numero_create' %}">Números</a>
 </nav>
 {% elif ns == "catalogo" %}

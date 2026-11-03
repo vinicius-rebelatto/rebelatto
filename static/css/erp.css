@@ -2548,3 +2548,49 @@
 .cap-responder .btn {
   justify-self: start;
 }
+
+.cap-msg__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+}
+
+.cap-msg__tags .erp-tag {
+  margin: 0;
+  font-size: 0.72rem;
+}
+
+.cap-barra {
+  display: grid;
+  grid-template-columns: minmax(7rem, 11rem) minmax(3rem, 1fr) 2.5rem;
+  gap: 0.6rem;
+  align-items: center;
+  font-size: 0.92rem;
+}
+
+.cap-barra__trilho {
+  display: block;
+  min-width: 3rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--erp-surface-2);
+  overflow: hidden;
+}
+
+.cap-barra__trilho i {
+  display: block;
+  height: 100%;
+  background: var(--erp-accent);
+}
+
+.cap-pergunta {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--erp-border);
+}
+
+.cap-pergunta > a {
+  font-size: 0.82rem;
+}

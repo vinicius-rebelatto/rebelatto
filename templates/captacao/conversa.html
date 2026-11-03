@@ -17,6 +17,14 @@
       <div class="cap-msg cap-msg--{{ m.direcao }}">
         <p>{{ m.texto|linebreaksbr }}</p>
         <small>{{ m.get_autor_display }} · {{ m.created_at|date:"d/m H:i" }}{% if m.status %} · {{ m.status|lower }}{% endif %}</small>
+        {% if m.classificada_em and m.intencao != 'erro' %}
+        <div class="cap-msg__tags">
+          {% for chave, rotulo in intencoes.items %}{% if chave == m.intencao %}<span class="erp-tag erp-tag--accent">{{ rotulo }}</span>{% endif %}{% endfor %}
+          {% for t in m.temas %}<span class="erp-tag">{{ t }}</span>{% endfor %}
+          {% if m.pergunta %}<span class="erp-tag">? {{ m.pergunta }}</span>{% endif %}
+          {% if m.objecao %}<span class="erp-tag erp-tag--warning">{{ m.objecao }}</span>{% endif %}
+        </div>
+        {% endif %}
       </div>
       {% empty %}
       <p class="erp-muted">{% if abordagem.envio == 'na_fila' %}Na fila. A primeira mensagem sai quando chegar a vez.{% elif abordagem.erro %}{{ abordagem.erro }}{% else %}Sem mensagens.{% endif %}</p>
@@ -72,7 +80,8 @@
         <div><dt>Lead</dt><dd>{{ abordagem.cliente.display_name }} · {{ abordagem.cliente.cidade }}</dd></div>
         <div><dt>Categoria</dt><dd>{{ abordagem.cliente.get_categoria_lead_display|default:"—" }} · nota {{ abordagem.cliente.nota }}</dd></div>
         <div><dt>Prévia</dt><dd><a href="{{ abordagem.cliente.mockup_path }}" target="_blank" rel="noopener">Abrir mockup</a> · {{ abordagem.cliente.mockup_visitas }} visita(s)</dd></div>
-        <div><dt>Enviada</dt><dd>{{ abordagem.enviada_em|date:"d/m H:i"|default:"—" }}{% if abordagem.lida_em %} · lida {{ abordagem.lida_em|date:"d/m H:i" }}{% endif %}</dd></div>
+        <div><dt>Enviada</dt><dd>{{ abordagem.enviada_em|date:"d/m H:i"|default:"—" }}{% if abordagem.lida_em %} · lida {{ abordagem.lida_em|date:"d/m H:i" }}{% endif %}{% if abordagem.versao_script %} · script v{{ abordagem.versao_script }}{% endif %}</dd></div>
+        <div><dt>Aberturas do mockup</dt><dd>{% for v in visitas %}{{ v.created_at|date:"d/m H:i" }}{% if v.celular %} (celular){% endif %}{% if not forloop.last %} · {% endif %}{% empty %}Ainda não abriu{% endfor %}</dd></div>
       </dl>
       {% if not abordagem.opt_out_em %}
       <form method="post" onsubmit="return confirm('Marcar que este lead não quer mais contato?');" class="erp-danger-zone">

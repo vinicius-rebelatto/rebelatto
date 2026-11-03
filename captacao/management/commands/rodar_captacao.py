@@ -11,7 +11,7 @@ import time
 from django.core.management.base import BaseCommand
 from django.db import close_old_connections
 
-from captacao import conversao, operacao
+from captacao import analise, conversao, operacao
 from captacao.models import NumeroWhatsApp
 from crm import buscas
 from crm.apify import ApifyError
@@ -63,6 +63,10 @@ class Command(BaseCommand):
             conversao.processar_pendentes()
         except Exception:
             logger.exception("Falha ao gerar respostas da IA")
+        try:
+            analise.classificar_pendentes()
+        except Exception:
+            logger.exception("Falha ao classificar mensagens")
         if com_buscas:
             for pk in BuscaLeads.objects.filter(status=BuscaLeads.Status.RODANDO).values_list("pk", flat=True):
                 try:

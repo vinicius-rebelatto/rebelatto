@@ -2,7 +2,7 @@ from django import forms
 from django.utils.text import slugify
 
 from . import textos
-from .models import Abordagem, Experimento, NumeroWhatsApp, Variante
+from .models import Abordagem, Experimento, NumeroWhatsApp, RespostaPadrao, Variante
 
 CATEGORIAS = [
     ("sem_site", "Sem site"),
@@ -118,7 +118,17 @@ class VarianteForm(forms.ModelForm):
 class ResultadoForm(forms.ModelForm):
     class Meta:
         model = Abordagem
-        fields = ["reuniao_para", "compareceu", "resultado", "retorno_em", "motivo_perda", "notas", "ia_pausada"]
+        fields = [
+            "reuniao_para",
+            "compareceu",
+            "resultado",
+            "produto",
+            "valor_fechado",
+            "retorno_em",
+            "motivo_perda",
+            "notas",
+            "ia_pausada",
+        ]
         widgets = {
             "reuniao_para": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
             "retorno_em": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
@@ -130,3 +140,10 @@ class ResultadoForm(forms.ModelForm):
 
 class RespostaForm(forms.Form):
     texto = forms.CharField(label="Mensagem", widget=forms.Textarea(attrs={"rows": 3}), max_length=2000)
+
+
+class RespostaPadraoForm(forms.ModelForm):
+    class Meta:
+        model = RespostaPadrao
+        fields = ["pergunta", "resposta", "ativa"]
+        widgets = {"resposta": forms.Textarea(attrs={"rows": 5})}

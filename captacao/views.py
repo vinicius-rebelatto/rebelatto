@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 import logging
 
@@ -15,9 +16,17 @@ from django.views.decorators.http import require_http_methods, require_POST
 
 from erp.views import staff_required
 
-from . import evolution, metricas, operacao, webhook
-from .forms import ExperimentoForm, NumeroConfigForm, NumeroForm, RespostaForm, ResultadoForm, VarianteForm
-from .models import Abordagem, Experimento, Mensagem, NumeroWhatsApp
+from . import analise, evolution, metricas, operacao, webhook
+from .forms import (
+    ExperimentoForm,
+    NumeroConfigForm,
+    NumeroForm,
+    RespostaForm,
+    RespostaPadraoForm,
+    ResultadoForm,
+    VarianteForm,
+)
+from .models import Abordagem, EventoWhatsApp, Experimento, Mensagem, NumeroWhatsApp, RespostaPadrao, Variante
 
 logger = logging.getLogger(__name__)
 
@@ -209,9 +218,18 @@ def experimento_form(request: HttpRequest, pk: int | None = None) -> HttpRespons
         with transaction.atomic():
             experimento = form.save()
             for letra, vform in variantes:
+                anterior = None
+                if vform.instance.pk:
+                    anterior = Variante.objects.filter(pk=vform.instance.pk).values("texto", "nome", "versao").first()
                 variante = vform.save(commit=False)
                 variante.experimento = experimento
                 variante.letra = letra
+                if anterior and anterior["texto"] != variante.texto:
+                    variante.historico = [
+                        *(variante.historico or []),
+                        {**anterior, "trocado_em": timezone.now().isoformat()},
+                    ]
+                    variante.versao = anterior["versao"] + 1
                 variante.save()
         messages.success(request, "Experimento salvo.")
         return redirect(f"{_url_painel()}?experimento={experimento.pk}")
@@ -297,6 +315,8 @@ def conversa_detail(request: HttpRequest, pk: int) -> HttpResponse:
                 abordagem = resultado_form.save(commit=False)
                 if abordagem.reuniao_para and abordagem.reuniao_marcada_em is None:
                     abordagem.reuniao_marcada_em = timezone.now()
+                if "resultado" in resultado_form.changed_data:
+                    abordagem.resultado_em = timezone.now() if abordagem.resultado else None
                 abordagem.save()
                 messages.success(request, "Resultado salvo.")
                 return redirect("captacao:conversa_detail", pk=abordagem.pk)
@@ -334,6 +354,8 @@ def conversa_detail(request: HttpRequest, pk: int) -> HttpResponse:
             "resultado_form": resultado_form,
             "resposta_form": resposta_form,
             "sugestao": sugestao,
+            "visitas": abordagem.cliente.visitas_mockup.order_by("-created_at")[:20],
+            "intencoes": analise.INTENCOES,
         },
     )
 
@@ -350,10 +372,143 @@ def webhook_evolution(request: HttpRequest, token: str) -> HttpResponse:
         payload = json.loads(request.body or b"{}")
     except ValueError:
         return JsonResponse({"ok": False, "erro": "json inválido"}, status=400)
+    evento = EventoWhatsApp.objects.create(
+        instancia=str(payload.get("instance") or "")[:60] if isinstance(payload, dict) else "",
+        evento=str(payload.get("event") or "")[:60] if isinstance(payload, dict) else "",
+        payload=payload if isinstance(payload, (dict, list)) else {},
+    )
     try:
         with transaction.atomic():
             resultado = webhook.processar(payload)
     except Exception:  # o webhook não pode derrubar a Evolution com reenvios infinitos
         logger.exception("Falha ao processar webhook da Evolution")
+        EventoWhatsApp.objects.filter(pk=evento.pk).update(resultado="erro")
         return JsonResponse({"ok": False}, status=200)
+    EventoWhatsApp.objects.filter(pk=evento.pk).update(resultado=str(resultado)[:60])
     return JsonResponse({"ok": True, "resultado": resultado})
+
+
+# --- Insights, respostas padrão e exportação -------------------------------
+
+
+@staff_required
+def insights(request: HttpRequest) -> HttpResponse:
+    experimento = None
+    qs = Mensagem.objects.all()
+    if request.GET.get("experimento"):
+        experimento = Experimento.objects.filter(pk=request.GET["experimento"]).first()
+        if experimento:
+            qs = qs.filter(abordagem__variante__experimento=experimento)
+    dados = analise.resumo(qs)
+    letras = list(dados["temas_por_script"].keys())
+    temas = [
+        {"tema": tema, "total": total, "por_script": [dados["temas_por_script"][l].get(tema, 0) for l in letras]}
+        for tema, total in dados["temas"]
+    ]
+    return render(
+        request,
+        "captacao/insights.html",
+        {
+            "page_title": "Perguntas e objeções",
+            "dados": dados,
+            "letras": letras,
+            "temas": temas,
+            "experimentos": Experimento.objects.all(),
+            "experimento": experimento,
+            "pendentes": Mensagem.objects.filter(direcao="entrada", classificada_em__isnull=True).exclude(texto="").count(),
+            "padroes": RespostaPadrao.objects.all(),
+        },
+    )
+
+
+@staff_required
+@require_http_methods(["GET", "POST"])
+def resposta_padrao_form(request: HttpRequest, pk: int | None = None) -> HttpResponse:
+    item = get_object_or_404(RespostaPadrao, pk=pk) if pk else None
+    inicial = {"pergunta": request.GET.get("pergunta", "")} if item is None else None
+    form = RespostaPadraoForm(request.POST or None, instance=item, initial=inicial)
+    if request.method == "POST":
+        if request.POST.get("excluir") and item:
+            item.delete()
+            messages.success(request, "Resposta padrão excluída.")
+            return redirect("captacao:insights")
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Resposta padrão salva. O agente já usa nas próximas conversas.")
+            return redirect("captacao:insights")
+    return render(
+        request,
+        "captacao/resposta_padrao_form.html",
+        {"page_title": "Resposta padrão", "form": form, "item": item},
+    )
+
+
+def _csv(nome: str, cabecalho: list[str], linhas) -> HttpResponse:
+    resposta = HttpResponse(content_type="text/csv; charset=utf-8")
+    resposta["Content-Disposition"] = f'attachment; filename="{nome}"'
+    resposta.write("\ufeff")
+    escritor = csv.writer(resposta, delimiter=";")
+    escritor.writerow(cabecalho)
+    for linha in linhas:
+        escritor.writerow(["" if v is None else v for v in linha])
+    return resposta
+
+
+def _data(valor):
+    return timezone.localtime(valor).strftime("%Y-%m-%d %H:%M:%S") if valor else ""
+
+
+@staff_required
+def exportar_abordagens(request: HttpRequest) -> HttpResponse:
+    cabecalho = [
+        "abordagem_id", "experimento", "script", "versao_script", "lead_id", "empresa", "cidade", "bairro",
+        "categoria_no_envio", "nota_no_envio", "nota_maps", "avaliacoes", "numero", "envio", "erro",
+        "enviada_em", "entregue_em", "lida_em", "respondeu_em", "opt_out_em", "reuniao_marcada_em",
+        "reuniao_para", "compareceu", "resultado", "resultado_em", "produto", "valor_fechado", "motivo_perda",
+        "mensagens_do_lead", "visitas_mockup", "primeira_visita_mockup", "texto_enviado", "lead_no_envio_json",
+    ]
+    qs = (
+        Abordagem.objects.select_related("variante__experimento", "cliente", "numero")
+        .annotate(recebidas=Count("mensagens", filter=Q(mensagens__direcao="entrada")))
+        .order_by("id")
+    )
+
+    def linhas():
+        for a in qs.iterator():
+            foto = a.lead_no_envio or {}
+            visitas = a.cliente.visitas_mockup.order_by("created_at")
+            primeira = visitas.first()
+            yield [
+                a.pk, a.variante.experimento.nome, a.variante.letra, a.versao_script, a.cliente_id,
+                a.cliente.display_name, a.cliente.cidade, a.cliente.bairro,
+                foto.get("categoria_lead", a.cliente.categoria_lead), foto.get("nota", a.cliente.nota),
+                foto.get("nota_maps"), foto.get("avaliacoes"), a.numero.apelido if a.numero else "",
+                a.envio, a.erro, _data(a.enviada_em), _data(a.entregue_em), _data(a.lida_em), _data(a.respondeu_em),
+                _data(a.opt_out_em), _data(a.reuniao_marcada_em), _data(a.reuniao_para),
+                "" if a.compareceu is None else ("sim" if a.compareceu else "nao"), a.resultado, _data(a.resultado_em),
+                a.produto, a.valor_fechado, a.motivo_perda, a.recebidas, visitas.count(),
+                _data(primeira.created_at) if primeira else "", a.texto_enviado,
+                json.dumps(foto, ensure_ascii=False),
+            ]
+
+    return _csv("abordagens.csv", cabecalho, linhas())
+
+
+@staff_required
+def exportar_mensagens(request: HttpRequest) -> HttpResponse:
+    cabecalho = [
+        "mensagem_id", "abordagem_id", "empresa", "script", "direcao", "autor", "quando", "texto", "tipo", "status",
+        "intencao", "temas", "pergunta", "objecao", "sugestao_ia", "sugestao_status",
+    ]
+    qs = Mensagem.objects.select_related("abordagem__cliente", "abordagem__variante").order_by("abordagem_id", "created_at", "id")
+
+    def linhas():
+        for m in qs.iterator():
+            a = m.abordagem
+            yield [
+                m.pk, m.abordagem_id, a.cliente.display_name if a else "", a.variante.letra if a else "",
+                m.direcao, m.autor, _data(m.created_at), m.texto, m.tipo, m.status, m.intencao,
+                ",".join(m.temas or []), m.pergunta, m.objecao, m.sugestao, m.sugestao_status,
+            ]
+
+    return _csv("mensagens.csv", cabecalho, linhas())

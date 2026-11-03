@@ -16,5 +16,10 @@ urlpatterns = [
     path("experimentos/<int:pk>/fila/", views.experimento_fila, name="experimento_fila"),
     path("conversas/", views.conversa_list, name="conversa_list"),
     path("conversas/<int:pk>/", views.conversa_detail, name="conversa_detail"),
+    path("perguntas/", views.insights, name="insights"),
+    path("perguntas/respostas/nova/", views.resposta_padrao_form, name="resposta_padrao_create"),
+    path("perguntas/respostas/<int:pk>/", views.resposta_padrao_form, name="resposta_padrao_edit"),
+    path("exportar/abordagens.csv", views.exportar_abordagens, name="exportar_abordagens"),
+    path("exportar/mensagens.csv", views.exportar_mensagens, name="exportar_mensagens"),
     path("webhook/<str:token>/", views.webhook_evolution, name="webhook"),
 ]

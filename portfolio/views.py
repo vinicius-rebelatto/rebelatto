@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.views.decorators.http import require_GET, require_POST
 
-from crm.models import Cliente, Mockup
+from crm.models import Cliente, Mockup, VisitaMockup
 from portfolio import chatbot as chatbot_service
 from portfolio.marca import link_rebel_tech, marca_demo, marca_do_lead
 from portfolio import conteudo_estetica
@@ -240,15 +240,22 @@ def mockup_public(request, slug, pagina=None, servico=None):
 ROBOS = re.compile(r"bot|crawl|spider|preview|facebookexternalhit|whatsapp|telegram|slack", re.I)
 
 
-def _registrar_visita(request, cliente, template_slug):
+def _registrar_visita(request, cliente, template_slug, pagina=""):
     if request.user.is_authenticated and request.user.is_staff:
         return
-    if ROBOS.search(request.META.get("HTTP_USER_AGENT", "")):
+    agente = request.META.get("HTTP_USER_AGENT", "")
+    if ROBOS.search(agente):
         return
     Cliente.objects.filter(pk=cliente.pk).update(
         mockup_visitas=F("mockup_visitas") + 1,
         mockup_visto_em=timezone.now(),
         ultimo_template=template_slug,
+    )
+    VisitaMockup.objects.create(
+        cliente=cliente,
+        template=(template_slug or "")[:40],
+        pagina=(pagina or "")[:60],
+        celular=bool(re.search(r"Mobi|Android|iPhone", agente)),
     )
 
 
@@ -280,7 +287,7 @@ def mockup_lead(request, slug, template=None, pagina=None, servico=None):
     anterior = biblioteca[posicao - 1]
     proximo = biblioteca[(posicao + 1) % len(biblioteca)]
 
-    _registrar_visita(request, cliente, escolhido["slug"])
+    _registrar_visita(request, cliente, escolhido["slug"], pagina or servico or "")
     marca = marca_do_lead(cliente, escolhido)
     contexto = _contexto_mockup(
         escolhido,

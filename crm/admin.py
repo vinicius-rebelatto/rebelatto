@@ -43,3 +43,12 @@ class BuscaLeadsAdmin(admin.ModelAdmin):
     list_filter = ("status",)
     search_fields = ("nome", "termos", "local")
     readonly_fields = ("created_at", "updated_at", "run_id", "dataset_id")
+
+
+from .models import VisitaMockup  # noqa: E402
+
+
+@admin.register(VisitaMockup)
+class VisitaMockupAdmin(admin.ModelAdmin):
+    list_display = ("cliente", "template", "pagina", "celular", "created_at")
+    raw_id_fields = ("cliente",)

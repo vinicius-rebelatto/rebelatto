@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Abordagem, Experimento, Mensagem, NumeroWhatsApp, OptOut, Variante
+from .models import Abordagem, EventoWhatsApp, Experimento, Mensagem, NumeroWhatsApp, OptOut, RespostaPadrao, Variante
 
 
 class VarianteInline(admin.StackedInline):
@@ -38,3 +38,14 @@ class MensagemAdmin(admin.ModelAdmin):
 @admin.register(OptOut)
 class OptOutAdmin(admin.ModelAdmin):
     list_display = ("telefone", "motivo", "created_at")
+
+
+@admin.register(EventoWhatsApp)
+class EventoWhatsAppAdmin(admin.ModelAdmin):
+    list_display = ("evento", "instancia", "resultado", "created_at")
+    list_filter = ("evento", "resultado")
+
+
+@admin.register(RespostaPadrao)
+class RespostaPadraoAdmin(admin.ModelAdmin):
+    list_display = ("pergunta", "ativa", "updated_at")

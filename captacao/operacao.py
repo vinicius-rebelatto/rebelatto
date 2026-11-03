@@ -200,6 +200,9 @@ def disparar(numero: NumeroWhatsApp, agora: datetime | None = None) -> Abordagem
         texto = textos.montar(abordagem.variante.texto, abordagem.cliente, semente=abordagem.pk)
         abordagem.numero = numero
         abordagem.texto_enviado = texto
+        abordagem.versao_script = abordagem.variante.versao
+        abordagem.texto_script = abordagem.variante.texto
+        abordagem.lead_no_envio = foto_do_lead(abordagem.cliente, numero, agora)
         try:
             resposta = evolution.enviar_texto(
                 numero.instancia,
@@ -232,6 +235,33 @@ def disparar(numero: NumeroWhatsApp, agora: datetime | None = None) -> Abordagem
         numero.proximo_envio_em = agora + proximo_intervalo(numero, estado.enviados_hoje + 1)
         numero.save(update_fields=["ultimo_envio_em", "ultimo_erro", "proximo_envio_em", "updated_at"])
         return abordagem
+
+
+def foto_do_lead(cliente: Cliente, numero: NumeroWhatsApp, agora: datetime) -> dict:
+    """Como o lead e o número estavam no momento do envio, para análise depois."""
+    local = timezone.localtime(agora)
+    return {
+        "categoria_lead": cliente.categoria_lead,
+        "nota": cliente.nota,
+        "motivo_nota": cliente.motivo_nota,
+        "presenca": cliente.presenca,
+        "presenca_detalhe": cliente.presenca_detalhe,
+        "nota_maps": str(cliente.nota_maps) if cliente.nota_maps is not None else None,
+        "avaliacoes": cliente.avaliacoes,
+        "imagens": cliente.imagens,
+        "nao_reivindicado": cliente.nao_reivindicado,
+        "tem_agendamento": bool(cliente.link_agendamento),
+        "tem_instagram": bool(cliente.instagram),
+        "categoria_maps": cliente.categoria,
+        "cidade": cliente.cidade,
+        "bairro": cliente.bairro,
+        "estado": cliente.estado,
+        "busca_id": cliente.busca_id,
+        "mockup_visitas_antes": cliente.mockup_visitas,
+        "dia_aquecimento": numero.dia_em(local.date()),
+        "dia_semana": local.weekday(),
+        "hora": local.hour,
+    }
 
 
 def enviar_resposta(abordagem: Abordagem, texto: str, autor: str = Mensagem.Autor.VOCE) -> Mensagem:

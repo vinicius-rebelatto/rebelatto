@@ -510,3 +510,21 @@ class MockupImagem(models.Model):
 
     def __str__(self) -> str:
         return self.legenda or f"Imagem #{self.pk}"
+
+
+class VisitaMockup(models.Model):
+    """Uma abertura da prévia do site pelo lead (robôs e equipe ficam de fora)."""
+
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name="visitas_mockup")
+    template = models.CharField("Template", max_length=40, blank=True)
+    pagina = models.CharField("Página", max_length=60, blank=True)
+    celular = models.BooleanField("Pelo celular", default=False)
+    created_at = models.DateTimeField("Quando", auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Visita ao mockup"
+        verbose_name_plural = "Visitas ao mockup"
+
+    def __str__(self) -> str:
+        return f"{self.cliente} · {self.created_at:%d/%m %H:%M}"
